@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap');
+@font-face {
+    font-family: 'schnyder_wide_xl_weblight';
+    src: url('schnyderwide-xllight-web-webfont.woff2') format('woff2'),
+         url('schnyderwide-xllight-web-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'schnyder_wide_xl_webdemi';
+    src: url('schnyderwide-xldemi-web-webfont.woff2') format('woff2'),
+         url('schnyderwide-xldemi-web-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'schnyder_xl_weblight';
+    src: url('schnyder-xllight-webfont.woff2') format('woff2'),
+         url('schnyder-xllight-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'schnyder_xl_webdemi';
+    src: url('schnyder-xldemi-webfont.woff2') format('woff2'),
+         url('schnyder-xldemi-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'brandon_grotesquemedium';
+    src: url('hvd_fonts_-_brandongrotesque-medium-webfont.woff2') format('woff2'),
+         url('hvd_fonts_-_brandongrotesque-medium-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'brandon_grotesquelight_italic';
+    src: url('hvd_fonts_-_brandongrotesque-lightitalic-webfont.woff2') format('woff2'),
+         url('hvd_fonts_-_brandongrotesque-lightitalic-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'brandon_grotesqueregular';
+    src: url('brandongrotesque-regular-webfont.woff2') format('woff2'),
+         url('brandongrotesque-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'brandon_grotesquelight';
+    src: url('brandongrotesque-light-webfont.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+.lato-thin, .lato-thin p {
+  font-family: "Lato", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.lato-light, .lato-light p {
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.lato-regular, .lato-regular p {
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.lato-bold, .lato-bold p {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.lato-black, .lato-black p {
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.lato-thin-italic, .lato-thin-italic p {
+  font-family: "Lato", sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.lato-light-italic, .lato-light-italic p {
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.lato-regular-italic, .lato-regular-italic p {
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.lato-bold-italic, .lato-bold-italic p {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.lato-black-italic, .lato-black-italic p {
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.font-custom{
+    font-family: 'schnyder_wide_xl_weblight';
+}
+.font-schnyder_xl_webdemi{
+    font-family: 'schnyder_xl_webdemi';
+}
+.font-brandongrotesque{
+    font-family: 'brandon_grotesqueregular';
+}
+.font-brandongrotesque-light,
+.font-brandongrotesque-light p{
+    font-family: 'brandon_grotesquelight';
+}
+
+.font-brandon_grotesquemedium{
+    font-family: 'brandon_grotesquemedium';
+}
+.font-brandon_grotesquelight_italic{
+    font-family: 'brandon_grotesquelight_italic';
+}
+.font-schnyder_wide_xl_webdemi{
+    font-family: 'schnyder_wide_xl_webdemi';
+}
+.contentElementor.font-brandongrotesque-light p{
+    font-family: 'brandon_grotesquelight';
+}
+.contentElementor h1{
+    font-family: 'schnyder_xl_webdemi' !important;
+}
+.contentElementor h2{
+    font-family: 'schnyder_xl_webdemi' !important;
+}
+.contentElementor p{
+    font-family: "Lato", Sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 32px;
+    text-align: justify;
+    font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+    text-rendering: optimizeLegibility !important;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased !important;
+}
+@media only screen and (min-width: 1224px) {
+    .contentElementor #sticky1 {
+        padding-top: 3rem;
+        float: left;
+        position: fixed;
+        padding-right: 30px;
+        top: 0;
+        z-index: 10;
+        width: 47vw;
+    }
+}
+
+.contentElementor h1{}
