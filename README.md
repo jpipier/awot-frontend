@@ -24,10 +24,3 @@ export default defineNuxtConfig({
         }
     }
 })
-
-```
-
-
-## Headless WordPress Hosting with Atlas
-
-WP Engine's Atlas platform provides a performant and user-friendly hosting platform for headless WordPress and Node-based JavaScript apps. [Create a free sandbox account](https://wpengine.com/atlas/) to try the platform, and check out our Astro deployment guide for instruction to deploy to the platform.
