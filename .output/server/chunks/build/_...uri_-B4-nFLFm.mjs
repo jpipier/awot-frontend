@@ -1,4 +1,4 @@
-import { _ as __nuxt_component_0, a as __nuxt_component_1 } from './footer-DY8a6V_-.mjs';
+import { _ as __nuxt_component_0, a as __nuxt_component_1 } from './footer-GDMYG6Rr.mjs';
 import { withAsyncContext, unref, useSSRContext, ref, computed, mergeProps } from 'vue';
 import { ssrRenderComponent, ssrInterpolate, ssrRenderAttr, ssrRenderAttrs, ssrRenderList, ssrRenderClass } from 'vue/server-renderer';
 import { useRoute } from 'vue-router';
@@ -23,7 +23,7 @@ import 'pinia';
 
 const staticText = "D\xE9couvrez d\u2019autres ";
 const _sfc_main$1 = {
-  __name: "postfooter",
+  __name: "PostFooter",
   __ssrInlineRender: true,
   async setup(__props) {
     let __temp, __restore;
@@ -96,7 +96,7 @@ const _sfc_main$1 = {
 const _sfc_setup$1 = _sfc_main$1.setup;
 _sfc_main$1.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/footer/postfooter.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/footer/PostFooter.vue");
   return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : undefined;
 };
 const _sfc_main = {
@@ -169,4 +169,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=_...uri_-B_KD29tf.mjs.map
+//# sourceMappingURL=_...uri_-B4-nFLFm.mjs.map

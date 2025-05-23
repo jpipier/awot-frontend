@@ -1,4 +1,4 @@
-import{_ as s}from"./DlAUqK2U.js";import{c as a,a as r,t as l,o as i}from"./DdjqtweH.js";const c={data(){return{page:null}},async asyncData({app:t,params:n}){const{data:o}=await t.apolloProvider.defaultClient.query({query:gql`
+import{_ as s}from"./DlAUqK2U.js";import{c as a,a as r,t as l,o as i}from"./CHXpqOc1.js";const c={data(){return{page:null}},async asyncData({app:t,params:n}){const{data:o}=await t.apolloProvider.defaultClient.query({query:gql`
           query GetPageWithElementorContent($id: ID!) {
             page(id: $id, idType: URI) {
               id

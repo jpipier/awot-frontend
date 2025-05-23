@@ -37,7 +37,8 @@
 import { ref, onMounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { useRuntimeConfig, useFetch, useRouter } from '#imports'
-import { debounce } from 'lodash'
+import _ from 'lodash'
+const { debounce } = _
 import { Pagination, Navigation, Autoplay } from 'swiper/modules'
 import { useSiteSettings } from '~/stores/siteSettings'
 

@@ -624,7 +624,7 @@ const _routes = [
   {
     name: "articles-uri",
     path: "/articles/:uri(.*)*",
-    component: () => import('./_...uri_-B_KD29tf.mjs')
+    component: () => import('./_...uri_-B4-nFLFm.mjs')
   },
   {
     name: "categories-slug",
@@ -634,7 +634,7 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-CgdAIPaj.mjs')
+    component: () => import('./index-BCEUbJVJ.mjs')
   }
 ];
 const _wrapIf = (component, props, slots) => {

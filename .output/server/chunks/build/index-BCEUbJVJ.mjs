@@ -1,11 +1,11 @@
-import { u as useFetch, _ as __nuxt_component_0$1, a as __nuxt_component_1, S as Swiper$1, b as useSiteSettings, m as makeElementsArray, d as defaults, e as elementOuterSize, c as elementIndex, f as elementParents, g as elementChildren, h as createElement, i as getSlideTransformEl, j as elementTransitionEnd } from './footer-DY8a6V_-.mjs';
+import { u as useFetch, _ as __nuxt_component_0$1, a as __nuxt_component_1, S as Swiper$1, b as useSiteSettings, m as makeElementsArray, d as defaults, e as elementOuterSize, c as elementIndex, f as elementParents, g as elementChildren, h as createElement, i as getSlideTransformEl, j as elementTransitionEnd } from './footer-GDMYG6Rr.mjs';
 import { defineComponent, createElementBlock, ref, provide, withAsyncContext, unref, createVNode, resolveDynamicComponent, mergeProps, useSSRContext, watchEffect, withCtx, toDisplayString, openBlock, createBlock, Fragment, renderList, createTextVNode, watch, nextTick, h, computed } from 'vue';
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderList, ssrRenderVNode, ssrInterpolate, ssrRenderAttr, ssrRenderClass, ssrRenderStyle } from 'vue/server-renderer';
 import { _ as _export_sfc } from './_plugin-vue_export-helper-1tPrXgE0.mjs';
 import { _ as __nuxt_component_0$2 } from './nuxt-link-gThAqNr3.mjs';
 import { a as useRuntimeConfig, c as useRouter } from './server.mjs';
-import { decode } from 'he';
-import { debounce } from 'lodash';
+import he from 'he';
+import _ from 'lodash';
 import '../routes/renderer.mjs';
 import 'vue-bundle-renderer/runtime';
 import '../nitro/nitro.mjs';
@@ -1833,6 +1833,7 @@ const _sfc_main$5 = {
   },
   async setup(__props) {
     let __temp, __restore;
+    const { decode } = he;
     const config = useRuntimeConfig();
     const props = __props;
     const posts = ref([]);
@@ -1947,7 +1948,7 @@ const _sfc_main$5 = {
           },
           onSlideChange
         }, {
-          default: withCtx((_, _push2, _parent2, _scopeId) => {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
             if (_push2) {
               _push2(`<!--[-->`);
               ssrRenderList(posts.value, (post, index) => {
@@ -1955,7 +1956,7 @@ const _sfc_main$5 = {
                   key: post.id,
                   class: "carousel-item"
                 }, {
-                  default: withCtx((_2, _push3, _parent3, _scopeId2) => {
+                  default: withCtx((_22, _push3, _parent3, _scopeId2) => {
                     if (_push3) {
                       _push3(`<div class="slide-content group relative"${_scopeId2}>`);
                       _push3(ssrRenderComponent(_component_NuxtLink, {
@@ -2210,7 +2211,7 @@ const _sfc_main$4 = {
           },
           onSlideChange
         }, {
-          default: withCtx((_, _push2, _parent2, _scopeId) => {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
             if (_push2) {
               _push2(`<!--[-->`);
               ssrRenderList(posts.value, (post, index) => {
@@ -2218,7 +2219,7 @@ const _sfc_main$4 = {
                   key: post.id,
                   class: "carousel-item"
                 }, {
-                  default: withCtx((_2, _push3, _parent3, _scopeId2) => {
+                  default: withCtx((_22, _push3, _parent3, _scopeId2) => {
                     if (_push3) {
                       _push3(`<div class="slide-content group relative"${_scopeId2}>`);
                       _push3(ssrRenderComponent(_component_NuxtLink, {
@@ -2464,7 +2465,7 @@ const _sfc_main$3 = {
           },
           onSlideChange
         }, {
-          default: withCtx((_, _push2, _parent2, _scopeId) => {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
             if (_push2) {
               _push2(`<!--[-->`);
               ssrRenderList(posts.value, (post, index) => {
@@ -2472,7 +2473,7 @@ const _sfc_main$3 = {
                   key: post.id,
                   class: "carousel-item transition-shadow duration-300"
                 }, {
-                  default: withCtx((_2, _push3, _parent3, _scopeId2) => {
+                  default: withCtx((_22, _push3, _parent3, _scopeId2) => {
                     if (_push3) {
                       _push3(`<div class="relative" data-v-c969a4b5${_scopeId2}>`);
                       _push3(ssrRenderComponent(_component_NuxtLink, {
@@ -2575,7 +2576,7 @@ const _sfc_main$3 = {
           to: __props.lien.url,
           class: "px-4 py-2 text-white text-sm uppercase font-montserrat rounded-md transform rotate-0 lg:-rotate-90"
         }, {
-          default: withCtx((_, _push2, _parent2, _scopeId) => {
+          default: withCtx((_2, _push2, _parent2, _scopeId) => {
             if (_push2) {
               _push2(`${ssrInterpolate(__props.lien.title)}`);
             } else {
@@ -2610,7 +2611,7 @@ const __nuxt_component_0 = defineComponent({
   name: "ClientOnly",
   inheritAttrs: false,
   props: ["fallback", "placeholder", "placeholderTag", "fallbackTag"],
-  setup(_, { slots, attrs }) {
+  setup(_2, { slots, attrs }) {
     const mounted = ref(false);
     provide(clientOnlySymbol, true);
     return (props) => {
@@ -2636,6 +2637,7 @@ const _sfc_main$2 = {
     slider: Array
   },
   setup(__props) {
+    const { debounce } = _;
     const config = useRuntimeConfig();
     useRouter();
     const searchQuery = ref("");
@@ -2819,7 +2821,7 @@ const _sfc_main$1 = {
         onSlideChange,
         class: "portrait-slider mx-4"
       }, {
-        default: withCtx((_, _push2, _parent2, _scopeId) => {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
           if (_push2) {
             _push2(`<!--[-->`);
             ssrRenderList(posts.value, (post, index) => {
@@ -2827,12 +2829,12 @@ const _sfc_main$1 = {
                 key: index,
                 class: "relative p-4"
               }, {
-                default: withCtx((_2, _push3, _parent3, _scopeId2) => {
+                default: withCtx((_3, _push3, _parent3, _scopeId2) => {
                   if (_push3) {
                     _push3(ssrRenderComponent(_component_nuxtLink, {
                       to: "articles/" + post.slug || "#"
                     }, {
-                      default: withCtx((_3, _push4, _parent4, _scopeId3) => {
+                      default: withCtx((_4, _push4, _parent4, _scopeId3) => {
                         var _a2, _b, _c, _d;
                         if (_push4) {
                           _push4(`<img${ssrRenderAttr("src", ((_b = (_a2 = post.optionsArticles.imagePaysage) == null ? undefined : _a2.node) == null ? undefined : _b.guid) || "")} alt="Image slide" class="h-[21rem] w-full object-cover border border-white"${_scopeId3}>`);
@@ -2857,7 +2859,7 @@ const _sfc_main$1 = {
                     _push3(ssrRenderComponent(_component_nuxtLink, {
                       to: "articles/" + post.slug || "#"
                     }, {
-                      default: withCtx((_3, _push4, _parent4, _scopeId3) => {
+                      default: withCtx((_4, _push4, _parent4, _scopeId3) => {
                         var _a2, _b;
                         if (_push4) {
                           _push4(`<p class="text-sm lato-light"${_scopeId3}>${ssrInterpolate(((_a2 = post.categories.edges[0]) == null ? undefined : _a2.node.name) || "")}</p><h3 class="font-bold font-custom"${_scopeId3}>${ssrInterpolate(post.title)}</h3>`);
@@ -3175,4 +3177,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=index-CgdAIPaj.mjs.map
+//# sourceMappingURL=index-BCEUbJVJ.mjs.map

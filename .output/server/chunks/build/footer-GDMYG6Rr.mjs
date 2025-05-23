@@ -4,7 +4,7 @@ import { computed, toValue, reactive, useSSRContext, ref, watch, withAsyncContex
 import { _ as __nuxt_component_0$1 } from './nuxt-link-gThAqNr3.mjs';
 import { f as fetchDefaults, a as useRuntimeConfig, d as useNuxtApp, c as useRouter } from './server.mjs';
 import { u as useAsyncData } from './asyncData-COfFyXNC.mjs';
-import { debounce } from 'lodash';
+import _ from 'lodash';
 import { _ as _export_sfc } from './_plugin-vue_export-helper-1tPrXgE0.mjs';
 import { defineStore } from 'pinia';
 import { x as hash } from '../nitro/nitro.mjs';
@@ -147,7 +147,7 @@ const _sfc_main$5 = {
             to: item.path,
             class: "text-[50pt]"
           }, {
-            default: withCtx((_, _push2, _parent2, _scopeId) => {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
               if (_push2) {
                 _push2(`${ssrInterpolate(item.label)}`);
               } else {
@@ -1149,7 +1149,7 @@ function updateSlides() {
   if (snapGrid.length === 0) snapGrid = [0];
   if (spaceBetween !== 0) {
     const key = swiper.isHorizontal() && rtl ? "marginLeft" : swiper.getDirectionLabel("marginRight");
-    slides.filter((_, slideIndex) => {
+    slides.filter((_2, slideIndex) => {
       if (!params.cssMode || params.loop) return true;
       if (slideIndex === slides.length - 1) {
         return false;
@@ -1487,7 +1487,7 @@ const preload = (swiper) => {
     const preloadColumns = [activeColumn - amount];
     preloadColumns.push(...Array.from({
       length: amount
-    }).map((_, i) => {
+    }).map((_2, i) => {
       return activeColumn + slidesPerView + i;
     }));
     swiper.slides.forEach((slideEl, i) => {
@@ -4320,13 +4320,14 @@ const useSiteSettings = defineStore("siteSettings", {
   }
 });
 const _sfc_main$4 = {
-  __name: "search",
+  __name: "Search",
   __ssrInlineRender: true,
   props: {
     titreDeLaSection: String,
     slider: Array
   },
   setup(__props) {
+    const { debounce } = _;
     const config = useRuntimeConfig();
     useRouter();
     const searchQuery = ref("");
@@ -4403,7 +4404,7 @@ const _sfc_main$4 = {
 const _sfc_setup$4 = _sfc_main$4.setup;
 _sfc_main$4.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
-  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/search.vue");
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/Search.vue");
   return _sfc_setup$4 ? _sfc_setup$4(props, ctx) : undefined;
 };
 const _sfc_main$3 = {
@@ -4501,7 +4502,7 @@ const _sfc_main$2 = {
           _push(ssrRenderComponent(_component_NuxtLink, {
             to: item.path
           }, {
-            default: withCtx((_, _push2, _parent2, _scopeId) => {
+            default: withCtx((_2, _push2, _parent2, _scopeId) => {
               if (_push2) {
                 _push2(`${ssrInterpolate(item.label)}`);
               } else {
@@ -4588,4 +4589,4 @@ _sfc_main.setup = (props, ctx) => {
 const __nuxt_component_1 = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-4c4abf2f"]]);
 
 export { Swiper as S, __nuxt_component_0 as _, __nuxt_component_1 as a, useSiteSettings as b, elementIndex as c, defaults as d, elementOuterSize as e, elementParents as f, elementChildren as g, createElement as h, getSlideTransformEl as i, elementTransitionEnd as j, makeElementsArray as m, useFetch as u };
-//# sourceMappingURL=footer-DY8a6V_-.mjs.map
+//# sourceMappingURL=footer-GDMYG6Rr.mjs.map
