@@ -16,9 +16,9 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: 109.234.167.10
+          username: piju9724
+          key: github-deploy
           port: 22
           script: |
             cd /home/piju9724/awot.theshed.fr/app/frontend/awot-frontend
