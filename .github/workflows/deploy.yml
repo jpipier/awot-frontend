@@ -18,7 +18,7 @@ jobs:
         with:
           host: 109.234.167.10
           username: piju9724
-          key: github-deploy
+          key: ~/.ssh/github-deploy
           port: 22
           script: |
             cd /home/piju9724/awot.theshed.fr/app/frontend/awot-frontend
