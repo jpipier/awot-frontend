@@ -64,7 +64,8 @@
 import { ref, watchEffect } from 'vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { useFetch } from '#app';
-import { decode } from 'he'
+import he from 'he';
+const { decode } = he;
 
 const config = useRuntimeConfig();
 

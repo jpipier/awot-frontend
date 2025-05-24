@@ -22,10 +22,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
       public: {
-          wordpressUrl: 'http://backend.awot.local/wp/graphql',
-          wordpressApi: 'http://backend.awot.local/wp-json'          
-          // wordpressUrl: 'https://awot.theshed.fr/wp/graphql',
-          // wordpressApi: 'https://awot.theshed.fr/wp-json'
+          //wordpressUrl: 'http://backend.awot.local/wp/graphql',
+          //wordpressApi: 'http://backend.awot.local/wp-json'          
+          wordpressUrl: 'https://awot.theshed.fr/wp/graphql',
+          wordpressApi: 'https://awot.theshed.fr/wp-json'
+          wordpressUrl: process.env.WORDPRESS_URL,
+          wordpressApi: process.env.WORDPRESS_API,
       }
   },
   compatibilityDate: '2025-01-06',
