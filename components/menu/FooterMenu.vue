@@ -31,11 +31,11 @@ if (error.value) {
 </script>
 
 <template>
-  <ul v-if="menuData?.value?.length">
+  <ul v-if="menuData">
     <li
-      v-for="item in menuData.value"
+      v-for="item in menuData"
       :key="item.id"
-      class="hover:underline transition"
+      class="hover:underline transition lato-light"
     >
       <NuxtLink :to="item.path">{{ item.label }}</NuxtLink>
     </li>

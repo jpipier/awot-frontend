@@ -6,14 +6,13 @@
         </div>
   
         <div class="flex flex-col items-center text-center my-5">
-          <h2 class="text-5xl font-custom pt-20">{{ settingsStore.siteTitle }}</h2>
-          <p class="text-sm tracking-wide mt-2 uppercase font-montserrat">
+          <h2 class="text-[60pt] font-custom pt-20">{{ settingsStore.siteTitle }}</h2>
+          <p class="text-[8pt] mt-2 uppercase lato-light">
             {{ settingsStore.siteDescription }}
           </p>
         </div>
   
         <div class="relative flex flex-col items-center lg:items-end text-right space-y-3 h-full">
-          <!-- Image "Nous" avec un top négatif et masque bas -->
           <div class="relative w-44 lg:w-56 h-48">
             <img class="absolute left-0 w-full z-10 clip-bottom" :src="image30" alt="Nous">
           </div>
