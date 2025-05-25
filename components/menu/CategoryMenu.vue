@@ -1,23 +1,43 @@
 <template>
-  <div v-if="allPosts.length" class="mb-10 pb-2 w-1/2 mx-auto px-20 text-nowrap category-list">
-    <ul class="flex flex-wrap align-left justify-left">
-        <li v-for="child in allPosts" :key="child.slug" class="flex-nowrap">
+  <div v-if="allPosts.length" class="mb-0 md:mb-10 pb-2 w-full md:w-1/2 mx-auto px-20 text-nowrap category-list">
+    <!-- Desktop / Tablet: horizontal list -->
+    <ul class="hidden lg:flex flex-wrap gap-3 justify-start category-list">
+      <li v-for="child in allPosts" :key="child.slug">
         <NuxtLink
-            :to="'/categories/' + child.slug"
-            class="lato-light text-xs uppercase"
+          :to="`/categories/${child.slug}`"
+          class="lato-light text-xs uppercase"
         >
-            {{ child.name }}
+          {{ child.name }}
         </NuxtLink>
-        </li>
-        <li v-if="categorie === 'Voyages'">
+      </li>
+      <li v-if="categorie === 'Voyages'">
         <NuxtLink
-            to="/categories/voyages" 
-            class="lato-light text-xs uppercase"
+          to="/categories/voyages" 
+          class="lato-light text-xs uppercase"
         >
-            Toutes les destinations
+          Toutes les destinations
         </NuxtLink>
-        </li>
+      </li>
     </ul>
+    <div class="lg:hidden">
+      <select
+        v-model="selectedSlug"
+        @change="onSelectChange"
+        class="w-full border border-gray-300 rounded p-2 text-xs uppercase"
+      >
+        <option disabled value="">Choisissez une catégorie</option>
+        <option
+          v-for="child in allPosts"
+          :key="child.slug"
+          :value="child.slug"
+        >
+          {{ child.name }}
+        </option>
+        <option select v-if="categorie === 'Voyages'" value="voyages">
+          Toutes les destinations
+        </option>
+      </select>
+    </div>
   </div>
 </template>
 
@@ -86,6 +106,14 @@ const props = defineProps({
     });
     if (sentinel.value) observer.observe(sentinel.value);
   });
+const router = useRouter();
+const selectedSlug = ref(props.categorie === 'Voyages' ? 'voyages' : '');
+
+function onSelectChange() {
+  if (selectedSlug.value) {
+    router.push(`/categories/${selectedSlug.value}`);
+  }
+}
 </script>
 
 <style scoped>

@@ -6,7 +6,7 @@
         </div>
   
         <div class="flex flex-col items-center text-center my-5">
-          <h2 class="text-[60pt] font-custom pt-20">{{ settingsStore.siteTitle }}</h2>
+          <h2 class="text-[40pt] lg:text-[60pt] font-custom pt-10 lg:pt-20">{{ settingsStore.siteTitle }}</h2>
           <p class="text-[8pt] mt-2 uppercase lato-light">
             {{ settingsStore.siteDescription }}
           </p>

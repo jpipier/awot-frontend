@@ -1,15 +1,15 @@
 <template>
     <div
       ref="blocPortrait"
-      class="h-screen sm:flex sm:flex-col lg:block  align-center py-20 relative mb-40 md:mb-0 lg:my-20 transition-colors duration-500 bloc-portrait overflow-hidden"
+      class="lg:h-screen sm:flex sm:flex-row lg:block align-center pt-0 pb-20 lg:py-20 relative mb-40 md:mb-0 lg:my-20 transition-colors duration-500 bloc-portrait overflow-hidden"
       :class="{ 'bg-black': isVisible, 'bg-white': !isVisible }"
     >
       <div 
-        class="sm:relative lg:absolute top-[6vw] sm:right-[10.5vw] lg:right-[0.5vw] w-50 md:w-full lg:w-1/2 flex flex-col lg:pl-6 lg:pr-24"
+        class="sm:relative lg:absolute top-[6vw] sm:right-[0vw] right-[0.5vw] lg:right-[10.5vw] w-50 md:w-full lg:w-1/2 flex flex-col lg:pl-6 lg:pr-24"
         :class="{ 'text-white': isVisible, 'text-black': !isVisible }"
       >
       <h2 class="px-12 md:px-0 mb-12 lg:pr-24 text-[4rem] lg:text-[5rem] font-schnyder_wide_xl_webdemi">{{ titreDeLaSection }}</h2>
-      <div class="mb-6 mt-[-2rem] pr-12 lg:pr-48 mt-4 pr-0 lg:pr-[12vw] 3xl:pr-[10rem] text-sm lato-light" v-html="contenu"></div>
+      <div class="mb-6 mt-[-2rem] px-12 pr-12 lg:pr-48 mt-4 pr-0 lg:pl-0 lg:pr-[12vw] 3xl:pr-[10rem] text-sm lato-light" v-html="contenu"></div>
     </div>
 
     <swiper
@@ -19,6 +19,11 @@
       :navigation="{
         nextEl: '.swiper-button-next-portrait',
         prevEl: '.swiper-button-prev-portrait'
+      }"
+      :breakpoints="{
+        640: { slidesPerView: 1.5 },
+        768: { slidesPerView: 2 },
+        1024: { slidesPerView: 2.9 }
       }"
       @slideChange="onSlideChange"
       class="portrait-slider mx-4 "
@@ -34,7 +39,7 @@
           <img
             :src="post.optionsArticles.imagePaysage?.node?.guid || ''"
             alt="Image slide"
-            class="h-[21rem] w-full object-cover border border-white"
+            class="lg:h-[21rem] w-full object-cover border border-white"
           />
         </nuxtLink>
         <!-- Text Content -->
@@ -173,39 +178,64 @@ onUnmounted(() => {
 
 
 <style>
-  .portrait-slider .swiper-slide{
-    padding-top: 150px;
+  @screen sm{
+    .portrait-slider .swiper-wrapper{
+      align-items: start;
+    }
   }
-  .portrait-slider .swiper-slide{
-    height: 500px;
-    transition: height 0.5s ease;
-    transition: padding 0.5s ease;
+  @screen md {
+    .portrait-slider .swiper-wrapper {
+      align-items: flex-end;
+    }
   }
-  .portrait-slider .swiper-slide-active {
-    padding-top: 0;
-    height: 650px;
-    padding-left: 3rem;
-    width: 50vw !important;
+  @screen lg {
+    .portrait-slider .swiper-slide{
+      padding-top: 150px;
+    }
+    .portrait-slider .swiper-slide{
+      height: 500px;
+      transition: height 0.5s ease;
+      transition: padding 0.5s ease;
+    }
+    .portrait-slider .swiper-slide {
+      display: block !important;
+    }
+    .portrait-slider .swiper-slide-active {
+      padding-top: 0;
+      height: 650px;
+      padding-left: 3rem;
+      width: 50vw !important;
+    }
+    .swiper-slide-prev  .swiper-slid,
+    .swiper-slide-next  .swiper-slid {
+      width: calc((100vw - 30vw ) / 2) !important; /* 40px = 2 * spaceBetween */
+    }
+    .portrait-slider .swiper-slide-active img {
+      height: 100%;
+    }
+    .bloc-portrait .swiper-slide-next{
+      margin-right: 0 !important;
+    }
+    .swiper-button-next-portrait,
+    .swiper-button-prev-portrait {
+      display: flex;
+    }
   }
-
-
-  .swiper-slide-prev  .swiper-slid,
-  .swiper-slide-next  .swiper-slid {
-    width: calc((100vw - 30vw ) / 2) !important; /* 40px = 2 * spaceBetween */
+  .swiper-button-next-portrait, .swiper-button-prev-portrait{
+    display: none;
   }
-   .portrait-slider .swiper-slide-active img {
-    height: 100%;
+  .portrait-slider .swiper-slide {
+    width: 40vw !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
   .portrait-slider .swiper-wrapper {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    align-items: flex-end;
     align-content: flex-end;
     padding-bottom: 4rem;
-  }
-  .bloc-portrait .swiper-slide-next{
-    margin-right: 0 !important;
   }
   .swiper-button-next-portrait,
   .swiper-button-prev-portrait {
@@ -214,7 +244,6 @@ onUnmounted(() => {
     width: 40px;
     height: 40px;
     color: #000;
-    display: flex;
     align-items: center;
     justify-content: center;
     top:var(--swiper-navigation-top-offset, 66%);

@@ -1,7 +1,7 @@
 <template>
   <div class="my-20 max-w-screen-full mx-auto">
-    <div class="flex items-end">
-      <h2 class="md:text-[110pt] pl-[5rem] lg:pl-[15rem] text-center lg:text-left font-custom text-[200pt] ">
+    <div class="flex items-center md:items-end flex-col md:flex-row">
+      <h2 class="text-[60pt] md:text-[110pt] pl-0 lg:pl-[15rem] text-center lg:text-left font-custom text-[200pt] ">
         {{ titreDeLaSection }}
       </h2>
       <CategoryMenu slug="{{ categorie.nodes[0].slug }}" @select="onSubcategorySelect" />

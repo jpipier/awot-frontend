@@ -9,7 +9,7 @@
       }">
       <div 
         :class="{
-          'w-1/2 lg:w-2/5 px-4 md:px-10 lg:px-[10rem] text-left lg:mb-10': props.postParPage > 2,
+          'w-1/2 lg:w-2/5 px-4 px-[4rem] md:px-[8rem] lg:px-[10rem] text-left lg:mb-10': props.postParPage > 2,
           'w-1/2 lg:w-3/5 px-4 md:px-10 lg:px-[10rem] text-left ': props.postParPage <= 2
         }"
         class="mb-10 lg:mb-0 lg:text-left"
@@ -23,9 +23,9 @@
           }"
           >{{ titreDeLaSection }}</h2>
         <div 
-          class="mt-4 pr-0  text-sm lato-light" 
+          class="mt-4 pr-0 text-sm lato-light" 
           :class="{
-            'lg:pr-[4rem] 3xl:pr-[10rem]': props.postParPage > 2,
+            'pr-[0rem] lg:pr-[0rem] xl:pr-[4rem] 3xl:pr-[10rem]': props.postParPage > 2,
             'lg:pr-[15rem] 3xl:pr-[22rem]': props.postParPage <= 2
           }"
           v-html="contenu">
