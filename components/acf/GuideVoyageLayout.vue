@@ -1,13 +1,15 @@
 <template>
   <div class="my-20 max-w-screen-full mx-auto">
-    <h2 class="md:text-[110pt] pl-[5rem] lg:pl-[15rem] text-center lg:text-left font-custom text-[5rem] lg:text-[7rem] mb-10 lg:mb-0">
-      {{ titreDeLaSection }}
-    </h2>
-
+    <div class="flex items-end">
+      <h2 class="md:text-[110pt] pl-[5rem] lg:pl-[15rem] text-center lg:text-left font-custom text-[200pt] ">
+        {{ titreDeLaSection }}
+      </h2>
+      <CategoryMenu slug="{{ categorie.nodes[0].slug }}" @select="onSubcategorySelect" />
+    </div>
     <div v-if="loading" class="text-center mt-6">Chargement...</div>
     <div v-else-if="error" class="text-center mt-6 text-red-500">Erreur : {{ error }}</div>
     
-    <div v-else class="flex flex-row items-center mt-10">
+    <div v-else class="flex flex-row items-top mt-10">
       <!-- Partie gauche fixe -->
       <div class="w-1/2 lg:w-2/6 text-left mb-10 lg:mb-0 px-[2rem] lg:px-[10rem]">
         <h2 class="text-[20px] uppercase font-brandon_grotesquemedium">{{ currentArticle.title }}</h2>
@@ -65,6 +67,8 @@ import { ref, watchEffect } from 'vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { useFetch } from '#app';
 import he from 'he';
+import CategoryMenu from '~/components/menu/CategoryMenu.vue';
+
 const { decode } = he;
 
 const config = useRuntimeConfig();
@@ -162,7 +166,6 @@ watchEffect(() => {
 const onSlideChange = (swiper) => {
   const index = swiper.activeIndex;
   const article = posts.value[index];
-
   if (article) {
     currentArticle.value = {
       title: article.title,

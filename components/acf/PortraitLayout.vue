@@ -1,24 +1,24 @@
 <template>
     <div
       ref="blocPortrait"
-      class="h-screen sm:flex sm:flex-col lg:block  align-center py-20 relative mb-40 md:mb-0 lg:my-40 transition-colors duration-500 bloc-portrait overflow-hidden"
+      class="h-screen sm:flex sm:flex-col lg:block  align-center py-20 relative mb-40 md:mb-0 lg:my-20 transition-colors duration-500 bloc-portrait overflow-hidden"
       :class="{ 'bg-black': isVisible, 'bg-white': !isVisible }"
     >
       <div 
         class="sm:relative lg:absolute top-[6vw] sm:right-[10.5vw] lg:right-[0.5vw] w-50 md:w-full lg:w-1/2 flex flex-col lg:pl-6 lg:pr-24"
         :class="{ 'text-white': isVisible, 'text-black': !isVisible }"
       >
-      <h2 class="px-12 md:px-0 text-[7rem] mb-12 lg:pr-24 font-custom">{{ titreDeLaSection }}</h2>
-      <div class="mb-6 mt-[-4rem] pr-12 lg:pr-48 lato-light" v-html="contenu"></div>
+      <h2 class="px-12 md:px-0 mb-12 lg:pr-24 text-[4rem] lg:text-[5rem] font-schnyder_wide_xl_webdemi">{{ titreDeLaSection }}</h2>
+      <div class="mb-6 mt-[-2rem] pr-12 lg:pr-48 mt-4 pr-0 lg:pr-[12vw] 3xl:pr-[10rem] text-sm lato-light" v-html="contenu"></div>
     </div>
 
     <swiper
       :slides-per-view="2.9"
       :space-between="0"
-      :loop="true"
+      :loop="false"
       :navigation="{
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev'
+        nextEl: '.swiper-button-next-portrait',
+        prevEl: '.swiper-button-prev-portrait'
       }"
       @slideChange="onSlideChange"
       class="portrait-slider mx-4 "
@@ -39,6 +39,7 @@
         </nuxtLink>
         <!-- Text Content -->
         <div
+          class="mt-3"
           :class="{
             'text-xl': currentIndex === index,
             'text-lg': currentIndex !== index,
@@ -47,15 +48,15 @@
           }"
         >
         <nuxtLink :to="'articles/' + post.slug || '#'" >
-          <p class="text-sm lato-light">{{ post.categories.edges[0]?.node.name || '' }}</p>
-          <h3 class="font-bold font-custom">{{ post.title }}</h3>
+          <p class="mb-1 font-brandon_grotesquelight_italic uppercase text-xs z-9">{{ post.categories.edges[0]?.node.name || '' }}</p>
+          <h3 class="text-base font-brandon_grotesquemedium uppercase">{{ post.title }}</h3>
         </nuxtLink>
 
         </div>
       </swiper-slide>
     </swiper>
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev-portrait"></div>
+    <div class="swiper-button-next-portrait"></div>
   </div>
 </template>
 
@@ -201,13 +202,13 @@ onUnmounted(() => {
     flex-wrap: nowrap;
     align-items: flex-end;
     align-content: flex-end;
-    padding-bottom: 2rem;
+    padding-bottom: 4rem;
   }
   .bloc-portrait .swiper-slide-next{
     margin-right: 0 !important;
   }
-  .swiper-button-next,
-  .swiper-button-prev {
+  .swiper-button-next-portrait,
+  .swiper-button-prev-portrait {
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     width: 40px;
@@ -216,14 +217,33 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    top:var(--swiper-navigation-top-offset, 66%);
+    position: absolute;
+    margin-top: calc(0px - (var(--swiper-navigation-size) / 2));
+    z-index: 10;
+    cursor: pointer;
   }
-
+  .swiper-button-next-portrait{
+    right: var(--swiper-navigation-sides-offset, 10px);
+    left: auto;
+  }
   /* Changer l’icône de la flèche avec du texte ou un SVG perso */
-  .swiper-button-next::after,
-  .swiper-button-prev::after {
+  .swiper-button-next-portrait::after,
+  .swiper-button-prev-portrait::after {
     font-size: 20px;
     font-weight: bold;
     color: #000;
+    font-family: swiper-icons;
+    text-transform: none !important;
+    letter-spacing: 0;
+    font-variant: initial;
+    line-height: 1;
+  }
+  .swiper-button-next-portrait:after, .swiper-rtl .swiper-button-prev-portrait:after {
+    content: 'next';
+  }
+  .swiper-button-prev-portrait:after, .swiper-rtl .swiper-button-next-portrait:after {
+    content: 'prev';
   }
   .custom-pagination{
     bottom: var(--swiper-pagination-bottom, 8px);

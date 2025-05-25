@@ -22,7 +22,14 @@
             'text-[3rem] z-10 relative': props.postParPage <= 2
           }"
           >{{ titreDeLaSection }}</h2>
-        <div class="mt-4 pr-0 lg:pr-[4rem] 3xl:pr-[10rem] text-sm lato-light" v-html="contenu"></div>
+        <div 
+          class="mt-4 pr-0  text-sm lato-light" 
+          :class="{
+            'lg:pr-[4rem] 3xl:pr-[10rem]': props.postParPage > 2,
+            'lg:pr-[15rem] 3xl:pr-[22rem]': props.postParPage <= 2
+          }"
+          v-html="contenu">
+        </div>
       </div>
 
       <!-- Slider Swiper -->
