@@ -1,35 +1,32 @@
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
+import { useRuntimeConfig } from '#app'
 
-export const useSiteSettings = defineStore('siteSettings', {
-  state: () => ({
-    siteTitle: '',
-    siteDescription: '',
-  }),
-  actions: {
-    async fetchSiteSettings() {
-      const config = useRuntimeConfig();
-      const query = `
+export const useSiteSettings = defineStore(
+  'siteSettings',
+  () => {
+    const config = useRuntimeConfig()
+    const siteTitle = ref('')
+    const siteDescription = ref('')
+
+    async function fetchSiteSettings() {
+      const query = /* GraphQL */ `
         query GetSiteSettings {
-          generalSettings {
-            title
-            description
-          }
+          generalSettings { title description }
         }
-      `;
-
+      `
       try {
         const { data } = await $fetch(config.public.wordpressUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: { query }
-        });
-
-        // data === { generalSettings: { title, description } }
-        this.siteTitle        = data.generalSettings?.title       || '';
-        this.siteDescription  = data.generalSettings?.description || '';
+        })
+        siteTitle.value       = data.generalSettings?.title       || ''
+        siteDescription.value = data.generalSettings?.description || ''
       } catch (err) {
-        console.error('Erreur lors de la récupération des réglages généraux :', err);
+        console.error('Erreur fetchSiteSettings:', err)
       }
     }
+
+    return { siteTitle, siteDescription, fetchSiteSettings }
   }
-});
+)
