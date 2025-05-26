@@ -22,7 +22,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
       public: {
-          wordpressUrl: process.env.WORDPRESS_URL,
+          wordpressUrl: process.env.WORDPRESS_GQL,
           wordpressApi: process.env.WORDPRESS_API,
       }
   },

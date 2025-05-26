@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { useRuntimeConfig, useFetch, useRouter } from '#imports'
 import _ from 'lodash'
@@ -116,7 +116,7 @@ const erasePlaceholder = () => {
   }
 }
 
-  const settingsStore = useSiteSettings()
+const settingsStore = useSiteSettings()
 
 onMounted(() => {
   typePlaceholder()
@@ -125,9 +125,10 @@ onMounted(async () => {
   await settingsStore.fetchSiteSettings()
   console.log('Titre du site :', settingsStore.siteTitle)
 })
-watch(() => settingsStore.siteTitle, (newTitle) => {
-  console.log('Nouveau titre reçu :', newTitle)
-})
+watch(
+  () => settingsStore.siteTitle,
+  (newTitle) => console.log('Nouveau titre reçu :', newTitle)
+)
 </script>
 
 <template>

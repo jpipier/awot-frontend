@@ -1,7 +1,7 @@
 import { hasInjectionContext, inject, version, ref, watchEffect, watch, getCurrentInstance, defineComponent, provide, shallowReactive, h, Suspense, nextTick, Fragment, Transition, unref, createApp, effectScope, reactive, getCurrentScope, onErrorCaptured, onServerPrefetch, createVNode, resolveDynamicComponent, useSSRContext, toRef, defineAsyncComponent, mergeProps, shallowRef, isReadonly, toRaw, isRef, isShallow, isReactive } from 'vue';
-import { $ as $fetch, l as hasProtocol, m as isScriptProtocol, n as joinURL, w as withQuery, e as createError$1, o as defu, p as sanitizeStatusCode, q as getContext, r as createHooks, t as toRouteMatcher, v as createRouter$1 } from '../nitro/nitro.mjs';
+import { $ as $fetch$1, l as hasProtocol, m as isScriptProtocol, n as joinURL, w as withQuery, e as createError$1, o as defu, p as sanitizeStatusCode, q as getContext, r as createHooks, t as toRouteMatcher, v as createRouter$1 } from '../nitro/nitro.mjs';
 import { b as baseURL } from '../routes/renderer.mjs';
-import { createPinia, setActivePinia, shouldHydrate } from 'pinia';
+import { defineStore, createPinia, setActivePinia, shouldHydrate } from 'pinia';
 import { CapoPlugin, getActiveHead } from 'unhead';
 import { defineHeadPlugin, composableNames } from '@unhead/shared';
 import { RouterView, createMemoryHistory, createRouter, START_LOCATION } from 'vue-router';
@@ -16,7 +16,7 @@ import 'devalue';
 import '@unhead/ssr';
 
 if (!globalThis.$fetch) {
-  globalThis.$fetch = $fetch.create({
+  globalThis.$fetch = $fetch$1.create({
     baseURL: baseURL()
   });
 }
@@ -624,17 +624,17 @@ const _routes = [
   {
     name: "articles-uri",
     path: "/articles/:uri(.*)*",
-    component: () => import('./_...uri_-DLwiEnSJ.mjs')
+    component: () => import('./_...uri_-as3YcKph.mjs')
   },
   {
     name: "categories-slug",
     path: "/categories/:slug()",
-    component: () => import('./_slug_-GJB_2cgC.mjs')
+    component: () => import('./_slug_-BgwKKdVV.mjs')
   },
   {
     name: "index",
     path: "/",
-    component: () => import('./index-D699vtiV.mjs')
+    component: () => import('./index-BqqB4m9k.mjs')
   }
 ];
 const _wrapIf = (component, props, slots) => {
@@ -986,6 +986,42 @@ const components_plugin_KR1HBZs4kY = /* @__PURE__ */ defineNuxtPlugin({
 });
 const sticky_p7DS3xLDPF = /* @__PURE__ */ defineNuxtPlugin(() => {
 });
+const useSiteSettings = defineStore(
+  "siteSettings",
+  () => {
+    const config = /* @__PURE__ */ useRuntimeConfig();
+    const siteTitle = ref("");
+    const siteDescription = ref("");
+    async function fetchSiteSettings() {
+      var _a, _b;
+      const query = (
+        /* GraphQL */
+        `
+        query GetSiteSettings {
+          generalSettings { title description }
+        }
+      `
+      );
+      try {
+        const { data } = await $fetch(config.public.wordpressUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: { query }
+        });
+        siteTitle.value = ((_a = data.generalSettings) == null ? void 0 : _a.title) || "";
+        siteDescription.value = ((_b = data.generalSettings) == null ? void 0 : _b.description) || "";
+      } catch (err) {
+        console.error("Erreur fetchSiteSettings:", err);
+      }
+    }
+    return { siteTitle, siteDescription, fetchSiteSettings };
+  }
+);
+const siteSettings_server_ia7es0YmDx = /* @__PURE__ */ defineNuxtPlugin(async () => {
+  let __temp, __restore;
+  const store = useSiteSettings();
+  [__temp, __restore] = executeAsync(() => store.fetchSiteSettings()), await __temp, __restore();
+});
 const plugins = [
   payloadPlugin,
   unhead_KgADcZ0jPj,
@@ -993,7 +1029,8 @@ const plugins = [
   revive_payload_server_eJ33V7gbc6,
   plugin,
   components_plugin_KR1HBZs4kY,
-  sticky_p7DS3xLDPF
+  sticky_p7DS3xLDPF,
+  siteSettings_server_ia7es0YmDx
 ];
 const RouteProvider = defineComponent({
   props: {
@@ -1191,7 +1228,7 @@ const _sfc_main$1 = {
     const statusMessage = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = undefined;
-    const _Error404 = defineAsyncComponent(() => import('./error-404-SNmMnIgU.mjs'));
+    const _Error404 = defineAsyncComponent(() => import('./error-404-BFGpBKG9.mjs'));
     const _Error = defineAsyncComponent(() => import('./error-500-Bs8EI1DB.mjs'));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
@@ -1273,5 +1310,5 @@ let entry;
 }
 const entry$1 = (ssrContext) => entry(ssrContext);
 
-export { useRuntimeConfig as a, useRoute as b, useRouter as c, useNuxtApp as d, entry$1 as default, asyncDataDefaults as e, fetchDefaults as f, createError as g, navigateTo as h, nuxtLinkDefaults as n, resolveRouteObject as r, useHead as u };
+export { useRuntimeConfig as a, useRoute as b, useRouter as c, useSiteSettings as d, entry$1 as default, useNuxtApp as e, fetchDefaults as f, asyncDataDefaults as g, createError as h, navigateTo as i, nuxtLinkDefaults as n, resolveRouteObject as r, useHead as u };
 //# sourceMappingURL=server.mjs.map

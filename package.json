@@ -17,6 +17,7 @@
     "@unhead/ssr": "^2.0.10",
     "@vue/apollo-composable": "^4.2.1",
     "graphql-tag": "^2.12.6",
+    "h3-proxy": "^1.13.0",
     "he": "^1.2.0",
     "pinia": "^3.0.2",
     "swiper": "^11.2.2"
