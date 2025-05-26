@@ -116,7 +116,7 @@ const erasePlaceholder = () => {
   }
 }
 
-const settingsStore = useSiteSettings()
+  const settingsStore = useSiteSettings()
 
 onMounted(() => {
   typePlaceholder()
@@ -125,10 +125,9 @@ onMounted(async () => {
   await settingsStore.fetchSiteSettings()
   console.log('Titre du site :', settingsStore.siteTitle)
 })
-watch(
-  () => settingsStore.siteTitle,
-  (newTitle) => console.log('Nouveau titre reçu :', newTitle)
-)
+watch(() => settingsStore.siteTitle, (newTitle) => {
+  console.log('Nouveau titre reçu :', newTitle)
+})
 </script>
 
 <template>

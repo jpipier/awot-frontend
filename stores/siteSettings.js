@@ -15,8 +15,9 @@ export const useSiteSettings = defineStore(
         }
       `
       try {
-        const { data } = await $fetch('/api/graphql', {
+        const { data } = await $fetch(config.public.wordpressUrl, {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: { query }
         })
         siteTitle.value       = data.generalSettings?.title       || ''
