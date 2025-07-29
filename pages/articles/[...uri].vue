@@ -121,3 +121,9 @@ onMounted(() => {
 })
 
 </script>
+
+<style scope>
+.elementor-23965 .elementor-element.elementor-element-2db9eee5{
+  max-width: 100% !important;
+}
+</style>

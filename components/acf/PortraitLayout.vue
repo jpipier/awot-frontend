@@ -5,11 +5,11 @@
       :class="{ 'bg-black': isVisible, 'bg-white': !isVisible }"
     >
       <div 
-        class="sm:relative lg:absolute top-[6vw] sm:right-[0vw] right-[0.5vw] lg:right-[10.5vw] w-50 md:w-full lg:w-1/2 flex flex-col lg:pl-6 lg:pr-24"
+        class="sm:relative lg:absolute top-[6vw] sm:right-[0vw] right-[0.5vw] lg:right-[10.5vw] w-50 md:w-full lg:w-1/2 flex flex-col lg:pl-[11rem] lg:pr-24"
         :class="{ 'text-white': isVisible, 'text-black': !isVisible }"
       >
-      <h2 class="px-12 md:px-0 mb-12 lg:pr-24 text-[4rem] lg:text-[5rem] font-schnyder_wide_xl_webdemi">{{ titreDeLaSection }}</h2>
-      <div class="mb-6 mt-[-2rem] px-12 pr-12 lg:pr-48 mt-4 pr-0 lg:pl-0 lg:pr-[12vw] 3xl:pr-[10rem] text-sm lato-light" v-html="contenu"></div>
+      <h2 class="px-12 md:px-0 mb-12 lg:pr-0 text-[4rem] lg:text-[5rem] font-schnyder_wide_xl_webdemi">{{ titreDeLaSection }}</h2>
+      <div class="mb-6 mt-[-2rem] px-12 pr-12 mt-4 pr-0 lg:pl-0 lg:pr-0 text-sm lato-light" v-html="contenu"></div>
     </div>
 
     <swiper
@@ -36,7 +36,9 @@
       >
         <!-- Image -->
         <nuxtLink :to="'articles/' + post.slug || '#'" >
-          <img
+          <NuxtImg
+            loading="lazy"
+            format="webp"
             :src="post.optionsArticles.imagePaysage?.node?.guid || ''"
             alt="Image slide"
             class="lg:h-[21rem] w-full object-cover border border-white"
@@ -225,7 +227,6 @@ onUnmounted(() => {
     display: none;
   }
   .portrait-slider .swiper-slide {
-    width: 40vw !important;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;

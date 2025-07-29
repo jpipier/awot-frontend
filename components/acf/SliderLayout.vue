@@ -188,9 +188,22 @@ watch(() => settingsStore.siteTitle, (newTitle) => {
         <swiper-slide v-for="(slide, index) in props.slider" :key="index">
           <div class="relative h-screen">
             <NuxtLink v-if="slide.afficherDuTexte" :to="slide.slug?.url">
-              <img :src="slide.img?.node?.guid" alt="Image slide" class="w-full h-full object-cover" />
+              <NuxtImg 
+                :src="slide.img?.node?.guid" 
+                alt="Image slide" 
+                class="w-full h-full object-cover" 
+                format="webp"
+                loading="lazy"
+
+              />
             </NuxtLink>
-            <img v-else :src="slide.img?.node?.guid" alt="Image slide" class="w-full h-full object-cover" />
+            <NuxtImg v-else 
+              :src="slide.img?.node?.guid" 
+                alt="Image slide" 
+                class="w-full h-full object-cover" 
+                format="webp"
+                loading="lazy"
+              />
             <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center -top-[15vw]">
               <p v-if="slide.afficherDuTexte" class="text-xs uppercase after:block after:w-[160%] after:h-[1px] after:bg-white after:mt-2 after:-ml-[30%] font-brandongrotesque-light mb-6">
                 {{ slide.headline }}

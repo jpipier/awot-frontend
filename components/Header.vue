@@ -1,5 +1,7 @@
 <template>
-    
+  <span class="z-50 fixed top-4 left-14 flex items-center justify-center h-10 font-custom text-[20pt]">
+    <a href="/">A way of travel</a>
+  </span>
   <!-- Bouton Loupe -->
   <button
     @click="toggleSearch"
@@ -85,6 +87,9 @@ watch([isMenuOpen, isSearchOpen], ([menu, search]) => {
     body.classList.add('overflow-hidden')
   } else {
     body.classList.remove('overflow-hidden')
+  }
+  if(isMenuOpen === false){
+     body.classList.remove('overflow-hidden')
   }
 })
 </script>

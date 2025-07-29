@@ -47,7 +47,7 @@
           :breakpoints="{
             640: { slidesPerView: 1.5, spaceBetween: 20 },
             768: { slidesPerView: 2, spaceBetween: 30 },
-            1024: { slidesPerView: props.postParPage > 2 ? 2.5 : 1.5, spaceBetween: 40 }
+            1024: { slidesPerView: props.postParPage > 2 ? 2.5 : 1.5, spaceBetween: 20 }
           }"
           @slideChange="onSlideChange"
         >
@@ -59,7 +59,9 @@
             <div class="slide-content group relative">
               <NuxtLink :to="'/articles/' + post.slug">
                 <div class="w-full h-[275px] md:h-[500px] lg:h-[490px] 3xl:h-[590px] overflow-hidden">
-                  <img
+                  <NuxtImg
+                    loading="lazy"
+                    format="webp"
                     :src="post.optionsArticles.imagePortait?.node?.guid"
                     :srcset="post.optionsArticles.imagePortait?.node?.srcSet"
                     :alt="post.title"

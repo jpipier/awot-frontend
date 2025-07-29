@@ -117,11 +117,16 @@ function onSelectChange() {
 </script>
 
 <style scoped>
+.category-list li{
+  position: relative;
+}
 .category-list li::after {
   content: "\00a0|\00a0";
   font-family: "Lato", sans-serif;
   font-weight: 300;
-  font-style: normal; ;}
+  font-style: normal; 
+  position: absolute;
+  }
   .category-list li:last-child:after {
       content: "";
 

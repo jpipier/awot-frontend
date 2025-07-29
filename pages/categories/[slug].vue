@@ -1,19 +1,28 @@
 <template>
-    <div class="container mx-auto py-10">
+    <Header></Header>
+    <div class="container mx-auto py-10 template-categories pr-5 pl-5 md:pr-0 md:pl-0">
       <h1 class="text-6xl text-center mb-6 font-custom pb-10">{{ data?.category?.name }}</h1>
-      <div v-if="subcategories.length" class="mb-8 pb-10 w-1/2 mx-auto">
+      <div v-if="subcategories.length" class="mb-8 pb-10 w-full md:w-1/2 mx-auto">
         <ul class="flex flex-wrap align-center gap-3 justify-center">
           <li v-for="child in subcategories" :key="child.slug" class="mb-3">
             <NuxtLink
               :to="'/categories/' + child.slug"
               :class="[
-                'p-2 border border-black border-solid hover:text-white-600',
+                'p-2 border border-black border-solid hover:text-white hover:bg-black duration-300',
                 child.slug === route.params.slug ? 'bg-black text-white' : ''
               ]"
             >
               {{ child.name }}
             </NuxtLink>
           </li>
+          <li>
+            <a 
+              href="/categories/voyages" 
+              :class="[
+                  'p-2 border border-black border-solid hover:text-white-600',
+                  'voyages' === route.params.slug ? 'bg-black text-white' : ''
+              ]"
+              >Tous les voyages </a></li>
         </ul>
       </div>
       <ul v-if="allPosts.length" class="grid grid-cols-1 sm:grid-cols-3 gap-8 auto-rows-auto">
@@ -21,23 +30,23 @@
           v-for="(post, index) in allPosts"
           :key="post.slug"
           :class="[
-            ((index + 1) % 4 === 0) ? 'sm:col-span-3 max-h-[600px]' : 'sm:col-span-1',
+            ((index + 1) % 4 === 0) ? 'sm:col-span-3 max-h-full md:max-h-[600px]' : 'sm:col-span-1',
             'w-full'
         ]"
         >
           <NuxtLink :to="'/articles/' + post.slug" class="block group">
             <div v-if="(index + 1) % 4 === 0" class="flex flex-col sm:flex-row gap-6 items-center">
-              <div class="w-full sm:w-2/3 max-h-[600px] overflow-hidden">
+              <div class="w-full sm:w-2/3 max-h-full md:max-h-[600px] overflow-hidden">
                 <img
                   :src="post.optionsArticles?.imagePaysage?.node?.sourceUrl || post.featuredImage?.node?.sourceUrl"
                   :alt="post.featuredImage?.node?.altText || post.title"
-                  class="w-full object-cover aspect-[3/4] transition-transform duration-300 group-hover:scale-110 rounded-lg max-h-[600px]"
+                  class="w-full object-cover aspect-[3/4] transition-transform duration-300 group-hover:scale-110 rounded-lg max-h-full md:max-h-[600px]"
                 />
               </div>
               <div class="w-full sm:w-1/3 flex flex-col jusctify-center">
-                <div class="text-xs uppercase italic text-gray-500 mb-1">Traiteur</div>
+                <div class="text-xs uppercase italic text-gray-500 mb-1">{{ post.optionsArticles?.champsLibrePageAccueil }}</div>
                 <h2 class="text-xl font-semibold mb-2">{{ post.title }}</h2>
-                <p class="text-sm text-gray-700 mb-4" v-if="post.excerpt" v-html="post.excerpt"></p>
+                <div class="text-sm text-gray-700 mb-4 pt-2 pb-2" v-html="post.excerpt"></div>
                 <div>
                   <span class="inline-block bg-black text-white text-xs px-4 py-2 rounded hover:bg-gray-800 transition">Lire l’article</span>
                 </div>
@@ -60,6 +69,7 @@
       <p v-else>Aucun article pour cette catégorie.</p>
       <div ref="sentinel" class="h-10"></div>
     </div>
+    <Footer></Footer>
   </template>
   
   <script setup>
@@ -125,6 +135,7 @@ const subcategories = computed(() => {
                   }
                 }
                 excerpt
+                content
                 optionsArticles {
                   champsLibrePageAccueil
                   imagePortait {

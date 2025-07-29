@@ -18,27 +18,27 @@
         </div>
       </h2>
       <div class="elementor-widget-container">
-<div class="elementor-posts-container elementor-posts elementor-posts--skin-classic grid gap-8 elementor-has-item-ratio px-[2rem]
-  grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
+        <div class="elementor-posts-container elementor-posts elementor-posts--skin-classic grid gap-8 elementor-has-item-ratio px-[2rem] grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
           <article
             v-for="post in randomPosts"
             :key="post.id"
             class="elementor-post elementor-grid-item post-{{ post.id }} post type-post status-publish format-standard has-post-thumbnail hentry"
           >
             <a class="elementor-post__thumbnail__link" :href="`/articles/${post.slug}/`">
-              <div class="elementor-post__thumbnail overflow-hidden relative">
+              <div class="elementor-post__thumbnail footer-elementor-post__thumbnail overflow-hidden relative">
                 <img
-                  loading="lazy"
                   width="640"
                   height="959"
-                  class="rounded-md shadow-lg object-cover w-full h-full hover:scale-110 transition-transform duration-300"
+                  class="rounded-md object-cover w-full h-full hover:scale-110 transition-transform duration-300"
                   :src="post.featuredImage?.node?.sourceUrl"
                   :alt="post.title"
                 />
               </div>
             </a>
             <div class="elementor-post__text font-lato">
-              <a :href="`/articles/${post.slug}/`" v-html="post.title" />            </div>
+              <a :href="`/articles/${post.slug}/`" v-html="post.title">            
+              </a>
+            </div>
           </article>
         </div>
       </div>
@@ -101,7 +101,7 @@
 const updatePostCount = () => {
   const width = window.innerWidth
   if (width < 640) {
-    numberOfPosts.value = 3
+    numberOfPosts.value = 2
   } else if (width < 1024) {
     numberOfPosts.value = 4 
   } else {
@@ -138,7 +138,7 @@ const updatePostCount = () => {
     opacity: 0;
     transform: rotateX(180deg);
     transform-origin: 50% 100%;
-    transition: all 1s ease;
+    transition: all 300ms ease;
   }
 
   .cd-headline.wordrotate span.is-visible {
@@ -146,4 +146,7 @@ const updatePostCount = () => {
     opacity: 1;
     transform: rotateX(0deg);
   }
+  /* .footer-elementor-post__thumbnail{
+    padding-bottom: calc(1.54 * 100%);
+  } */
   </style>

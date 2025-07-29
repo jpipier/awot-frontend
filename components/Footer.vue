@@ -1,7 +1,7 @@
 <template>
     <footer class="bg-black text-white py-5 mt-10 relative after:w-full after:h-[80px] after:bg-white after:absolute after:top-0 after:z-0 overflow-hidden">
       <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-10 px-6">
-        <div class="flex flex-col space-y-2 text-left uppercase pt-20 text-sm">
+        <div class="flex flex-col space-y-2 text-left uppercase pt-20 text-sm elementor-23971">
           <FooterMenu />
         </div>
   

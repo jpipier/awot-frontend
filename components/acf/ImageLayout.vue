@@ -1,7 +1,9 @@
 <template>
     <div class="h-screen ">
         {{ props?.image?.node?.guid }}
-        <img 
+        <NuxtImg
+          loading="lazy"
+          format="webp"
           :src="props?.image?.node?.guid" 
           :alt="'test'"
           :class="'h-screen w-full object-cover'" />

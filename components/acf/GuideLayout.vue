@@ -27,7 +27,9 @@
           >
             <div class="relative">
               <NuxtLink :to="'/articles/' + post.slug">
-                <img
+                <NuxtImg
+                  loading="lazy"
+                  format="webp"
                   :src="post.optionsArticles.imagePaysage?.node?.guid"
                   :srcset="post.optionsArticles.imagePaysage?.node?.srcSet"
                   :alt="post.title"
