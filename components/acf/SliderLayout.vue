@@ -123,10 +123,6 @@ onMounted(() => {
 })
 onMounted(async () => {
   await settingsStore.fetchSiteSettings()
-  console.log('Titre du site :', settingsStore.siteTitle)
-})
-watch(() => settingsStore.siteTitle, (newTitle) => {
-  console.log('Nouveau titre reçu :', newTitle)
 })
 </script>
 
@@ -172,14 +168,12 @@ watch(() => settingsStore.siteTitle, (newTitle) => {
         </ul>
       </div>
     </div>
-
-    <!-- Wrap Swiper in ClientOnly if using SSR -->
     <ClientOnly>
       <swiper
         :modules="[Autoplay, Navigation, Pagination]"
         :slides-per-view="1"
         :space-between="10"
-        loop
+        v-bind:loop="props.slider.length > 1"
         :navigation="false"
         :pagination="false"
         :autoplay="{ delay: 3000, disableOnInteraction: false }"

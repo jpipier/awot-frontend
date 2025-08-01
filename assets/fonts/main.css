@@ -172,4 +172,6 @@
     }
 }
 
-.contentElementor h1{}
+.elementor-widget-theme-post-title, .elementor-widget-theme-post-title h1{
+    display: block !important;
+}
