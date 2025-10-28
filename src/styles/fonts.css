@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&family=Montserrat:wght@300;400;500;700&display=swap');
+
+@font-face {
+  font-family: 'schnyder_wide_xl_weblight';
+  src: url('/fonts/schnyderwide-xllight-web-webfont.woff2') format('woff2'),
+       url('/fonts/schnyderwide-xllight-web-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'schnyder_wide_xl_webdemi';
+  src: url('/fonts/schnyderwide-xldemi-web-webfont.woff2') format('woff2'),
+       url('/fonts/schnyderwide-xldemi-web-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'schnyder_xl_weblight';
+  src: url('/fonts/schnyder-xllight-webfont.woff2') format('woff2'),
+       url('/fonts/schnyder-xllight-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'schnyder_xl_webdemi';
+  src: url('/fonts/schnyder-xldemi-webfont.woff2') format('woff2'),
+       url('/fonts/schnyder-xldemi-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'brandon_grotesquemedium';
+  src: url('/fonts/hvd_fonts_-_brandongrotesque-medium-webfont.woff2') format('woff2'),
+       url('/fonts/hvd_fonts_-_brandongrotesque-medium-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'brandon_grotesquelight_italic';
+  src: url('/fonts/hvd_fonts_-_brandongrotesque-lightitalic-webfont.woff2') format('woff2'),
+       url('/fonts/hvd_fonts_-_brandongrotesque-lightitalic-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'brandon_grotesqueregular';
+  src: url('/fonts/brandongrotesque-regular-webfont.woff2') format('woff2'),
+       url('/fonts/brandongrotesque-regular-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'brandon_grotesquelight';
+  src: url('/fonts/brandongrotesque-light-webfont.woff2') format('woff2'),
+       url('/fonts/brandongrotesque-light-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  --font-custom: 'schnyder_wide_xl_weblight', sans-serif;
+  --font-schnyder-xl-demi: 'schnyder_xl_webdemi', sans-serif;
+  --font-brandon-regular: 'brandon_grotesqueregular', sans-serif;
+  --font-brandon-light: 'brandon_grotesquelight', sans-serif;
+  --font-brandon-medium: 'brandon_grotesquemedium', sans-serif;
+}
+
+.font-custom {
+  font-family: var(--font-custom);
+}
+
+.font-schnyder_xl_webdemi {
+  font-family: var(--font-schnyder-xl-demi);
+}
+
+.font-brandongrotesque {
+  font-family: var(--font-brandon-regular);
+}
+
+.font-brandongrotesque-light,
+.font-brandongrotesque-light p {
+  font-family: var(--font-brandon-light);
+}
+
+.font-brandon_grotesquemedium {
+  font-family: var(--font-brandon-medium);
+}
+
+.font-brandon_grotesquelight_italic {
+  font-family: 'brandon_grotesquelight_italic', sans-serif;
+}
+
+.font-schnyder_wide_xl_webdemi {
+  font-family: 'schnyder_wide_xl_webdemi', sans-serif;
+}
+
+.lato-thin,
+.lato-thin p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.lato-light,
+.lato-light p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.lato-regular,
+.lato-regular p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.lato-bold,
+.lato-bold p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.lato-black,
+.lato-black p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.lato-thin-italic,
+.lato-thin-italic p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.lato-light-italic,
+.lato-light-italic p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.lato-regular-italic,
+.lato-regular-italic p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.lato-bold-italic,
+.lato-bold-italic p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.lato-black-italic,
+.lato-black-italic p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.contentElementor {
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 32px;
+  text-align: justify;
+  -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: touch;
+  text-rendering: optimizeLegibility;
+}
+
+.contentElementor h1,
+.contentElementor h2 {
+  font-family: var(--font-schnyder-xl-demi) !important;
+}
