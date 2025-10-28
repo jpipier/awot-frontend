@@ -36,3 +36,16 @@ a {
 .fade-leave-to {
   opacity: 0;
 }
+
+.home-block {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.home-block:first-of-type {
+  padding-top: 6rem;
+}
+
+.home-block:last-of-type {
+  padding-bottom: 0;
+}

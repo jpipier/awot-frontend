@@ -10,26 +10,19 @@ import PostFooter from '@/components/footer/PostFooter'
 import { getHomePage } from '@/lib/home'
 import type { HomePageBloc } from '@/types/wordpress'
 
-function renderBloc(bloc: HomePageBloc, index: number) {
+function renderBloc(bloc: HomePageBloc) {
   switch (bloc.fieldGroupName) {
     case 'HomepageBlocsImageLayout':
-      return (
-        <ImageLayout
-          key={index}
-          image={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsImageLayout' }>).image}
-        />
-      )
+      return <ImageLayout image={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsImageLayout' }>).image} />
     case 'HomepageBlocsContenuLayout':
       return (
         <ContenuLayout
-          key={index}
           contenu={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsContenuLayout' }>).contenu}
         />
       )
     case 'HomepageBlocsGuideVoyageLayout':
       return (
         <GuideVoyageLayout
-          key={index}
           titreDeLaSection={
             (bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideVoyageLayout' }>).titreDeLaSection
           }
@@ -42,7 +35,6 @@ function renderBloc(bloc: HomePageBloc, index: number) {
     case 'HomepageBlocsCarouselLayout':
       return (
         <CarouselLayout
-          key={index}
           titreDeLaSection={
             (bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsCarouselLayout' }>).titreDeLaSection
           }
@@ -55,22 +47,15 @@ function renderBloc(bloc: HomePageBloc, index: number) {
     case 'HomepageBlocsGuideLayout':
       return (
         <GuideLayout
-          key={index}
           categorie={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideLayout' }>).categorie}
           lien={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideLayout' }>).lien}
         />
       )
     case 'HomepageBlocsSliderLayout':
-      return (
-        <SliderLayout
-          key={index}
-          slider={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsSliderLayout' }>).slider}
-        />
-      )
+      return <SliderLayout slider={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsSliderLayout' }>).slider} />
     case 'HomepageBlocsPortraitLayout':
       return (
         <PortraitLayout
-          key={index}
           titreDeLaSection={
             (bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsPortraitLayout' }>).titreDeLaSection
           }
@@ -89,8 +74,12 @@ export default async function HomePage() {
   const blocs = page?.template?.homepage?.blocs ?? []
 
   return (
-    <div>
-      {blocs.map((bloc, index) => renderBloc(bloc, index))}
+    <div className="flex flex-col gap-24">
+      {blocs.map((bloc, index) => (
+        <section key={`${bloc.fieldGroupName}-${index}`} className="home-block">
+          {renderBloc(bloc)}
+        </section>
+      ))}
       <PostFooter />
       <Footer />
     </div>

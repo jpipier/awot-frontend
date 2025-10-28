@@ -34,15 +34,20 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
   const current = sanitizedPosts[activeIndex] ?? sanitizedPosts[0]
 
   return (
-    <div className="mt-10 flex flex-col items-start lg:flex-row">
-      <div className="w-full px-[2rem] text-left lg:w-2/6 lg:px-[10rem]">
-        <h2 className="text-[20px] uppercase font-brandon_grotesquemedium">{current?.title}</h2>
-        <h3 className="text-[20px] text-gray-600 lato-light-italic">
-          {current?.optionsArticles?.champsLibrePageAccueil}
-        </h3>
-        <p className="mt-4 text-sm lato-light">{current?.excerptPlain}</p>
+    <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
+      <div className="flex w-full flex-col gap-4 pr-6 text-left lg:w-2/6 lg:pr-16">
+        <h2 className="text-2xl font-brandon_grotesquemedium uppercase leading-tight">{current?.title}</h2>
+        {current?.optionsArticles?.champsLibrePageAccueil ? (
+          <h3 className="text-lg text-gray-600 italic lato-light-italic">
+            {current.optionsArticles.champsLibrePageAccueil}
+          </h3>
+        ) : null}
+        <p className="text-sm leading-relaxed lato-light">{current?.excerptPlain}</p>
         {current?.slug ? (
-          <Link href={`/articles/${current.slug}`} className="mt-10 inline-block bg-black px-4 py-2 text-sm uppercase text-white">
+          <Link
+            href={`/articles/${current.slug}`}
+            className="mt-4 inline-block bg-black px-4 py-2 text-sm uppercase text-white"
+          >
             Lire la suite
           </Link>
         ) : null}
@@ -73,7 +78,7 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
                         fill
                         className="rounded-md object-cover shadow-lg transition-transform duration-300 group-hover:scale-110"
                         sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                      unoptimized
+                        unoptimized
                       />
                     </div>
                   ) : null}

@@ -112,8 +112,9 @@ export default function Search({ onNavigate }: SearchProps) {
   }
 
   return (
-    <div className="relative mx-auto flex w-full flex-col items-center px-3">
-      <form onSubmit={handleSubmit} className="flex w-full max-w-2xl flex-row">
+    <div className="mx-auto w-full px-3">
+      <div className="relative mx-auto flex w-full max-w-2xl flex-col">
+        <form onSubmit={handleSubmit} className="flex w-full flex-row">
         <input
           type="text"
           value={query}
@@ -129,8 +130,8 @@ export default function Search({ onNavigate }: SearchProps) {
           Rechercher
         </button>
       </form>
-      {suggestions.length > 0 && (
-        <ul className="absolute left-0 right-0 z-10 mt-1 w-full max-w-2xl rounded bg-white text-left shadow" style={{ top: '100%' }}>
+        {suggestions.length > 0 && (
+        <ul className="absolute left-0 right-0 top-full z-10 mt-2 w-full rounded bg-white text-left shadow-lg">
           {suggestions.map((post) => (
             <li
               key={post.id}
@@ -142,6 +143,7 @@ export default function Search({ onNavigate }: SearchProps) {
           ))}
         </ul>
       )}
+      </div>
     </div>
   )
 }

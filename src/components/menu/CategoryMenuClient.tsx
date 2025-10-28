@@ -61,11 +61,10 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
           position: relative;
         }
         .category-list li::after {
-          content: '\\00a0|\\00a0';
-          font-family: 'Lato', sans-serif;
-          font-weight: 300;
-          font-style: normal;
-          position: absolute;
+          content: ' | ';
+          display: inline-block;
+          margin: 0 0 0 0.5rem;
+          font-weight: 200;
         }
         .category-list li:last-child::after {
           content: '';

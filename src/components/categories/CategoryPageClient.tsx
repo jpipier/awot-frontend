@@ -134,10 +134,16 @@ export default function CategoryPageClient({
               >
                 <Link href={`/articles/${post.slug}`} className="group block">
                   {featuredImage ? (
-                    <div className={clsx('overflow-hidden', isFeature ? 'flex flex-col gap-6 sm:flex-row' : '')}>
+                    <div
+                      className={clsx(
+                        'overflow-hidden',
+                        isFeature ? 'flex flex-col gap-6 sm:flex-row' : ''
+                      )}
+                      style={isFeature ? { minHeight: '400px' } : undefined}
+                    >
                       {isFeature ? (
                         <>
-                          <div className="relative max-h-full w-full overflow-hidden sm:w-2/3 md:max-h-[600px]">
+                          <div className="relative max-h-full w-full overflow-hidden sm:w-2/3">
                             <Image
                               src={featuredImage}
                               alt={altText}

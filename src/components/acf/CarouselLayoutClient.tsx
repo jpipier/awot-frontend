@@ -1,4 +1,5 @@
 'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -24,33 +25,25 @@ export default function CarouselLayoutClient({
   contenu,
   postParPage
 }: CarouselLayoutClientProps) {
-
   return (
-    <section className="my-20">
-      <div
-        className={`mx-auto flex max-w-screen-full items-end overflow-hidden ${postParPage > 2 ? 'flex-col lg:flex-row mb-[3rem]' : 'flex-col lg:flex-row'}`}
-      >
+    <div className="mx-auto max-w-screen-full overflow-hidden">
+      <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
-          className={`mb-10 w-full px-4 text-left lg:mb-0 ${
-            postParPage > 2 ? 'lg:w-2/5 px-[4rem] md:px-[8rem] lg:px-[10rem]' : 'lg:w-3/5 md:px-10 lg:px-[10rem]'
+          className={`flex w-full flex-col gap-6 px-4 text-left ${
+            postParPage > 2 ? 'lg:w-2/5 lg:px-[6rem]' : 'lg:w-3/5 lg:px-[8rem]'
           }`}
         >
-          <h3 className="lato-light text-lg">{headline}</h3>
-          <h2
-            className={`font-schnyder_wide_xl_webdemi ${postParPage > 2 ? 'text-[4rem]' : 'relative z-10 text-[3rem]'} lg:text-[5rem]`}
-          >
-            {titreDeLaSection}
-          </h2>
+          {headline ? <h3 className="text-sm font-light uppercase tracking-wide text-gray-600">{headline}</h3> : null}
+          {titreDeLaSection ? (
+            <h2 className="font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-6xl text-left">
+              {titreDeLaSection}
+            </h2>
+          ) : null}
           {contenu ? (
-            <div
-              className={`mt-4 text-sm lato-light ${
-                postParPage > 2 ? 'pr-0 lg:pr-0 xl:pr-[4rem] 3xl:pr-[10rem]' : 'lg:pr-[15rem] 3xl:pr-[22rem]'
-              }`}
-              dangerouslySetInnerHTML={{ __html: contenu }}
-            />
+            <div className="text-sm leading-relaxed lato-light" dangerouslySetInnerHTML={{ __html: contenu }} />
           ) : null}
         </div>
-        <div className={`w-full overflow-hidden pl-5 lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
+        <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
           <Swiper
             modules={[Navigation, Pagination]}
             className="mySwiper"
@@ -97,6 +90,6 @@ export default function CarouselLayoutClient({
           </Swiper>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
