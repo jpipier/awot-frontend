@@ -21,7 +21,7 @@ interface GuideLayoutClientProps {
 
 export default function GuideLayoutClient({ posts, link }: GuideLayoutClientProps) {
   return (
-    <section className="my-20 max-w-screen-full bg-zinc-900">
+    <section className="max-w-screen-full bg-zinc-900">
       <div className="flex flex-col items-center lg:h-[80vh] lg:flex-row">
         <div className="relative w-full lg:w-10/12">
           <Swiper

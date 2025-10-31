@@ -21,7 +21,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
 
   return (
     <div className="category-list mx-auto w-full px-6 pb-2 text-nowrap lg:w-1/2">
-      <ul className="category-list hidden flex-wrap justify-start gap-3 lg:flex">
+      <ul className="category-list hidden flex-wrap justify-start lg:flex pr-[3rem] pb-[2rem]">
         {categories.map((child) => (
           <li key={child.slug}>
             <a
@@ -63,7 +63,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
         .category-list li::after {
           content: ' | ';
           display: inline-block;
-          margin: 0 0 0 0.5rem;
+          margin: 0 0.5rem;
           font-weight: 200;
         }
         .category-list li:last-child::after {

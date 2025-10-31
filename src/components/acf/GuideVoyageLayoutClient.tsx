@@ -35,7 +35,7 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
 
   return (
     <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
-      <div className="flex w-full flex-col gap-4 pr-6 text-left lg:w-2/6 lg:pr-16">
+      <div className="flex w-full flex-col gap-4 pr-6 text-left lg:w-2/5 lg:pr-16 px-[8rem]">
         <h2 className="text-2xl font-brandon_grotesquemedium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic lato-light-italic">
@@ -46,22 +46,22 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
         {current?.slug ? (
           <Link
             href={`/articles/${current.slug}`}
-            className="mt-4 inline-block bg-black px-4 py-2 text-sm uppercase text-white"
+            className="mt-4 inline-block bg-black px-4 py-2 text-sm uppercase text-white w-fit"
           >
             Lire la suite
           </Link>
         ) : null}
       </div>
-      <div className="w-full overflow-hidden pl-[1rem] lg:w-4/6">
+      <div className="w-full overflow-hidden lg:w-3/5 lg:pl-0">
         <Swiper
           modules={[Navigation, Pagination]}
           className="mySwiper"
           slidesPerView={1.2}
           spaceBetween={20}
           breakpoints={{
-            640: { slidesPerView: 1.7, spaceBetween: 20 },
+            640: { slidesPerView: 1.5, spaceBetween: 20 },
             768: { slidesPerView: 2, spaceBetween: 30 },
-            1024: { slidesPerView: 2.5, spaceBetween: 40 }
+            1024: { slidesPerView: 2.5, spaceBetween: 20 }
           }}
           onSlideChange={({ activeIndex: index }) => setActiveIndex(index)}
         >
@@ -71,12 +71,12 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
                 <Link href={`/articles/${post.slug}`}
                   className="block">
                   {post.optionsArticles?.imagePortait?.node?.guid ? (
-                    <div className="relative h-[300px] w-full overflow-hidden md:h-[500px] lg:h-[490px] 3xl:h-[590px]">
+                    <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
                       <Image
                         src={post.optionsArticles.imagePortait.node.guid}
                         alt={post.title}
                         fill
-                        className="rounded-md object-cover shadow-lg transition-transform duration-300 group-hover:scale-110"
+                        className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                         sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                         unoptimized
                       />

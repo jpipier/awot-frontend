@@ -25,10 +25,10 @@ export default async function GuideVoyageLayout({
   }
 
   return (
-    <div className="mx-auto max-w-screen-xl">
+    <div className="">
       <div className="flex flex-col items-start gap-6 md:flex-row md:items-end md:justify-between">
         {titreDeLaSection ? (
-          <h2 className="font-custom text-4xl leading-tight md:text-6xl">{titreDeLaSection}</h2>
+          <h2 className="font-custom text-4xl leading-tight md:text-[9rem] pl-[8rem] -mr-[7rem]">{titreDeLaSection}</h2>
         ) : null}
         <CategoryMenu selectedSlug={slug} />
       </div>

@@ -45,7 +45,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
     <div
       ref={containerRef}
       className={clsx(
-        'bloc-portrait relative overflow-hidden pt-0 pb-20 sm:flex sm:flex-row lg:my-20 lg:block lg:py-20',
+        'bloc-portrait relative overflow-hidden pt-0 pb-20 sm:flex sm:flex-row lg:block',
         'mb-40 transition-colors duration-500 lg:mb-0',
         isVisible ? 'bg-black' : 'bg-white'
       )}
@@ -79,38 +79,46 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         onSlideChange={({ activeIndex }) => setCurrentIndex(activeIndex % slides.length)}
         className="portrait-slider mx-4"
       >
-        {slides.map((post, index) => (
-          <SwiperSlide key={post.slug ?? index} className="relative p-4">
-            <Link href={`/articles/${post.slug ?? ''}`} className="block">
-              {post.optionsArticles?.imagePaysage?.node?.guid ? (
-                <div className="relative w-full overflow-hidden lg:h-[21rem]">
-                  <Image
-                    src={post.optionsArticles.imagePaysage.node.guid}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 33vw, 100vw"
-                  unoptimized
-                  />
-                </div>
-              ) : null}
-            </Link>
-            <div
-              className={clsx(
-                'mt-3 transition-colors',
-                currentIndex === index ? 'text-xl' : 'text-lg',
-                isVisible ? 'text-white' : 'text-black'
-              )}
-            >
-              <Link href={`/articles/${post.slug ?? ''}`}>
-                <p className="font-brandon_grotesquelight_italic mb-1 text-xs uppercase">
-                  {post.categories?.edges?.[0]?.node.name ?? ''}
-                </p>
-                <h3 className="text-base uppercase font-brandon_grotesquemedium">{post.title}</h3>
+        {slides.map((post, index) => {
+          const imageNode =
+            post.optionsArticles?.imagePaysage?.node ??
+            post.optionsArticles?.imagePortait?.node ??
+            post.featuredImage?.node
+          const imageSrc = imageNode?.sourceUrl ?? imageNode?.guid ?? null
+
+          return (
+            <SwiperSlide key={post.slug ?? index} className="relative p-4">
+              <Link href={`/articles/${post.slug ?? ''}`} className="block">
+                {imageSrc ? (
+                  <div className="relative w-full overflow-hidden lg:h-[21rem]">
+                    <Image
+                      src={imageSrc}
+                      alt={imageNode?.altText ?? post.title}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 33vw, 100vw"
+                      unoptimized
+                    />
+                  </div>
+                ) : null}
               </Link>
-            </div>
-          </SwiperSlide>
-        ))}
+              <div
+                className={clsx(
+                  'mt-3 transition-colors',
+                  currentIndex === index ? 'text-xl' : 'text-lg',
+                  isVisible ? 'text-white' : 'text-black'
+                )}
+              >
+                <Link href={`/articles/${post.slug ?? ''}`}>
+                  <p className="font-brandon_grotesquelight_italic mb-1 text-xs uppercase">
+                    {post.categories?.edges?.[0]?.node.name ?? ''}
+                  </p>
+                  <h3 className="text-base uppercase font-brandon_grotesquemedium">{post.title}</h3>
+                </Link>
+              </div>
+            </SwiperSlide>
+          )
+        })}
       </Swiper>
       <div className="swiper-button-prev-portrait" />
       <div className="swiper-button-next-portrait" />

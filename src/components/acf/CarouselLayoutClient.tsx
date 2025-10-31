@@ -10,6 +10,8 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
+const UNIFORM_HEIGHT_TITLES = new Set(['food', 'hebergement', 'hebergements', 'voyage', 'voyages'])
+
 interface CarouselLayoutClientProps {
   posts: Article[]
   titreDeLaSection?: string | null
@@ -25,17 +27,27 @@ export default function CarouselLayoutClient({
   contenu,
   postParPage
 }: CarouselLayoutClientProps) {
+  const normalizedTitle = titreDeLaSection
+    ?.trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+  const useUniformHeights = normalizedTitle ? UNIFORM_HEIGHT_TITLES.has(normalizedTitle) : false
+  const imageWrapperHeightClass = useUniformHeights
+    ? 'h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]'
+    : 'h-[275px] md:h-[500px] lg:h-[490px] 3xl:h-[590px]'
+
   return (
     <div className="mx-auto max-w-screen-full overflow-hidden">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
           className={`flex w-full flex-col gap-6 px-4 text-left ${
-            postParPage > 2 ? 'lg:w-2/5 lg:px-[6rem]' : 'lg:w-3/5 lg:px-[8rem]'
+            postParPage > 2 ? 'lg:w-2/5 lg:px-[8rem]' : 'lg:w-3/5 lg:px-[8rem]'
           }`}
         >
           {headline ? <h3 className="text-sm font-light uppercase tracking-wide text-gray-600">{headline}</h3> : null}
           {titreDeLaSection ? (
-            <h2 className="font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-6xl text-left">
+            <h2 className="font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-[5rem] text-left">
               {titreDeLaSection}
             </h2>
           ) : null}
@@ -63,7 +75,7 @@ export default function CarouselLayoutClient({
                 <div className="group relative">
                   <Link href={`/articles/${post.slug}`} className="block">
                     {post.optionsArticles?.imagePortait?.node?.guid ? (
-                      <div className="relative h-[275px] w-full overflow-hidden md:h-[500px] lg:h-[490px] 3xl:h-[590px]">
+                      <div className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}>
                         <Image
                           src={post.optionsArticles.imagePortait.node.guid}
                           alt={post.title}

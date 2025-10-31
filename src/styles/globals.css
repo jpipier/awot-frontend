@@ -43,7 +43,7 @@ a {
 }
 
 .home-block:first-of-type {
-  padding-top: 6rem;
+  padding-top: 0rem;
 }
 
 .home-block:last-of-type {
