@@ -74,13 +74,12 @@ export default async function HomePage() {
   const blocs = page?.template?.homepage?.blocs ?? []
 
   return (
-    <div className="flex flex-col gap-24">
+    <div className="flex flex-col">
       {blocs.map((bloc, index) => (
         <section key={`${bloc.fieldGroupName}-${index}`} className="home-block">
           {renderBloc(bloc)}
         </section>
       ))}
-      <PostFooter />
       <Footer />
     </div>
   )
