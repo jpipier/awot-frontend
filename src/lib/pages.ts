@@ -5,6 +5,7 @@ interface PageResponse {
     databaseId: number
     title: string
     uri: string
+    isFrontPage: boolean
     elementorContent?: string | null
     content?: string | null
   } | null
@@ -16,6 +17,7 @@ const PAGE_BY_URI_QUERY = /* GraphQL */ `
       databaseId
       title
       uri
+      isFrontPage
       elementorContent
       content
     }
