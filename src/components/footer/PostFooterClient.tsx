@@ -69,6 +69,7 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                       src={post.featuredImage.node.sourceUrl}
                       alt={post.featuredImage.node.altText ?? post.title}
                       fill
+                      style={{ top: 'calc(50% + 1px)', left: 'calc(50% + 1px)' }}
                       sizes="(min-width: 1280px) 15vw, 50vw"
                       unoptimized
                     />
@@ -99,6 +100,10 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
           position: absolute;
           opacity: 1;
           transform: rotateX(0deg);
+        }
+        .elementor-posts-container.elementor-has-item-ratio .elementor-post__thumbnail img{insert
+          top: calc(50% + 1px) !important;
+          left: calc(50% + 1px) !important;
         }
       `}</style>
     </div>
