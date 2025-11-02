@@ -41,11 +41,11 @@ export default function CarouselLayoutClient({
     <div className="mx-auto max-w-screen-full overflow-hidden">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
-          className={`flex w-full flex-col gap-6 px-4 text-left ${
+          className={`flex w-full flex-col gap-6 px-4 text-left pb-[3rem] ${
             postParPage > 2 ? 'lg:w-2/5 lg:px-[8rem]' : 'lg:w-3/5 lg:px-[8rem]'
           }`}
         >
-          {headline ? <h3 className="text-sm font-light uppercase tracking-wide text-gray-600">{headline}</h3> : null}
+          {headline ? <h3 className="text-sm font-light uppercase tracking-wide text-gray-600 -mb-[2rem]">{headline}</h3> : null}
           {titreDeLaSection ? (
             <h2 className="font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-[5rem] text-left">
               {titreDeLaSection}
@@ -88,12 +88,12 @@ export default function CarouselLayoutClient({
                     ) : null}
                     <div className="mt-3">
                       <p
-                        className="mb-1 text-xs uppercase font-brandon_grotesquelight_italic"
+                        className="mb-0 text-[0.5rem] uppercase font-montserrat italic text-gray-600"
                         dangerouslySetInnerHTML={{
                           __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
                         }}
                       />
-                      <h3 className="text-base uppercase font-brandon_grotesquemedium">{post.title}</h3>
+                      <h3 className="text-xs uppercase font-montserrat font-medium ">{post.title}</h3>
                     </div>
                   </Link>
                 </div>

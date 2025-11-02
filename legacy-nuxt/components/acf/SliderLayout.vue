@@ -146,7 +146,7 @@ onMounted(async () => {
           />
           <button
             @click="fetchSuggestions"
-            class="bg-black text-white px-4 rounded-r font-semibold hover:bg-gray-900 transition"
+            class="bg-black text-white px-4 rounded-r font-semibold hover:bg-gray-900 transition font-montserrat"
             aria-label="Rechercher"
           >
             Rechercher

@@ -120,14 +120,14 @@ export default function Search({ onNavigate }: SearchProps) {
           value={query}
           onChange={handleChange}
           placeholder={`Vous recherchez ${placeholder}`}
-          className="w-full rounded-l border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-l border border-gray-300 p-2 focus:border-black-500 focus:outline-none uppercase text-[6pt] tracking-widest font-montserrat"
         />
         <button
           type="submit"
-          className="rounded-r bg-black px-4 font-semibold text-white transition hover:bg-gray-900"
-          aria-label="Rechercher"
+          className="rounded-r bg-black px-6 text-white transition hover:bg-gray-900 font-montserrat uppercase text-[6pt] tracking-widest"
+          aria-label="Chercher"
         >
-          Rechercher
+          Chercher
         </button>
       </form>
         {suggestions.length > 0 && (
@@ -135,7 +135,7 @@ export default function Search({ onNavigate }: SearchProps) {
           {suggestions.map((post) => (
             <li
               key={post.id}
-              className="cursor-pointer p-2 hover:bg-gray-200"
+              className="cursor-pointer p-2 hover:bg-gray-200 font-montserrat uppercase text-[6pt] tracking-widest"
               onClick={() => navigateTo(post)}
             >
               {post.title}

@@ -15,7 +15,7 @@ export default function ImageLayout({ image }: ImageLayoutProps) {
   }
 
   return (
-    <section className="relative h-screen w-full">
+    <section className="relative h-[80vh] w-full">
       <Image src={src} alt="" fill className="object-cover" sizes="100vw" unoptimized priority />
     </section>
   )

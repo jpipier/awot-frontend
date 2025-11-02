@@ -36,11 +36,11 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
   const loop = slides.length > 1
 
   return (
-    <div className="relative h-screen w-full">
+    <div className="relative h-[85vh] w-full">
       <div className="absolute left-1/2 top-1/4 z-20 w-full max-w-full -translate-x-1/2">
         <div className="mb-[10vh] mt-[-5vh] text-center text-white">
           <h1 className="font-custom text-[45pt] lg:text-[103pt]">{siteTitle}</h1>
-          <p className="font-montserrat text-[8pt] uppercase lg:text-[10pt]">{siteDescription}</p>
+          <p className="font-montserrat text-[8pt] uppercase lg:text-[8pt] -mt-[1rem] tracking-wider">{siteDescription}</p>
         </div>
         <Search />
       </div>
@@ -52,7 +52,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
         navigation={false}
         pagination={false}
         autoplay={{ delay: 3000, disableOnInteraction: false }}
-        className="h-screen"
+        className="h-[85vh]"
       >
         {slides.map((slide, index) => {
           const imageSrc = slide.img?.node?.guid
