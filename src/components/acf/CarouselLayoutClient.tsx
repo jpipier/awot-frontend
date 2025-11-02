@@ -19,6 +19,7 @@ interface CarouselLayoutClientProps {
   headline?: string | null
   contenu?: string | null
   postParPage: number
+  categorySlug?: string
 }
 
 export default function CarouselLayoutClient({
@@ -26,7 +27,8 @@ export default function CarouselLayoutClient({
   titreDeLaSection,
   headline,
   contenu,
-  postParPage
+  postParPage,
+  categorySlug
 }: CarouselLayoutClientProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null)
   const [isTitleVisible, setIsTitleVisible] = useState(false)
@@ -294,6 +296,20 @@ export default function CarouselLayoutClient({
                 </div>
               </SwiperSlide>
             ))}
+            {categorySlug ? (
+              <SwiperSlide key="view-all" className="carousel-item">
+                <Link
+                  href={`/categories/${categorySlug}`}
+                  className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
+                >
+                  <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                    <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
+                      Découvrir tous
+                    </span>
+                  </div>
+                </Link>
+              </SwiperSlide>
+            ) : null}
           </Swiper>
         </div>
       </div>

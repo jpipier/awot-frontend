@@ -15,11 +15,10 @@ export default async function CarouselLayout({
   titreDeLaSection,
   headline,
   contenu,
-  categorie,
-  postParPage
+  categorie
 }: CarouselLayoutProps) {
   const slug = categorie?.nodes?.[0]?.slug ?? ''
-  const limit = postParPage ?? 6
+  const limit = 4
   const posts = slug ? await getPostsByCategory(slug, limit) : []
 
   if (!posts.length) {
@@ -32,7 +31,8 @@ export default async function CarouselLayout({
       titreDeLaSection={titreDeLaSection}
       headline={headline}
       contenu={contenu}
-      postParPage={postParPage ?? posts.length}
+      postParPage={posts.length}
+      categorySlug={slug}
     />
   )
 }

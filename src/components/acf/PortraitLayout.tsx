@@ -13,11 +13,10 @@ interface PortraitLayoutProps {
 export default async function PortraitLayout({
   titreDeLaSection,
   categorie,
-  postParPage,
   contenu
 }: PortraitLayoutProps) {
   const slug = categorie?.nodes?.[0]?.slug ?? ''
-  const limit = typeof postParPage === 'number' ? postParPage : Number(postParPage) || 6
+  const limit = 4
   const posts = slug ? await getPostsByCategory(slug, limit) : []
 
   if (!posts.length) {

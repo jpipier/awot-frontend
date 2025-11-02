@@ -14,9 +14,10 @@ import 'swiper/css/pagination'
 
 interface GuideVoyageLayoutClientProps {
   posts: Article[]
+  categorySlug?: string
 }
 
-export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClientProps) {
+export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVoyageLayoutClientProps) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const sanitizedPosts = useMemo(
@@ -32,6 +33,8 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
   )
 
   const current = sanitizedPosts[activeIndex] ?? sanitizedPosts[0]
+
+  const categoryUrl = categorySlug ? `/categories/${categorySlug}` : null
 
   return (
     <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
@@ -63,7 +66,10 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
             768: { slidesPerView: 2, spaceBetween: 30 },
             1024: { slidesPerView: 2.5, spaceBetween: 20 }
           }}
-          onSlideChange={({ activeIndex: index }) => setActiveIndex(index)}
+          onSlideChange={({ activeIndex: index }) => {
+            const clampedIndex = Math.min(index ?? 0, Math.max(sanitizedPosts.length - 1, 0))
+            setActiveIndex(clampedIndex)
+          }}
         >
           {sanitizedPosts.map((post) => (
             <SwiperSlide key={post.slug} className="carousel-item">
@@ -90,6 +96,22 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
               </div>
             </SwiperSlide>
           ))}
+          {categoryUrl ? (
+            <SwiperSlide key="view-all" className="carousel-item">
+              <Link
+                href={categoryUrl}
+                className="block h-full w-full"
+              >
+                <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
+                  <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                    <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
+                      Découvrir tous
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </SwiperSlide>
+          ) : null}
         </Swiper>
       </div>
     </div>

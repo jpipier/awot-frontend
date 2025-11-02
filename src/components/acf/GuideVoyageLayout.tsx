@@ -13,11 +13,10 @@ interface GuideVoyageLayoutProps {
 
 export default async function GuideVoyageLayout({
   titreDeLaSection,
-  categorie,
-  postParPage
+  categorie
 }: GuideVoyageLayoutProps) {
   const slug = categorie?.nodes?.[0]?.slug ?? ''
-  const limit = postParPage ?? 10
+  const limit = 4
   const posts = slug ? await getPostsByCategory(slug, limit) : ([] as Article[])
 
   if (!posts.length) {
@@ -32,7 +31,7 @@ export default async function GuideVoyageLayout({
         ) : null}
         <CategoryMenu selectedSlug={slug} />
       </div>
-      <GuideVoyageLayoutClient posts={posts} />
+      <GuideVoyageLayoutClient posts={posts} categorySlug={slug} />
     </div>
   )
 }
