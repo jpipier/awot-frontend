@@ -4,9 +4,10 @@ import { useEffect } from 'react'
 
 interface ElementorStylesLoaderProps {
   cssFiles: string[]
+  bodyClasses?: string[] | null
 }
 
-export default function ElementorStylesLoader({ cssFiles }: ElementorStylesLoaderProps) {
+export default function ElementorStylesLoader({ cssFiles, bodyClasses }: ElementorStylesLoaderProps) {
   useEffect(() => {
     const appended: HTMLLinkElement[] = []
 
@@ -26,6 +27,24 @@ export default function ElementorStylesLoader({ cssFiles }: ElementorStylesLoade
       })
     }
   }, [cssFiles])
+
+  useEffect(() => {
+    const classesToApply = (bodyClasses ?? []).filter(Boolean)
+    const addedClasses: string[] = []
+
+    classesToApply.forEach((cls) => {
+      if (!document.body.classList.contains(cls)) {
+        document.body.classList.add(cls)
+        addedClasses.push(cls)
+      }
+    })
+
+    return () => {
+      addedClasses.forEach((cls) => {
+        document.body.classList.remove(cls)
+      })
+    }
+  }, [bodyClasses?.join(' ')])
 
   return null
 }

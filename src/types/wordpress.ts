@@ -121,6 +121,7 @@ export interface Article {
   title: string
   content?: string | null
   elementorContent?: string | null
+  elementorBodyClasses?: string[] | null
   optionsArticles?: {
     champsLibre?: string | null
     champsLibrePageAccueil?: string | null

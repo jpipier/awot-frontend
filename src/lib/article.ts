@@ -21,6 +21,7 @@ const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
       title
       content
       elementorContent
+      elementorBodyClasses
       slug
       optionsArticles {
         champsLibre
@@ -28,13 +29,37 @@ const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
         imagePortait {
           node {
             guid
+            sourceUrl
             srcSet
+            altText
           }
         }
         imagePaysage {
           node {
             guid
             srcSet
+          }
+        }
+      }
+      featuredImage {
+        node {
+          guid
+          sourceUrl
+          srcSet
+          altText
+        }
+      }
+      categories {
+        edges {
+          node {
+            name
+            slug
+            parent {
+              node {
+                name
+                slug
+              }
+            }
           }
         }
       }
