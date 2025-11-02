@@ -35,14 +35,14 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
 
   return (
     <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
-      <div className="flex w-full flex-col gap-4 pr-6 text-left lg:w-2/5 lg:pr-16 px-[8rem]">
-        <h2 className="text-2xl font-brandon_grotesquemedium uppercase leading-tight">{current?.title}</h2>
+      <div className="flex w-full flex-col gap-4 pr-6 text-left lg:w-2/5 lg:pr-16 px-[8rem] self-end pb-[4rem]">
+        <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
-          <h3 className="text-lg text-gray-600 italic lato-light-italic">
+          <h3 className="text-lg text-gray-600 italic font-montserrat italic">
             {current.optionsArticles.champsLibrePageAccueil}
           </h3>
         ) : null}
-        <p className="text-sm leading-relaxed lato-light">{current?.excerptPlain}</p>
+        <p className="text-sm font-light font-montserrat">{current?.excerptPlain}</p>
         {current?.slug ? (
           <Link
             href={`/articles/${current.slug}`}
@@ -83,8 +83,8 @@ export default function GuideVoyageLayoutClient({ posts }: GuideVoyageLayoutClie
                     </div>
                   ) : null}
                   <div className="mt-3">
-                    <p className="mb-1 text-[12px] uppercase font-brandon_grotesquelight_italic" dangerouslySetInnerHTML={{ __html: post.optionsArticles?.champsLibrePageAccueil ?? '' }} />
-                    <h3 className="mt-2 text-left text-[15px] uppercase font-brandon_grotesquemedium">{post.title}</h3>
+                    <p className="mb-1 text-[12px] uppercase font-montserrat italic" dangerouslySetInnerHTML={{ __html: post.optionsArticles?.champsLibrePageAccueil ?? '' }} />
+                    <h3 className="mt-2 text-left text-[15px] uppercase font-montserrat font-medium">{post.title}</h3>
                   </div>
                 </Link>
               </div>

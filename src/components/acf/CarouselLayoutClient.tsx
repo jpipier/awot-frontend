@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -27,32 +28,226 @@ export default function CarouselLayoutClient({
   contenu,
   postParPage
 }: CarouselLayoutClientProps) {
+  const sectionRef = useRef<HTMLDivElement | null>(null)
+  const [isTitleVisible, setIsTitleVisible] = useState(false)
+  const [isHeadlineVisible, setIsHeadlineVisible] = useState(false)
+  const [isContentVisible, setIsContentVisible] = useState(false)
+  const [titleScrollProgress, setTitleScrollProgress] = useState(0)
+  const headlineRef = useRef<HTMLHeadingElement | null>(null)
+  const titleRef = useRef<HTMLHeadingElement | null>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  const headlineTransition: CSSProperties = { transitionDelay: isHeadlineVisible ? '80ms' : '0ms' }
+  const titleTransition: CSSProperties = { transitionDelay: isTitleVisible ? '120ms' : '0ms' }
+  const contentTransition: CSSProperties = { transitionDelay: isContentVisible ? '480ms' : '0ms' }
+
+  useEffect(() => {
+    const element = headlineRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsHeadlineVisible(entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  useEffect(() => {
+    const element = titleRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTitleVisible(entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  useEffect(() => {
+    const element = contentRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsContentVisible(entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
   const normalizedTitle = titreDeLaSection
     ?.trim()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
+  const normalizedHeadline = headline
+    ?.trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+  const isBonnesAdressesHeadline = normalizedHeadline === 'bonnes adresses'
+  const titleScrollEnabled = normalizedTitle === 'hebergements'
   const useUniformHeights = normalizedTitle ? UNIFORM_HEIGHT_TITLES.has(normalizedTitle) : false
   const imageWrapperHeightClass = useUniformHeights
     ? 'h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]'
     : 'h-[275px] md:h-[500px] lg:h-[490px] 3xl:h-[590px]'
 
+  useEffect(() => {
+    if (!titleScrollEnabled) {
+      setTitleScrollProgress(0)
+      return
+    }
+
+    let frame = 0
+
+    const updateProgress = () => {
+      frame = 0
+
+      const section = sectionRef.current
+      if (!section) {
+        return
+      }
+
+      const rect = section.getBoundingClientRect()
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1
+      const clampedTop = Math.min(Math.max(rect.top, 0), viewportHeight)
+      const nextProgress = Math.min(Math.max(1 - clampedTop / viewportHeight, 0), 1)
+
+      setTitleScrollProgress((prev) => {
+        if (Math.abs(prev - nextProgress) < 0.005) {
+          return prev
+        }
+        return nextProgress
+      })
+    }
+
+    const handleScroll = () => {
+      if (frame) {
+        return
+      }
+      frame = window.requestAnimationFrame(updateProgress)
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+
+    return () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame)
+      }
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
+  }, [titleScrollEnabled])
+
+  const headlineStartOffset = isBonnesAdressesHeadline ? -300 : -80
+  const titleStartOffset = isBonnesAdressesHeadline ? -320 : -90
+  const scrollCatchupFactor = isBonnesAdressesHeadline ? 2 : 1.6
+  const computeOffset = (startOffset: number) => {
+    if (!titleScrollEnabled) {
+      return 0
+    }
+    const easedProgress = Math.min(titleScrollProgress * scrollCatchupFactor, 1)
+    const remaining = 1 - easedProgress
+    return remaining * startOffset
+  }
+  const headlineScrollOffset = computeOffset(headlineStartOffset)
+  const titleScrollOffset = computeOffset(titleStartOffset)
+  const computedHeadlineStyle: CSSProperties = titleScrollEnabled
+    ? { ...headlineTransition, transform: `translateY(${headlineScrollOffset}px)` }
+    : headlineTransition
+  const computedTitleStyle: CSSProperties = titleScrollEnabled
+    ? { ...titleTransition, transform: `translateY(${titleScrollOffset}px)` }
+    : titleTransition
+  const baseTitleClass = 'font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-[5rem] text-left'
+  const easingClass = titleScrollEnabled
+    ? 'transform will-change-transform transition-opacity duration-500 ease-out'
+    : 'transform transition-all duration-700 ease-out'
+  const visibilityClass = isTitleVisible ? 'opacity-100' : 'opacity-0'
+  const translateClass =
+    titleScrollEnabled || !titreDeLaSection
+      ? ''
+      : isTitleVisible
+        ? 'translate-y-0'
+        : '-translate-y-16'
+  const titleClassName = [baseTitleClass, easingClass, visibilityClass, translateClass].filter(Boolean).join(' ')
+  const baseHeadlineClass = 'text-sm font-light uppercase tracking-wide text-gray-600 -mb-[2rem]'
+  const headlineEasingClass = titleScrollEnabled
+    ? 'transform will-change-transform transition-opacity duration-500 ease-out'
+    : 'transform transition-all duration-700 ease-out'
+  const headlineVisibilityClass = isHeadlineVisible ? 'opacity-100' : 'opacity-0'
+  const headlineTranslateClass =
+    titleScrollEnabled
+      ? ''
+      : isHeadlineVisible
+        ? 'translate-y-0'
+        : '-translate-y-16'
+  const headlineClassName = [
+    baseHeadlineClass,
+    headlineEasingClass,
+    headlineVisibilityClass,
+    headlineTranslateClass
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <div className="mx-auto max-w-screen-full overflow-hidden">
+    <div ref={sectionRef} className="mx-auto max-w-screen-full overflow-hidden">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
           className={`flex w-full flex-col gap-6 px-4 text-left pb-[3rem] ${
             postParPage > 2 ? 'lg:w-2/5 lg:px-[8rem]' : 'lg:w-3/5 lg:px-[8rem]'
           }`}
         >
-          {headline ? <h3 className="text-sm font-light uppercase tracking-wide text-gray-600 -mb-[2rem]">{headline}</h3> : null}
+          {headline ? (
+            <h3 ref={headlineRef} style={computedHeadlineStyle} className={headlineClassName}>
+              {headline}
+            </h3>
+          ) : null}
           {titreDeLaSection ? (
-            <h2 className="font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-[5rem] text-left">
+            <h2
+              ref={titleRef}
+              style={computedTitleStyle}
+              className={titleClassName}
+            >
               {titreDeLaSection}
             </h2>
           ) : null}
           {contenu ? (
-            <div className="text-sm leading-relaxed lato-light" dangerouslySetInnerHTML={{ __html: contenu }} />
+            <div
+              ref={contentRef}
+              style={contentTransition}
+              className={`text-sm font-extralight font-montserrat transform transition-all duration-700 ease-out ${
+                isContentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
+              }`}
+              dangerouslySetInnerHTML={{ __html: contenu }}
+            />
           ) : null}
         </div>
         <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>

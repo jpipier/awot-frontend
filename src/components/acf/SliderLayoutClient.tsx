@@ -72,7 +72,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
               />
               {slide.afficherDuTexte ? (
                 <div className="absolute inset-0 -top-[15vw] flex flex-col items-center justify-center text-center text-white">
-                  <p className="font-brandongrotesque-light mb-6 text-xs uppercase after:mt-2 after:block after:-ml-[30%] after:h-[1px] after:w-[160%] after:bg-white">
+                  <p className="font-montserrat mb-6 text-xs uppercase after:mt-2 after:block after:-ml-[30%] after:h-[1px] after:w-[160%] after:bg-white">
                     {slide.headline}
                   </p>
                   <h2 className="font-schnyder_wide_xl_webdemi text-5xl text-white lg:text-9xl">

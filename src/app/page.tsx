@@ -10,6 +10,37 @@ import PostFooter from '@/components/footer/PostFooter'
 import { getHomePage } from '@/lib/home'
 import type { HomePageBloc } from '@/types/wordpress'
 
+function slugifyId(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+function getBlocSectionId(bloc: HomePageBloc): string | undefined {
+  if ('titreDeLaSection' in bloc) {
+    const title = bloc.titreDeLaSection
+
+    if (typeof title === 'string') {
+      const normalized = slugifyId(title.trim())
+
+      if (normalized) {
+        return normalized
+      }
+    }
+    else{
+      return 'section-' + slugifyId(bloc.fieldGroupName)
+    }
+  }
+  else{
+    return 'section-' + slugifyId(bloc.fieldGroupName)
+  }
+
+  return undefined
+}
+
 function renderBloc(bloc: HomePageBloc) {
   switch (bloc.fieldGroupName) {
     case 'HomepageBlocsImageLayout':
@@ -47,6 +78,7 @@ function renderBloc(bloc: HomePageBloc) {
     case 'HomepageBlocsGuideLayout':
       return (
         <GuideLayout
+          titreDeLaSection="Carousel Guide"
           categorie={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideLayout' }>).categorie}
           lien={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideLayout' }>).lien}
         />
@@ -75,11 +107,15 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {blocs.map((bloc, index) => (
-        <section key={`${bloc.fieldGroupName}-${index}`} className="home-block">
-          {renderBloc(bloc)}
-        </section>
-      ))}
+      {blocs.map((bloc, index) => {
+        const sectionId = getBlocSectionId(bloc)
+
+        return (
+          <section key={`${bloc.fieldGroupName}-${index}`} id={sectionId} className="home-block">
+            {renderBloc(bloc)}
+          </section>
+        )
+      })}
       <Footer />
     </div>
   )

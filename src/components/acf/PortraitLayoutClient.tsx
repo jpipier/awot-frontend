@@ -87,7 +87,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         'mb-40 transition-colors duration-500 lg:mb-0 bg-white'
       )}
     >
-      <div className="mx-auto flex w-full flex-col gap-12 lg:flex-row lg:items-center">
+      <div className="mx-auto flex w-full flex-col gap-12 lg:flex-row lg:items-start">
         <div
           className="order-1 flex w-full flex-col justify-center lg:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}
@@ -160,15 +160,18 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           )}
         >
           <div className="flex flex-col gap-10 overflow-hidden">
-            <h2 className="text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem]">
+            <h2 className="text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem] lg:mb-3rem">
               {titreDeLaSection}
             </h2>
             <div key={activePost?.slug ?? currentIndex} className="flex flex-col gap-4 text-current">
               {categoryLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
-                  className="font-brandon_grotesquelight_italic text-xs uppercase tracking-[0.3em] -mb-4 opacity-70 line-fade-in"
-                  style={{ animationDelay: `${categoryDelay}s` }}
+                  className={clsx(
+                    'font-brandon_grotesquelight_italic text-xs uppercase tracking-[0.3em] -mb-4 opacity-70 portrait-line',
+                    isVisible && 'portrait-line-visible'
+                  )}
+                  style={{ transitionDelay: `${categoryDelay}s` }}
                 >
                   {categoryLabel}
                 </span>
@@ -179,8 +182,11 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                 className="group"
               >
                 <h3
-                  className="font-schnyder_xl_webdemi text-[2.5rem] leading-tight transition duration-300 group-hover:opacity-70 line-fade-in"
-                  style={{ animationDelay: `${titleDelay}s` }}
+                  className={clsx(
+                    'font-schnyder_xl_webdemi text-[2.5rem] leading-tight transition duration-300 group-hover:opacity-70 portrait-line',
+                    isVisible && 'portrait-line-visible'
+                  )}
+                  style={{ transitionDelay: `${titleDelay}s` }}
                 >
                   {activePost?.title}
                 </h3>
@@ -189,8 +195,13 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                 ? excerptLines.map((line, idx) => (
                     <p
                       key={`${activePost?.slug ?? currentIndex}-line-${idx}`}
-                      className="lato-light text-sm leading-relaxed opacity-80 line-fade-in"
-                      style={{ animationDelay: `${excerptBaseDelay + ANIMATION_STEP * idx}s` }}
+                      className={clsx(
+                        'font-montserrat lato-light text-sm opacity-80 portrait-line',
+                        isVisible && 'portrait-line-visible'
+                      )}
+                      style={{
+                        transitionDelay: `${excerptBaseDelay + ANIMATION_STEP * idx}s`
+                      }}
                     >
                       {line}
                     </p>
@@ -199,8 +210,11 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               <Link
                 key={`cta-${activePost?.slug ?? currentIndex}`}
                 href={activePost?.slug ? `/articles/${activePost.slug}` : '#'}
-                className="text-xs uppercase tracking-[0.2em] text-current line-fade-in"
-                style={{ animationDelay: `${ctaDelay}s` }}
+                className={clsx(
+                  'text-xs uppercase tracking-[0.2em] text-current portrait-line',
+                  isVisible && 'portrait-line-visible'
+                )}
+                style={{ transitionDelay: `${ctaDelay}s` }}
               >
                 Découvrir <span aria-hidden="true">→</span>
               </Link>
@@ -235,20 +249,14 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         .portrait-slider {
           overflow: visible;
         }
-        .line-fade-in {
+        .portrait-line {
           opacity: 0;
           transform: translateY(-16px);
-          animation: lineFadeDown 0.45s ease forwards;
+          transition: opacity 0.7s ease-out, transform 0.7s ease-out;
         }
-        @keyframes lineFadeDown {
-          0% {
-            opacity: 0;
-            transform: translateY(-16px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        .portrait-line-visible {
+          opacity: 1;
+          transform: translateY(0);
         }
       `}</style>
     </div>

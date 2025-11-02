@@ -9,9 +9,11 @@ interface GuideLayoutProps {
     title?: string | null
     url?: string | null
   }
+  titreDeLaSection?: string | null
 }
 
-export default async function GuideLayout({ categorie, lien }: GuideLayoutProps) {
+export default async function GuideLayout({ categorie, lien, titreDeLaSection }: GuideLayoutProps) {
+  const sectionTitle = titreDeLaSection ?? 'Carousel Guide'
   const slug = categorie?.nodes?.[0]?.slug ?? ''
   const posts = slug ? await getPostsByCategory(slug, 10) : []
 
@@ -19,5 +21,5 @@ export default async function GuideLayout({ categorie, lien }: GuideLayoutProps)
     return null
   }
 
-  return <GuideLayoutClient posts={posts} link={lien} />
+  return <GuideLayoutClient posts={posts} link={lien} titreDeLaSection={sectionTitle} />
 }

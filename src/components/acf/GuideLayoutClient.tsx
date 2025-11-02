@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useState, type CSSProperties, type ComponentPropsWithoutRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -17,9 +18,94 @@ interface GuideLayoutClientProps {
     title?: string | null
     url?: string | null
   }
+  titreDeLaSection?: string | null
 }
 
-export default function GuideLayoutClient({ posts, link }: GuideLayoutClientProps) {
+function AnimatedGuideTitle({
+  className,
+  delay = 120,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<'h3'> & { delay?: number }) {
+  const [isVisible, setIsVisible] = useState(false)
+  const headingRef = useRef<HTMLHeadingElement | null>(null)
+
+  useEffect(() => {
+    const element = headingRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const style: CSSProperties = { transitionDelay: isVisible ? `${delay}ms` : '0ms' }
+  const baseClasses = isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
+  const combinedClasses = `transform transition-all duration-700 ease-out ${baseClasses}${
+    className ? ` ${className}` : ''
+  }`
+
+  return (
+    <h3 ref={headingRef} style={style} className={combinedClasses} {...props}>
+      {children}
+    </h3>
+  )
+}
+
+function AnimatedGuideSubtitle({
+  className,
+  delay = 220,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<'h4'> & { delay?: number }) {
+  const [isVisible, setIsVisible] = useState(false)
+  const headingRef = useRef<HTMLHeadingElement | null>(null)
+
+  useEffect(() => {
+    const element = headingRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const style: CSSProperties = { transitionDelay: isVisible ? `${delay}ms` : '0ms' }
+  const baseClasses = isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
+  const combinedClasses = `transform transition-all duration-700 ease-out ${baseClasses}${
+    className ? ` ${className}` : ''
+  }`
+
+  return (
+    <h4 ref={headingRef} style={style} className={combinedClasses} {...props}>
+      {children}
+    </h4>
+  )
+}
+
+export default function GuideLayoutClient({ posts, link, titreDeLaSection }: GuideLayoutClientProps) {
   return (
     <section className="max-w-screen-full bg-zinc-900">
       <div className="flex flex-col items-center lg:h-[80vh] lg:flex-row">
@@ -50,12 +136,12 @@ export default function GuideLayoutClient({ posts, link }: GuideLayoutClientProp
                       </div>
                     ) : null}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
-                      <h3 className="font-schnyder_wide_xl_webdemi text-2xl md:text-4xl lg:text-6xl">
+                      <AnimatedGuideTitle className="font-schnyder_wide_xl_webdemi text-2xl md:text-4xl lg:text-6xl">
                         {post.title}
-                      </h3>
-                      <h4 className="mt-4 text-sm uppercase font-montserrat">
+                      </AnimatedGuideTitle>
+                      <AnimatedGuideSubtitle className="mt-4 text-sm uppercase font-montserrat">
                         {post.optionsArticles?.champsLibrePageAccueil}
-                      </h4>
+                      </AnimatedGuideSubtitle>
                     </div>
                   </Link>
                 </div>

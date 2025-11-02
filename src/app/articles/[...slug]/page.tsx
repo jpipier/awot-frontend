@@ -11,6 +11,23 @@ interface ArticlePageProps {
   }
 }
 
+function extractElementorBodyClasses(content?: string | null) {
+  if (!content) {
+    return []
+  }
+
+  const match = content.match(/<div[^>]+class="([^"]*elementor[^"]*)"[^>]*>/i)
+
+  if (!match) {
+    return []
+  }
+
+  return match[1]
+    .split(/\s+/)
+    .map((cls) => cls.trim())
+    .filter((cls) => cls.length > 0)
+}
+
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const slugSegment = Array.isArray(params.slug) ? params.slug[params.slug.length - 1] : params.slug
   const article = await getArticleBySlug(slugSegment)
@@ -20,10 +37,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const cssFiles = await getElementorCssFiles()
+  const fallbackBodyClasses = extractElementorBodyClasses(article.elementorContent ?? article.content)
 
   return (
     <div className="article-container font-brandon_grotesquelight">
-      <ElementorStylesLoader cssFiles={cssFiles} bodyClasses={article.elementorBodyClasses ?? undefined} />
+      <ElementorStylesLoader cssFiles={cssFiles} bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined} />
       <StickyWatcher />
       <section className="elementor-section elementor-section-height-default elementor-element-40717a53" id="sticky-anchor">
         <div

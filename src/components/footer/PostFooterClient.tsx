@@ -76,7 +76,7 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                   ) : null}
                 </div>
               </a>
-              <div className="elementor-post__text font-lato">
+              <div className="elementor-post__text font-montserrat">
                 <a href={`/articles/${post.slug}/`} dangerouslySetInnerHTML={{ __html: post.title }} />
               </div>
             </article>

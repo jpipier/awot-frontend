@@ -21,7 +21,6 @@ const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
       title
       content
       elementorContent
-      elementorBodyClasses
       slug
       optionsArticles {
         champsLibre
