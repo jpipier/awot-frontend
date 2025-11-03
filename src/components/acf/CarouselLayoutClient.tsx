@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -12,6 +12,8 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
 const UNIFORM_HEIGHT_TITLES = new Set(['food', 'hebergement', 'hebergements', 'voyage', 'voyages'])
+const BASE_DELAY_MS = 120
+const STAGGER_DELAY_MS = 80
 
 interface CarouselLayoutClientProps {
   posts: Article[]
@@ -20,6 +22,56 @@ interface CarouselLayoutClientProps {
   contenu?: string | null
   postParPage: number
   categorySlug?: string
+}
+
+function AnimatedCarouselItem({
+  children,
+  className,
+  delay = 0,
+  forceVisible = false
+}: {
+  children: ReactNode
+  className?: string
+  delay?: number
+  forceVisible?: boolean
+}) {
+  const [isVisible, setIsVisible] = useState(false)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const element = containerRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const next = entry.isIntersecting
+        setIsVisible((prev) => (prev === next ? prev : next))
+      },
+      { threshold: 0.3 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const effectiveVisible = forceVisible || isVisible
+  const stateClass = effectiveVisible ? 'carousel-animated-item--visible' : 'carousel-animated-item--hidden'
+  const combinedClassName = ['carousel-animated-item', stateClass, className].filter(Boolean).join(' ')
+
+  const style: CSSProperties | undefined = effectiveVisible
+    ? { transitionDelay: `${Math.max(delay, 0)}ms` }
+    : undefined
+
+  return (
+    <div ref={containerRef} className={combinedClassName} style={style}>
+      {children}
+    </div>
+  )
 }
 
 export default function CarouselLayoutClient({
@@ -35,6 +87,7 @@ export default function CarouselLayoutClient({
   const [isHeadlineVisible, setIsHeadlineVisible] = useState(false)
   const [isContentVisible, setIsContentVisible] = useState(false)
   const [titleScrollProgress, setTitleScrollProgress] = useState(0)
+  const [isCarouselVisible, setIsCarouselVisible] = useState(false)
   const headlineRef = useRef<HTMLHeadingElement | null>(null)
   const titleRef = useRef<HTMLHeadingElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
@@ -96,6 +149,26 @@ export default function CarouselLayoutClient({
     )
 
     observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsCarouselVisible(entry.isIntersecting)
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(section)
 
     return () => {
       observer.disconnect()
@@ -267,52 +340,75 @@ export default function CarouselLayoutClient({
               }
             }}
           >
-            {posts.map((post) => (
+            {posts.map((post, index) => {
+              const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
+            return (
               <SwiperSlide key={post.slug} className="carousel-item">
-                <div className="group relative">
+                <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
                   <Link href={`/articles/${post.slug}`} className="block">
-                    {post.optionsArticles?.imagePortait?.node?.guid ? (
-                      <div className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}>
-                        <Image
-                          src={post.optionsArticles.imagePortait.node.guid}
-                          alt={post.title}
-                          fill
-                          className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
-                          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                          unoptimized
+                      {post.optionsArticles?.imagePortait?.node?.guid ? (
+                        <div className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}>
+                          <Image
+                            src={post.optionsArticles.imagePortait.node.guid}
+                            alt={post.title}
+                            fill
+                            className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
+                            sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                            unoptimized
+                          />
+                        </div>
+                      ) : null}
+                      <div className="mt-3">
+                        <p
+                          className="mb-0 text-[0.5rem] uppercase font-montserrat italic text-gray-600"
+                          dangerouslySetInnerHTML={{
+                            __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
+                          }}
                         />
+                        <h3 className="text-xs uppercase font-montserrat font-medium ">{post.title}</h3>
                       </div>
-                    ) : null}
-                    <div className="mt-3">
-                      <p
-                        className="mb-0 text-[0.5rem] uppercase font-montserrat italic text-gray-600"
-                        dangerouslySetInnerHTML={{
-                          __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
-                        }}
-                      />
-                      <h3 className="text-xs uppercase font-montserrat font-medium ">{post.title}</h3>
-                    </div>
-                  </Link>
-                </div>
-              </SwiperSlide>
-            ))}
+                    </Link>
+                  </AnimatedCarouselItem>
+                </SwiperSlide>
+              )
+            })}
             {categorySlug ? (
               <SwiperSlide key="view-all" className="carousel-item">
-                <Link
-                  href={`/categories/${categorySlug}`}
-                  className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
+                <AnimatedCarouselItem
+                  delay={BASE_DELAY_MS + posts.length * STAGGER_DELAY_MS}
+                  forceVisible={isCarouselVisible}
                 >
-                  <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
-                    <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
-                      Découvrir tous
-                    </span>
-                  </div>
-                </Link>
+                  <Link
+                    href={`/categories/${categorySlug}`}
+                    className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
+                  >
+                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                      <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
+                        Découvrir tous
+                      </span>
+                    </div>
+                  </Link>
+                </AnimatedCarouselItem>
               </SwiperSlide>
             ) : null}
           </Swiper>
         </div>
       </div>
+      <style jsx global>{`
+        .carousel-animated-item {
+          will-change: transform, opacity;
+          transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease-out;
+        }
+        .carousel-animated-item--hidden {
+          opacity: 0;
+          transform: translateX(24px);
+          transition-delay: 0ms !important;
+        }
+        .carousel-animated-item--visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      `}</style>
     </div>
   )
 }

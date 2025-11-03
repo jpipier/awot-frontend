@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -17,8 +17,62 @@ interface GuideVoyageLayoutClientProps {
   categorySlug?: string
 }
 
+const STAGGER_DELAY_MS = 80
+const BASE_DELAY_MS = 120
+
+function AnimatedCarouselItem({
+  children,
+  className,
+  delay = 0,
+  forceVisible = false
+}: {
+  children: ReactNode
+  className?: string
+  delay?: number
+  forceVisible?: boolean
+}) {
+  const [isVisible, setIsVisible] = useState(false)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const element = containerRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const next = entry.isIntersecting
+        setIsVisible((prev) => (prev === next ? prev : next))
+      },
+      { threshold: 0.3 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const effectiveVisible = forceVisible || isVisible
+  const stateClass = effectiveVisible ? 'carousel-animated-item--visible' : 'carousel-animated-item--hidden'
+  const combinedClassName = ['carousel-animated-item', stateClass, className].filter(Boolean).join(' ')
+  const style: CSSProperties | undefined = effectiveVisible
+    ? { transitionDelay: `${Math.max(delay, 0)}ms` }
+    : undefined
+
+  return (
+    <div ref={containerRef} className={combinedClassName} style={style}>
+      {children}
+    </div>
+  )
+}
+
 export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVoyageLayoutClientProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const swiperContainerRef = useRef<HTMLDivElement | null>(null)
+  const [isCarouselVisible, setIsCarouselVisible] = useState(false)
 
   const sanitizedPosts = useMemo(
     () =>
@@ -35,6 +89,26 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   const current = sanitizedPosts[activeIndex] ?? sanitizedPosts[0]
 
   const categoryUrl = categorySlug ? `/categories/${categorySlug}` : null
+
+  useEffect(() => {
+    const element = swiperContainerRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsCarouselVisible(entry.isIntersecting)
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   return (
     <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
@@ -55,7 +129,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           </Link>
         ) : null}
       </div>
-      <div className="w-full overflow-hidden lg:w-3/5 lg:pl-0">
+      <div ref={swiperContainerRef} className="w-full overflow-hidden lg:w-3/5 lg:pl-0">
         <Swiper
           modules={[Navigation, Pagination]}
           className="mySwiper"
@@ -71,49 +145,72 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
             setActiveIndex(clampedIndex)
           }}
         >
-          {sanitizedPosts.map((post) => (
-            <SwiperSlide key={post.slug} className="carousel-item">
-              <div className="group relative">
-                <Link href={`/articles/${post.slug}`}
-                  className="block">
-                  {post.optionsArticles?.imagePortait?.node?.guid ? (
-                    <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
-                      <Image
-                        src={post.optionsArticles.imagePortait.node.guid}
-                        alt={post.title}
-                        fill
-                        className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
-                        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                        unoptimized
-                      />
+          {sanitizedPosts.map((post, index) => {
+            const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
+            return (
+              <SwiperSlide key={post.slug} className="carousel-item">
+                <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
+                  <Link href={`/articles/${post.slug}`}
+                    className="block">
+                    {post.optionsArticles?.imagePortait?.node?.guid ? (
+                      <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
+                        <Image
+                          src={post.optionsArticles.imagePortait.node.guid}
+                          alt={post.title}
+                          fill
+                          className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
+                          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                          unoptimized
+                        />
+                      </div>
+                    ) : null}
+                    <div className="mt-3">
+                      <p className="mb-1 text-[12px] uppercase font-montserrat italic" dangerouslySetInnerHTML={{ __html: post.optionsArticles?.champsLibrePageAccueil ?? '' }} />
+                      <h3 className="mt-2 text-left text-[15px] uppercase font-montserrat font-medium">{post.title}</h3>
                     </div>
-                  ) : null}
-                  <div className="mt-3">
-                    <p className="mb-1 text-[12px] uppercase font-montserrat italic" dangerouslySetInnerHTML={{ __html: post.optionsArticles?.champsLibrePageAccueil ?? '' }} />
-                    <h3 className="mt-2 text-left text-[15px] uppercase font-montserrat font-medium">{post.title}</h3>
-                  </div>
-                </Link>
-              </div>
-            </SwiperSlide>
-          ))}
+                  </Link>
+                </AnimatedCarouselItem>
+              </SwiperSlide>
+            )
+          })}
           {categoryUrl ? (
             <SwiperSlide key="view-all" className="carousel-item">
-              <Link
-                href={categoryUrl}
-                className="block h-full w-full"
+              <AnimatedCarouselItem
+                delay={BASE_DELAY_MS + sanitizedPosts.length * STAGGER_DELAY_MS}
+                forceVisible={isCarouselVisible}
               >
-                <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
-                  <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
-                    <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
-                      Découvrir tous
-                    </span>
+                <Link
+                  href={categoryUrl}
+                  className="block h-full w-full"
+                >
+                  <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
+                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                      <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
+                        Découvrir tous
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </AnimatedCarouselItem>
             </SwiperSlide>
           ) : null}
         </Swiper>
       </div>
+      <style jsx global>{`
+        .carousel-animated-item {
+          will-change: transform, opacity;
+          transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease-out;
+        }
+        .carousel-animated-item--hidden {
+          opacity: 0;
+          transform: translateX(24px);
+          transition-delay: 0ms !important;
+        }
+        .carousel-animated-item--visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      `}</style>
     </div>
   )
 }
