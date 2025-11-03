@@ -25,6 +25,9 @@ export interface CategoryNode {
   children?: {
     nodes: CategoryNode[]
   }
+  parent?: {
+    node?: CategoryNode | null
+  }
 }
 
 export interface HomePageData {

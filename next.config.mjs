@@ -1,5 +1,10 @@
 const nextConfig = {
   reactStrictMode: true,
+  output: "standalone",
+  experimental: {
+    workerThreads: false,
+    cpus: 2,
+  },
   images: {
     remotePatterns: [
       {
