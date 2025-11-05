@@ -32,12 +32,12 @@ export default function Footer({ postId }: FooterProps) {
         </div>
 
         <div className="relative flex h-full flex-col items-center space-y-3 lg:items-end">
-          <div className="relative h-48 w-44 lg:w-56">
+          <div className="h-[300px] w-44 lg:w-56 absolute -top-[130px]">
             <Image
               src="/images/image-30-1x-png@1x.png"
               alt="Nous"
               fill
-              className="clip-bottom absolute left-0 z-10 object-cover"
+              className="absolute left-0 z-10 object-contain"
               sizes="(min-width: 1024px) 15vw, 40vw"
             />
           </div>
