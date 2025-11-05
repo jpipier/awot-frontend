@@ -92,6 +92,30 @@ const HOME_PAGE_QUERY = /* GraphQL */ `
                   }
                 }
               }
+              ... on HomepageBlocsWorkWithUsLayout {
+                fieldGroupName
+                titre
+                contenu
+                bouton {
+                  target
+                  title
+                  url
+                }
+                image {
+                  node {
+                    sourceUrl(size: CAROUSEL_SIZE)
+                    uri
+                    srcSet(size: CAROUSEL_SIZE)
+                    sizes(size: CAROUSEL_SIZE)
+                    guid
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                }
+              }
               ... on HomepageBlocsGuideLayout {
                 fieldGroupName
                 categorie {

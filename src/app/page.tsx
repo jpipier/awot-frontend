@@ -5,8 +5,10 @@ import CarouselLayout from '@/components/acf/CarouselLayout'
 import GuideLayout from '@/components/acf/GuideLayout'
 import SliderLayout from '@/components/acf/SliderLayout'
 import PortraitLayout from '@/components/acf/PortraitLayout'
+import WorkWithUsLayout from '@/components/acf/WorkWithUsLayout'
 import Footer from '@/components/footer/Footer'
 import PostFooter from '@/components/footer/PostFooter'
+import InstagramFeed from '@/components/social/InstagramFeed'
 import { getHomePage } from '@/lib/home'
 import type { HomePageBloc } from '@/types/wordpress'
 
@@ -22,6 +24,20 @@ function slugifyId(value: string) {
 function getBlocSectionId(bloc: HomePageBloc): string | undefined {
   if ('titreDeLaSection' in bloc) {
     const title = bloc.titreDeLaSection
+
+    if (typeof title === 'string') {
+      const normalized = slugifyId(title.trim())
+
+      if (normalized) {
+        return normalized
+      }
+    }
+    else{
+      return 'section-' + slugifyId(bloc.fieldGroupName)
+    }
+  }
+  else if ('titre' in bloc) {
+    const title = bloc.titre
 
     if (typeof title === 'string') {
       const normalized = slugifyId(title.trim())
@@ -96,6 +112,15 @@ function renderBloc(bloc: HomePageBloc) {
           contenu={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsPortraitLayout' }>).contenu}
         />
       )
+    case 'HomepageBlocsWorkWithUsLayout':
+      return (
+        <WorkWithUsLayout
+          image={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsWorkWithUsLayout' }>).image}
+          titre={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsWorkWithUsLayout' }>).titre}
+          contenu={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsWorkWithUsLayout' }>).contenu}
+          bouton={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsWorkWithUsLayout' }>).bouton}
+        />
+      )
     default:
       return null
   }
@@ -116,6 +141,7 @@ export default async function HomePage() {
           </section>
         )
       })}
+      <InstagramFeed />
       <Footer />
     </div>
   )
