@@ -12,8 +12,8 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
 const UNIFORM_HEIGHT_TITLES = new Set(['food', 'hebergement', 'hebergements', 'voyage', 'voyages'])
-const BASE_DELAY_MS = 120
-const STAGGER_DELAY_MS = 80
+const BASE_DELAY_MS = 250
+const STAGGER_DELAY_MS = 150
 
 interface CarouselLayoutClientProps {
   posts: Article[]
@@ -241,8 +241,8 @@ export default function CarouselLayoutClient({
     }
   }, [titleScrollEnabled])
 
-  const headlineStartOffset = isBonnesAdressesHeadline ? -300 : -80
-  const titleStartOffset = isBonnesAdressesHeadline ? -320 : -90
+  const headlineStartOffset = isBonnesAdressesHeadline ? -450 : -80
+  const titleStartOffset = isBonnesAdressesHeadline ? -470 : -90
   const scrollCatchupFactor = isBonnesAdressesHeadline ? 2 : 1.6
   const computeOffset = (startOffset: number) => {
     if (!titleScrollEnabled) {
@@ -254,17 +254,23 @@ export default function CarouselLayoutClient({
   }
   const headlineScrollOffset = computeOffset(headlineStartOffset)
   const titleScrollOffset = computeOffset(titleStartOffset)
+  const headlineOpacity = titleScrollEnabled ? Math.min(Math.max(titleScrollProgress * 4, 0), 1) : undefined
+  const titleOpacity = titleScrollEnabled ? Math.min(Math.max(titleScrollProgress * 5, 0), 1) : undefined
   const computedHeadlineStyle: CSSProperties = titleScrollEnabled
-    ? { ...headlineTransition, transform: `translateY(${headlineScrollOffset}px)` }
+    ? { ...headlineTransition, transform: `translateY(${headlineScrollOffset}px)`, opacity: headlineOpacity }
     : headlineTransition
   const computedTitleStyle: CSSProperties = titleScrollEnabled
-    ? { ...titleTransition, transform: `translateY(${titleScrollOffset}px)` }
+    ? {
+        ...titleTransition,
+        transform: `translateY(${titleScrollOffset}px)`,
+        opacity: titleOpacity
+      }
     : titleTransition
   const baseTitleClass = 'font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-[5rem] text-left'
   const easingClass = titleScrollEnabled
     ? 'transform will-change-transform transition-opacity duration-500 ease-out'
     : 'transform transition-all duration-700 ease-out'
-  const visibilityClass = isTitleVisible ? 'opacity-100' : 'opacity-0'
+  const visibilityClass = titleScrollEnabled ? '' : isTitleVisible ? 'opacity-100' : 'opacity-0'
   const translateClass =
     titleScrollEnabled || !titreDeLaSection
       ? ''
@@ -276,7 +282,7 @@ export default function CarouselLayoutClient({
   const headlineEasingClass = titleScrollEnabled
     ? 'transform will-change-transform transition-opacity duration-500 ease-out'
     : 'transform transition-all duration-700 ease-out'
-  const headlineVisibilityClass = isHeadlineVisible ? 'opacity-100' : 'opacity-0'
+  const headlineVisibilityClass = titleScrollEnabled ? '' : isHeadlineVisible ? 'opacity-100' : 'opacity-0'
   const headlineTranslateClass =
     titleScrollEnabled
       ? ''
@@ -293,7 +299,7 @@ export default function CarouselLayoutClient({
     .join(' ')
 
   return (
-    <div ref={sectionRef} className="mx-auto max-w-screen-full overflow-hidden">
+    <div ref={sectionRef} className="mx-auto max-w-screen-full">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
           className={`flex w-full flex-col gap-6 px-4 text-left pb-[3rem] ${
@@ -397,11 +403,11 @@ export default function CarouselLayoutClient({
       <style jsx global>{`
         .carousel-animated-item {
           will-change: transform, opacity;
-          transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease-out;
+          transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.4s ease-out;
         }
         .carousel-animated-item--hidden {
           opacity: 0;
-          transform: translateX(24px);
+          transform: translateX(100px);
           transition-delay: 0ms !important;
         }
         .carousel-animated-item--visible {
