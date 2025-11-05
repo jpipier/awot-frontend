@@ -48,6 +48,27 @@ The component renders on the server, so the token remains private. Results are c
 
 Set `INSTAGRAM_DEBUG=true` to surface API error details in the UI when the feed cannot be fetched (useful in staging only).
 
+#### Instagram oEmbed helper
+
+`GET /api/oembed/instagram?url=<instagram_post_url>` proxies the official oEmbed endpoint (v17.0) so the access token remains on the server. Configure `INSTAGRAM_OEMBED_TOKEN` (or reuse `INSTAGRAM_ACCESS_TOKEN`) and, if needed, tweak parameters:
+
+```
+/api/oembed/instagram?url=https://www.instagram.com/p/abc123/&maxwidth=540&hidecaption=true
+```
+
+The response mirrors Meta’s JSON payload and is cached on the server for 10 minutes.
+
+### Facebook SDK
+
+If you need the Facebook JS SDK (for example to manage Instagram tokens on the client), provide:
+
+```
+NEXT_PUBLIC_FACEBOOK_APP_ID=<your-app-id>
+NEXT_PUBLIC_FACEBOOK_API_VERSION=v21.0
+```
+
+With those variables set, the SDK snippet is automatically injected from the root layout after hydration.
+
 ## Available Scripts
 
 - `npm run dev` – start the Next.js dev server

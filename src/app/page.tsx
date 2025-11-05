@@ -141,7 +141,7 @@ export default async function HomePage() {
           </section>
         )
       })}
-      <InstagramFeed />
+      <InstagramFeed limit={10} usernameOverride="guide.landes.paysbasque" />
       <Footer />
     </div>
   )

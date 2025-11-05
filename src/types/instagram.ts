@@ -45,3 +45,25 @@ export interface InstagramPaging {
 export interface InstagramPaginatedResponse extends InstagramApiResponse {
   paging?: InstagramPaging
 }
+
+export interface InstagramOEmbedError {
+  message?: string
+  code?: number
+}
+
+export interface InstagramOEmbedResponse {
+  version?: string | number
+  author_name?: string
+  author_url?: string
+  provider_name?: string
+  provider_url?: string
+  media_id?: string
+  thumbnail_url?: string
+  title?: string
+  html?: string
+  width?: number
+  height?: number
+  type?: string
+  cache_age?: string
+  error?: InstagramOEmbedError
+}
