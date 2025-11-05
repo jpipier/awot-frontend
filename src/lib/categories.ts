@@ -125,9 +125,9 @@ interface CategoryPostsResponse {
 }
 
 const CATEGORY_POSTS_QUERY = /* GraphQL */ `
-  query GetCategoryPosts($slug: ID!, $limit: Int!, $offset: Int) {
+  query GetCategoryPosts($slug: ID!, $limit: Int!, $after: String) {
     category(id: $slug, idType: SLUG) {
-      posts(first: $limit, where: { offsetPagination: { offset: $offset } }) {
+      posts(first: $limit, after: $after) {
         nodes {
           title
           slug
@@ -163,9 +163,9 @@ const CATEGORY_POSTS_QUERY = /* GraphQL */ `
   }
 `
 
-export async function getCategoryPosts(slug: string, limit: number, offset = 0) {
+export async function getCategoryPosts(slug: string, limit: number, after?: string | null) {
   const data = await fetchWordPressGraphQL<CategoryPostsResponse>(CATEGORY_POSTS_QUERY, {
-    variables: { slug, limit, offset },
+    variables: { slug, limit, after: after ?? null },
     cache: 'no-store'
   })
 

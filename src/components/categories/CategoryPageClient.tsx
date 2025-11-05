@@ -27,24 +27,27 @@ export default function CategoryPageClient({
   const [cursor, setCursor] = useState<string | null | undefined>(initialCursor)
   const [loading, setLoading] = useState(false)
   const [canLoadMore, setCanLoadMore] = useState(hasNextPage)
-  const [page, setPage] = useState(1)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([])
+  const [visibleItems, setVisibleItems] = useState<Set<number>>(() => new Set<number>())
 
   const fetchMore = useCallback(async () => {
-    if (!canLoadMore || loading) {
+    if (!canLoadMore || loading || !cursor) {
       return
     }
 
     setLoading(true)
     try {
-      const params = new URLSearchParams({ limit: '10', page: String(page + 1) })
+      const params = new URLSearchParams({ limit: '10' })
+      if (cursor) {
+        params.set('cursor', cursor)
+      }
       const response = await fetch(`/api/categories/${slug}/posts?${params.toString()}`)
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des articles')
       }
       const data = await response.json()
       setPosts((prev) => [...prev, ...(data?.nodes ?? [])])
-      setPage((prev) => prev + 1)
       setCursor(data?.pageInfo?.endCursor ?? null)
       setCanLoadMore(Boolean(data?.pageInfo?.hasNextPage))
     } catch (error) {
@@ -52,7 +55,7 @@ export default function CategoryPageClient({
     } finally {
       setLoading(false)
     }
-  }, [canLoadMore, loading, page, setPage, slug])
+  }, [canLoadMore, cursor, loading, slug])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -72,6 +75,46 @@ export default function CategoryPageClient({
 
     return () => observer.disconnect()
   }, [fetchMore])
+
+  useEffect(() => {
+    setVisibleItems(new Set<number>())
+  }, [slug])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const indexAttr = entry.target.getAttribute('data-index')
+            if (!indexAttr) {
+              return
+            }
+            const index = Number(indexAttr)
+            setVisibleItems((prev) => {
+              if (prev.has(index)) {
+                return prev
+              }
+              const next = new Set(prev)
+              next.add(index)
+              return next
+            })
+          }
+        })
+      },
+      {
+        threshold: 0.2,
+        rootMargin: '0px 0px -10% 0px'
+      }
+    )
+
+    itemRefs.current.forEach((node) => {
+      if (node) {
+        observer.observe(node)
+      }
+    })
+
+    return () => observer.disconnect()
+  }, [posts])
 
   const subcategoryList = useMemo(() => {
     if (!subcategories?.length) {
@@ -130,7 +173,16 @@ export default function CategoryPageClient({
             return (
               <li
                 key={`${post.slug}-${index}`}
-                className={clsx('w-full', isFeature ? 'sm:col-span-3' : 'sm:col-span-1')}
+                ref={(el) => {
+                  itemRefs.current[index] = el
+                }}
+                data-index={index}
+                className={clsx(
+                  'w-full transform transition-all duration-1000 ease-out',
+                  visibleItems.has(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+                  isFeature ? 'sm:col-span-3' : 'sm:col-span-1'
+                )}
+                style={{ transitionDelay: `${(index % 4) * 200}ms` }}
               >
                 <Link href={`/articles/${post.slug}`} className="group block">
                   {featuredImage ? (
