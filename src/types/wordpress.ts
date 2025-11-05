@@ -15,6 +15,10 @@ export interface WPImage {
   srcSet?: string | null
   sizes?: string | null
   altText?: string | null
+  mediaDetails?: {
+    width?: number | null
+    height?: number | null
+  }
 }
 
 export interface CategoryNode {
@@ -46,6 +50,7 @@ type KnownHomeBlocNames =
   | 'HomepageBlocsGuideLayout'
   | 'HomepageBlocsSliderLayout'
   | 'HomepageBlocsPortraitLayout'
+  | 'HomepageBlocsWorkWithUsLayout'
 
 export type HomePageBloc =
   | {
@@ -115,6 +120,19 @@ export type HomePageBloc =
       titreDeLaSection?: string | null
       categorie?: {
         nodes: { slug: string }[]
+      }
+    }
+  | {
+      fieldGroupName: 'HomepageBlocsWorkWithUsLayout'
+      image?: {
+        node?: WPImage
+      }
+      titre?: string | null
+      contenu?: string | null
+      bouton?: {
+        target?: string | null
+        title?: string | null
+        url?: string | null
       }
     }
   | ({ fieldGroupName: Exclude<string, KnownHomeBlocNames> } & Record<string, unknown>)
