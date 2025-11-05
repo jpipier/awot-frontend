@@ -23,6 +23,31 @@ NEXT_PUBLIC_WORDPRESS_URL=https://<your-site>/
 
 Server-only fallbacks (`WORDPRESS_GQL`, `WORDPRESS_API`, `WORDPRESS_URL`) are also supported if you prefer not to expose the endpoints publicly.
 
+### Instagram feed
+
+The component `InstagramFeed` fetches media from the Instagram Basic Display API. To enable it:
+
+1. Generate a long-lived access token for the Instagram account (see Meta’s documentation) and store it in `INSTAGRAM_ACCESS_TOKEN`.
+2. Optionally set `INSTAGRAM_USER_ID` if the token does not resolve to the desired user (otherwise the API defaults to `me`).
+3. Import the component where you need it in the App Router:
+
+```tsx
+import InstagramFeed from '@/components/social/InstagramFeed'
+
+export default function HomePage() {
+  return (
+    <main>
+      {/* Other sections */}
+      <InstagramFeed limit={6} />
+    </main>
+  )
+}
+```
+
+The component renders on the server, so the token remains private. Results are cached for 10 minutes by default.
+
+Set `INSTAGRAM_DEBUG=true` to surface API error details in the UI when the feed cannot be fetched (useful in staging only).
+
 ## Available Scripts
 
 - `npm run dev` – start the Next.js dev server
