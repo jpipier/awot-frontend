@@ -1,9 +1,10 @@
-import Image from 'next/image'
 import Link from 'next/link'
-import { getInstagramPosts } from '@/lib/instagram'
+import Script from 'next/script'
+import { getInstagramOEmbed, getInstagramPosts } from '@/lib/instagram'
 import type { InstagramPost } from '@/types/instagram'
 
 const CAPTION_PREVIEW_LENGTH = 110
+const INSTAGRAM_EMBED_SCRIPT_SRC = 'https://www.instagram.com/embed.js'
 
 interface InstagramFeedProps {
   title?: string
@@ -11,14 +12,6 @@ interface InstagramFeedProps {
   limit?: number
   ctaLabel?: string
   usernameOverride?: string
-}
-
-function getImageUrl(post: InstagramPost) {
-  if (post.media_type === 'VIDEO' && post.thumbnail_url) {
-    return post.thumbnail_url
-  }
-
-  return post.media_url
 }
 
 function truncateCaption(caption?: string | null) {
@@ -35,23 +28,19 @@ function truncateCaption(caption?: string | null) {
   return `${trimmed.slice(0, CAPTION_PREVIEW_LENGTH).trimEnd()}…`
 }
 
-function formatFrenchDate(timestamp?: string | null) {
-  if (!timestamp) {
+function sanitizeEmbedHtml(html?: string | null) {
+  if (!html) {
     return null
   }
 
-  const parsed = new Date(timestamp)
-
-  if (Number.isNaN(parsed.getTime())) {
-    return null
-  }
-
-  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(parsed)
+  return html
+    .replace(/<script[^>]*src=\"(?:https?:)?\/\/www\.instagram\.com\/embed\.js\"[^>]*><\/script>/gi, '')
+    .trim()
 }
 
 export default async function InstagramFeed({
   title = 'Instagram',
-  description = 'Les dernières images partagées sur @guideawayoftravel.',
+  description = 'Les dernières images partagées sur @guide.landes.paysbasque.',
   limit = 6,
   ctaLabel = 'Voir sur Instagram',
   usernameOverride
@@ -77,7 +66,7 @@ export default async function InstagramFeed({
 
   if (!posts.length && errorMessage) {
     return (
-      <section className="home-block -mb-[120px] z-10" >
+      <section className="home-block -mb-[120px] z-10">
         <div className="container mx-auto px-6">
           <div className="rounded-2xl border border-black/10 bg-white px-6 py-10 text-center">
             <h2 className="font-custom text-4xl md:text-6xl">{title}</h2>
@@ -91,7 +80,49 @@ export default async function InstagramFeed({
     )
   }
 
-  const hasPosts = posts.length > 0
+  let embeds: Array<{ id: string; permalink: string; html: string; caption?: string | null }> = []
+  const embedErrors: string[] = []
+
+  if (posts.length) {
+    const embedResponses = await Promise.all(
+      posts.map(async (post) => {
+        if (!post.permalink) {
+          return null
+        }
+
+        try {
+          const data = await getInstagramOEmbed(post.permalink, { maxwidth: 540, hidecaption: true })
+          const sanitized = sanitizeEmbedHtml(data.html)
+
+          if (!sanitized) {
+            throw new Error('Instagram oEmbed n’a renvoyé aucun contenu HTML exploitable.')
+          }
+
+          return {
+            id: post.id,
+            permalink: post.permalink,
+            html: sanitized,
+            caption: truncateCaption(post.caption ?? data.title ?? undefined)
+          }
+        } catch (embedError) {
+          console.error('InstagramFeed: échec du oEmbed', embedError)
+          embedErrors.push(embedError instanceof Error ? embedError.message : String(embedError))
+          return null
+        }
+      })
+    )
+
+    embeds = embedResponses.filter((item): item is NonNullable<typeof item> => Boolean(item))
+  }
+
+  if (!embeds.length && embedErrors.length && !errorMessage) {
+    errorMessage = 'Impossible de charger les publications Instagram pour le moment.'
+    if (instagramDebugEnabled) {
+      debugDetails = embedErrors.join(' | ')
+    }
+  }
+
+  const hasEmbeds = embeds.length > 0
   const username = usernameOverride ?? posts[0]?.username ?? ''
   const profileUrl = username ? `https://www.instagram.com/${username.replace(/^@/, '')}/` : undefined
 
@@ -116,39 +147,20 @@ export default async function InstagramFeed({
           ) : null}
         </div>
 
-        {hasPosts ? (
+        {hasEmbeds ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => {
-              const imageUrl = getImageUrl(post)
-              const preview = truncateCaption(post.caption)
-              const frenchDate = formatFrenchDate(post.timestamp)
-
-              return (
-                <a
-                  key={post.id}
-                  href={post.permalink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group flex flex-col rounded-2xl border border-black/10 bg-white p-4 transition hover:-translate-y-1 hover:shadow-xl"
-                  aria-label={post.caption ? `Ouvrir la publication Instagram: ${post.caption}` : 'Ouvrir la publication Instagram'}
-                >
-                  <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                    <Image
-                      src={imageUrl}
-                      alt={post.caption ? post.caption : 'Publication Instagram'}
-                      fill
-                      sizes="(min-width: 1024px) 25vw, 100vw"
-                      className="object-cover transition duration-500 group-hover:scale-105"
-                      unoptimized
-                    />
-                  </div>
-                  {frenchDate ? (
-                    <p className="mt-4 text-xs uppercase tracking-[0.28em] text-neutral-500">{frenchDate}</p>
-                  ) : null}
-                  {preview ? <p className="mt-2 text-sm text-neutral-800">{preview}</p> : null}
-                </a>
-              )
-            })}
+            {embeds.map((embed) => (
+              <div
+                key={embed.id}
+                className="rounded-2xl border border-black/10 bg-white p-3 transition hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div
+                  className="instagram-embed"
+                  dangerouslySetInnerHTML={{ __html: embed.html }}
+                />
+                {embed.caption ? <p className="mt-3 text-xs text-neutral-600">{embed.caption}</p> : null}
+              </div>
+            ))}
           </div>
         ) : (
           <p className="rounded-2xl border border-dashed border-black/20 px-6 py-10 text-center text-sm text-neutral-500">
@@ -158,6 +170,9 @@ export default async function InstagramFeed({
             ) : null}
           </p>
         )}
+        {hasEmbeds ? (
+          <Script src={INSTAGRAM_EMBED_SCRIPT_SRC} strategy="lazyOnload" />
+        ) : null}
       </div>
     </section>
   )

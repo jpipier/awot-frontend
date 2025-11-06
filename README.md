@@ -48,6 +48,8 @@ The component renders on the server, so the token remains private. Results are c
 
 Set `INSTAGRAM_DEBUG=true` to surface API error details in the UI when the feed cannot be fetched (useful in staging only).
 
+The UI itself is powered by Meta’s oEmbed Read API, so also provide `INSTAGRAM_OEMBED_TOKEN` (app-id|client-token pair) if you prefer not to reuse the long-lived Instagram token.
+
 #### Instagram oEmbed helper
 
 `GET /api/oembed/instagram?url=<instagram_post_url>` proxies the official oEmbed endpoint (v17.0) so the access token remains on the server. Configure `INSTAGRAM_OEMBED_TOKEN` (or reuse `INSTAGRAM_ACCESS_TOKEN`) and, if needed, tweak parameters:
