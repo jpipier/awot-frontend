@@ -1,5 +1,10 @@
 import Link from 'next/link'
 
+const configuredRedirectUri =
+  process.env.FACEBOOK_BUSINESS_REDIRECT_URI ??
+  process.env.NEXT_PUBLIC_FACEBOOK_REDIRECT_URI ??
+  'https://votre-domaine/auth/facebook/business/callback'
+
 export default function FacebookBusinessAuthPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-16">
@@ -20,7 +25,7 @@ export default function FacebookBusinessAuthPage() {
           </li>
           <li>
             Dans <strong>developers.facebook.com</strong>, ajoute{' '}
-            <code>https://votre-domaine/auth/facebook/business/callback</code> dans les “Valid OAuth Redirect URIs”.
+            <code>{configuredRedirectUri}</code> dans les “Valid OAuth Redirect URIs”.
           </li>
           <li>
             Clique sur le bouton ci-dessous, connecte-toi avec le compte Business souhaité et autorise l’application.

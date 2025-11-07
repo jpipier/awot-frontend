@@ -139,7 +139,7 @@ export default async function InstagramFeed({
                   href={item.permalink ?? '#'}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative aspect-[3/4] min-w-[220px] flex-shrink-0 overflow-hidden rounded-[32px]"
+                  className="group relative  min-w-[220px] flex-shrink-0 overflow-hidden"
                   aria-label="Voir sur Instagram"
                 >
                   <div className="absolute inset-0 bg-neutral-900/0 transition duration-300 group-hover:bg-neutral-900/50" />

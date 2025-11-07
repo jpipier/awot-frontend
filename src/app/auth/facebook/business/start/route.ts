@@ -22,11 +22,21 @@ function getAppId() {
   return appId
 }
 
-export async function GET(request: Request) {
+function getRedirectUri(request: Request) {
+  const configured = process.env.FACEBOOK_BUSINESS_REDIRECT_URI ?? process.env.NEXT_PUBLIC_FACEBOOK_REDIRECT_URI
+
+  if (configured) {
+    return configured.trim()
+  }
+
   const { origin } = new URL(request.url)
+  return `${origin}/auth/facebook/business/callback`
+}
+
+export async function GET(request: Request) {
   const appId = getAppId()
   const state = randomBytes(16).toString('hex')
-  const redirectUri = `${origin}/auth/facebook/business/callback`
+  const redirectUri = getRedirectUri(request)
   const scopes = process.env.FACEBOOK_BUSINESS_SCOPES ?? DEFAULT_SCOPES.join(',')
 
   cookies().set('fb_login_state', state, {
