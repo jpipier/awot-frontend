@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 interface ElementorStylesLoaderProps {
   cssFiles: string[]
@@ -8,6 +8,10 @@ interface ElementorStylesLoaderProps {
 }
 
 export default function ElementorStylesLoader({ cssFiles, bodyClasses }: ElementorStylesLoaderProps) {
+  const normalizedBodyClasses = useMemo(() => {
+    return (bodyClasses ?? []).filter((cls): cls is string => Boolean(cls))
+  }, [bodyClasses])
+
   useEffect(() => {
     const appended: HTMLLinkElement[] = []
 
@@ -29,7 +33,7 @@ export default function ElementorStylesLoader({ cssFiles, bodyClasses }: Element
   }, [cssFiles])
 
   useEffect(() => {
-    const classesToApply = (bodyClasses ?? []).filter(Boolean)
+    const classesToApply = normalizedBodyClasses
     const addedClasses: string[] = []
 
     classesToApply.forEach((cls) => {
@@ -44,7 +48,7 @@ export default function ElementorStylesLoader({ cssFiles, bodyClasses }: Element
         document.body.classList.remove(cls)
       })
     }
-  }, [bodyClasses?.join(' ')])
+  }, [normalizedBodyClasses])
 
   return null
 }

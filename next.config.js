@@ -22,6 +22,16 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.gravatar.com',
         pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cdninstagram.com',
+        pathname: '/**'
+      },
+      {
+        protocol: 'https',
+        hostname: '*.fbcdn.net',
+        pathname: '/**'
       }
     ]
   }

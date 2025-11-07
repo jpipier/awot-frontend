@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import Script from 'next/script'
 import { getInstagramOEmbed, getInstagramPosts } from '@/lib/instagram'
@@ -137,23 +138,23 @@ export default async function InstagramFeed({
     embeds = embedResponses.filter((item): item is NonNullable<typeof item> => Boolean(item))
   }
 
-  const fallbackItems = posts
-    .map((post) => {
-      const mediaUrl = getPostMediaUrl(post)
+  const fallbackItems = posts.reduce<FeedItem[]>((acc, post) => {
+    const mediaUrl = getPostMediaUrl(post)
 
-      if (!mediaUrl) {
-        return null
-      }
+    if (!mediaUrl) {
+      return acc
+    }
 
-      return {
-        id: post.id,
-        permalink: post.permalink,
-        mediaUrl,
-        mediaType: post.media_type,
-        caption: truncateCaption(post.caption)
-      } satisfies FeedItem
+    acc.push({
+      id: post.id,
+      permalink: post.permalink,
+      mediaUrl,
+      mediaType: post.media_type,
+      caption: truncateCaption(post.caption)
     })
-    .filter((item): item is FeedItem => Boolean(item))
+
+    return acc
+  }, [])
 
   let feedItems: FeedItem[] = instagramOEmbedEnabled ? embeds : fallbackItems
 
@@ -214,19 +215,22 @@ export default async function InstagramFeed({
                     href={item.permalink ?? '#'}
                     target="_blank"
                     rel="noreferrer"
-                    className="group relative block overflow-hidden rounded-xl"
+                    className="group block overflow-hidden rounded-xl"
                   >
-                    <span
-                      className="pointer-events-none absolute inset-0 z-10 bg-black/0 transition group-hover:bg-black/20"
-                      aria-hidden="true"
-                    />
-                    <img
-                      src={item.mediaUrl}
-                      alt={item.caption ?? 'Instagram'}
-                      className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <div className="relative aspect-square w-full overflow-hidden">
+                      <Image
+                        src={item.mediaUrl}
+                        alt={item.caption ?? 'Instagram'}
+                        fill
+                        sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                        priority={false}
+                      />
+                      <span
+                        className="pointer-events-none absolute inset-0 z-10 bg-black/0 transition group-hover:bg-black/20"
+                        aria-hidden="true"
+                      />
+                    </div>
                   </a>
                 ) : null}
                 {item.caption ? <p className="mt-3 text-xs text-neutral-600">{item.caption}</p> : null}
