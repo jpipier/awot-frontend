@@ -108,7 +108,7 @@ function AnimatedGuideSubtitle({
 export default function GuideLayoutClient({ posts, link, titreDeLaSection }: GuideLayoutClientProps) {
   return (
     <section className="max-w-screen-full bg-zinc-900">
-      <div className="flex flex-col items-center lg:h-[80vh] lg:flex-row">
+      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row">
         <div className="relative w-full lg:w-10/12">
           <Swiper
             modules={[Navigation, Pagination, EffectFade]}

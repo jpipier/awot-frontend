@@ -27,7 +27,7 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
   }
 
   return (
-    <div className="mx-[8rem] grid w-full max-w-6xl gap-10 place-items-center py-10 md:min-h-[80vh] md:grid-cols-[650px_minmax(0,1fr)]">
+    <div className="mx-auto grid w-full max-w-6xl place-items-center gap-10 px-6 sm:px-10 lg:px-0 lg:mx-[8rem] py-10 md:min-h-[80vh] md:grid-cols-[650px_minmax(0,1fr)]">
       {src ? (
         <div className="flex w-full items-center justify-center">
           <Image

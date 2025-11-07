@@ -87,7 +87,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         'mb-40 transition-colors duration-500 lg:mb-0 bg-white'
       )}
     >
-      <div className="mx-auto flex w-full flex-col gap-12 lg:flex-row lg:items-start">
+      <div className="mx-auto flex w-full flex-col gap-12 px-6 sm:px-10 lg:px-0 lg:flex-row lg:items-start">
         <div
           className="order-1 flex w-full flex-col justify-center lg:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}

@@ -299,7 +299,7 @@ export default function CarouselLayoutClient({
     .join(' ')
 
   return (
-    <div ref={sectionRef} className="mx-auto max-w-screen-full">
+    <div ref={sectionRef} className="mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
           className={`flex w-full flex-col gap-6 px-4 text-left pb-[3rem] ${

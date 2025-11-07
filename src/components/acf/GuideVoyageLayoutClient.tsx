@@ -112,7 +112,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
 
   return (
     <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
-      <div className="flex w-full flex-col gap-4 pr-6 text-left lg:w-2/5 lg:pr-16 px-[8rem] self-end pb-[4rem]">
+      <div className="flex w-full flex-col gap-4 self-end pb-16 text-left px-6 sm:px-10 md:px-16 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
