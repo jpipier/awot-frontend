@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
 interface InstagramAuthPageProps {
   searchParams: {
@@ -33,6 +34,8 @@ const instagramAuthUrl =
         instagramRedirectUri
       )}&response_type=code&scope=${encodeURIComponent(instagramScopes)}&force_reauth=true`
     : null
+
+const InstagramTokenFetcher = dynamic(() => import('./InstagramTokenFetcher'), { ssr: false })
 
 export default function InstagramAuthPage({ searchParams }: InstagramAuthPageProps) {
   const { code, state, error, error_description: errorDescription } = searchParams
@@ -85,6 +88,13 @@ export default function InstagramAuthPage({ searchParams }: InstagramAuthPagePro
           Paramètre <code>state</code> : <span className="font-mono">{state}</span>
         </p>
       ) : null}
+      {instagramRedirectUri ? (
+        <InstagramTokenFetcher code={code} redirectUri={instagramRedirectUri} />
+      ) : (
+        <p className="mt-6 text-sm text-red-600">
+          Configure <code>INSTAGRAM_REDIRECT_URI</code> pour pouvoir échanger automatiquement le code contre un token.
+        </p>
+      )}
     </div>
   )
 }
