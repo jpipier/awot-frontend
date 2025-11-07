@@ -38,6 +38,25 @@ function sanitizeEmbedHtml(html?: string | null) {
     .trim()
 }
 
+function getPostMediaUrl(post: InstagramPost) {
+  return (
+    post.media_url ??
+    post.thumbnail_url ??
+    post.children?.data?.[0]?.media_url ??
+    post.children?.data?.[0]?.thumbnail_url ??
+    null
+  )
+}
+
+type FeedItem = {
+  id: string
+  permalink?: string
+  caption?: string | null
+  html?: string
+  mediaUrl?: string | null
+  mediaType?: InstagramPost['media_type']
+}
+
 export default async function InstagramFeed({
   title = 'Instagram',
   description = 'Les dernières images partagées sur @guide.landes.paysbasque.',
@@ -47,6 +66,9 @@ export default async function InstagramFeed({
 }: InstagramFeedProps) {
   const instagramDebugEnabled = ['1', 'true', 'on'].includes(
     (process.env.INSTAGRAM_DEBUG ?? '').toLowerCase()
+  )
+  const instagramOEmbedEnabled = ['1', 'true', 'on'].includes(
+    (process.env.INSTAGRAM_OEMBED_ENABLED ?? '1').toLowerCase()
   )
   let posts: InstagramPost[] = []
   let errorMessage: string | null = null
@@ -80,10 +102,10 @@ export default async function InstagramFeed({
     )
   }
 
-  let embeds: Array<{ id: string; permalink: string; html: string; caption?: string | null }> = []
+  let embeds: FeedItem[] = []
   const embedErrors: string[] = []
 
-  if (posts.length) {
+  if (posts.length && instagramOEmbedEnabled) {
     const embedResponses = await Promise.all(
       posts.map(async (post) => {
         if (!post.permalink) {
@@ -115,14 +137,42 @@ export default async function InstagramFeed({
     embeds = embedResponses.filter((item): item is NonNullable<typeof item> => Boolean(item))
   }
 
-  if (!embeds.length && embedErrors.length && !errorMessage) {
+  const fallbackItems = posts
+    .map((post) => {
+      const mediaUrl = getPostMediaUrl(post)
+
+      if (!mediaUrl) {
+        return null
+      }
+
+      return {
+        id: post.id,
+        permalink: post.permalink,
+        mediaUrl,
+        mediaType: post.media_type,
+        caption: truncateCaption(post.caption)
+      } satisfies FeedItem
+    })
+    .filter((item): item is FeedItem => Boolean(item))
+
+  let feedItems: FeedItem[] = instagramOEmbedEnabled ? embeds : fallbackItems
+
+  if (instagramOEmbedEnabled && !feedItems.length && fallbackItems.length) {
+    feedItems = fallbackItems
+    if (instagramDebugEnabled && embedErrors.length) {
+      debugDetails = embedErrors.join(' | ')
+    }
+  }
+
+  if (!feedItems.length && embedErrors.length && !errorMessage) {
     errorMessage = 'Impossible de charger les publications Instagram pour le moment.'
     if (instagramDebugEnabled) {
       debugDetails = embedErrors.join(' | ')
     }
   }
 
-  const hasEmbeds = embeds.length > 0
+  const hasEmbeds = feedItems.length > 0
+  const hasHtmlEmbeds = feedItems.some((item) => Boolean(item.html))
   const username = usernameOverride ?? posts[0]?.username ?? ''
   const profileUrl = username ? `https://www.instagram.com/${username.replace(/^@/, '')}/` : undefined
 
@@ -149,16 +199,37 @@ export default async function InstagramFeed({
 
         {hasEmbeds ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {embeds.map((embed) => (
+            {feedItems.map((item) => (
               <div
-                key={embed.id}
+                key={item.id}
                 className="rounded-2xl border border-black/10 bg-white p-3 transition hover:-translate-y-1 hover:shadow-xl"
               >
-                <div
-                  className="instagram-embed"
-                  dangerouslySetInnerHTML={{ __html: embed.html }}
-                />
-                {embed.caption ? <p className="mt-3 text-xs text-neutral-600">{embed.caption}</p> : null}
+                {item.html ? (
+                  <div
+                    className="instagram-embed"
+                    dangerouslySetInnerHTML={{ __html: item.html }}
+                  />
+                ) : item.mediaUrl ? (
+                  <a
+                    href={item.permalink ?? '#'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group relative block overflow-hidden rounded-xl"
+                  >
+                    <span
+                      className="pointer-events-none absolute inset-0 z-10 bg-black/0 transition group-hover:bg-black/20"
+                      aria-hidden="true"
+                    />
+                    <img
+                      src={item.mediaUrl}
+                      alt={item.caption ?? 'Instagram'}
+                      className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                ) : null}
+                {item.caption ? <p className="mt-3 text-xs text-neutral-600">{item.caption}</p> : null}
               </div>
             ))}
           </div>
@@ -170,7 +241,7 @@ export default async function InstagramFeed({
             ) : null}
           </p>
         )}
-        {hasEmbeds ? (
+        {hasHtmlEmbeds ? (
           <Script src={INSTAGRAM_EMBED_SCRIPT_SRC} strategy="lazyOnload" />
         ) : null}
       </div>
