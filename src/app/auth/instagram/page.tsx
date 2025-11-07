@@ -20,11 +20,18 @@ const instagramRedirectUri =
   process.env.INSTAGRAM_REDIRECT_URI ??
   ''
 
+const instagramScopes =
+  process.env.NEXT_PUBLIC_INSTAGRAM_SCOPES ??
+  process.env.INSTAGRAM_SCOPES ??
+  'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights'
+
 const instagramAuthUrl =
   instagramClientId && instagramRedirectUri
     ? `https://api.instagram.com/oauth/authorize?client_id=${encodeURIComponent(
         instagramClientId
-      )}&redirect_uri=${encodeURIComponent(instagramRedirectUri)}&response_type=code&scope=user_profile,user_media`
+      )}&redirect_uri=${encodeURIComponent(
+        instagramRedirectUri
+      )}&response_type=code&scope=${encodeURIComponent(instagramScopes)}&force_reauth=true`
     : null
 
 export default function InstagramAuthPage({ searchParams }: InstagramAuthPageProps) {
