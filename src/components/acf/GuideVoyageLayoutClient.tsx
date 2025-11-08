@@ -111,8 +111,8 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   }, [])
 
   return (
-    <div className="mt-10 flex flex-col items-start gap-10 lg:flex-row">
-      <div className="flex w-full flex-col gap-4 self-end pb-16 text-left px-6 sm:px-10 md:px-16 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
+    <div className="mt-10 flex flex-row items-start gap-4 sm:gap-10">
+      <div className="flex flex-1 min-w-0 flex-col gap-4 pb-16 text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
@@ -129,15 +129,19 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           </Link>
         ) : null}
       </div>
-      <div ref={swiperContainerRef} className="w-full overflow-hidden lg:w-3/5 lg:pl-0">
+      <div
+        ref={swiperContainerRef}
+        className="flex-1 min-w-0 overflow-hidden pl-0 pr-0 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
+      >
         <Swiper
           modules={[Navigation, Pagination]}
           className="mySwiper"
-          slidesPerView={1.2}
-          spaceBetween={20}
+          slidesPerView={1.1}
+          spaceBetween={18}
           breakpoints={{
-            640: { slidesPerView: 1.5, spaceBetween: 20 },
-            768: { slidesPerView: 2, spaceBetween: 30 },
+            480: { slidesPerView: 1.2, spaceBetween: 20 },
+            640: { slidesPerView: 1.3, spaceBetween: 22 },
+            768: { slidesPerView: 1.8, spaceBetween: 26 },
             1024: { slidesPerView: 2.5, spaceBetween: 20 }
           }}
           onSlideChange={({ activeIndex: index }) => {
