@@ -14,6 +14,8 @@ import 'swiper/css/pagination'
 const UNIFORM_HEIGHT_TITLES = new Set(['food', 'hebergement', 'hebergements', 'voyage', 'voyages'])
 const BASE_DELAY_MS = 250
 const STAGGER_DELAY_MS = 150
+const SCROLL_ANIMATED_ITEM_COUNT = 3
+const SCROLL_ANIMATION_END = 0.5
 
 interface CarouselLayoutClientProps {
   posts: Article[]
@@ -28,12 +30,20 @@ function AnimatedCarouselItem({
   children,
   className,
   delay = 0,
-  forceVisible = false
+  forceVisible = false,
+  scrollProgress,
+  scrollWindow = 1,
+  scrollIndex = 0,
+  shouldForceSettled = false
 }: {
   children: ReactNode
   className?: string
   delay?: number
   forceVisible?: boolean
+  scrollProgress?: number
+  scrollWindow?: number
+  scrollIndex?: number
+  shouldForceSettled?: boolean
 }) {
   const [isVisible, setIsVisible] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -60,12 +70,27 @@ function AnimatedCarouselItem({
   }, [])
 
   const effectiveVisible = forceVisible || isVisible
-  const stateClass = effectiveVisible ? 'carousel-animated-item--visible' : 'carousel-animated-item--hidden'
-  const combinedClassName = ['carousel-animated-item', stateClass, className].filter(Boolean).join(' ')
+  const hasScrollProgress = typeof scrollProgress === 'number'
+  const startThreshold = scrollWindow * scrollIndex
+  const normalizedScroll = hasScrollProgress
+    ? Math.min(Math.max((scrollProgress - startThreshold) / (scrollWindow || 1), 0), 1)
+    : null
 
-  const style: CSSProperties | undefined = effectiveVisible
-    ? { transitionDelay: `${Math.max(delay, 0)}ms` }
-    : undefined
+  const stateClass = effectiveVisible ? 'carousel-animated-item--visible' : 'carousel-animated-item--hidden'
+  const combinedClassName = ['carousel-animated-item', !hasScrollProgress ? stateClass : '', className]
+    .filter(Boolean)
+    .join(' ')
+
+  const opacityTarget = shouldForceSettled ? 1 : normalizedScroll ?? (effectiveVisible ? 1 : 0)
+  const translateAmount = shouldForceSettled ? 0 : (1 - opacityTarget) * 60
+  const style: CSSProperties = {
+    opacity: opacityTarget,
+    transform: `translate3d(${translateAmount}px, 0, 0)`
+  }
+
+  if (!hasScrollProgress && effectiveVisible && !shouldForceSettled) {
+    style.transitionDelay = `${Math.max(delay, 0)}ms`
+  }
 
   return (
     <div ref={containerRef} className={combinedClassName} style={style}>
@@ -88,12 +113,15 @@ export default function CarouselLayoutClient({
   const [isContentVisible, setIsContentVisible] = useState(false)
   const [titleScrollProgress, setTitleScrollProgress] = useState(0)
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
+  const [carouselScrollProgress, setCarouselScrollProgress] = useState(0)
+  const [shouldForceSettled, setShouldForceSettled] = useState(false)
   const headlineRef = useRef<HTMLHeadingElement | null>(null)
   const titleRef = useRef<HTMLHeadingElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
   const headlineTransition: CSSProperties = { transitionDelay: isHeadlineVisible ? '80ms' : '0ms' }
   const titleTransition: CSSProperties = { transitionDelay: isTitleVisible ? '120ms' : '0ms' }
   const contentTransition: CSSProperties = { transitionDelay: isContentVisible ? '480ms' : '0ms' }
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const element = headlineRef.current
@@ -112,6 +140,13 @@ export default function CarouselLayoutClient({
 
     return () => {
       observer.disconnect()
+    }
+  }, [])
+  useEffect(() => {
+    return () => {
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current)
+      }
     }
   }, [])
 
@@ -172,6 +207,47 @@ export default function CarouselLayoutClient({
 
     return () => {
       observer.disconnect()
+    }
+  }, [])
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) {
+      return
+    }
+    let frame = 0
+    const updateProgress = () => {
+      frame = 0
+      const rect = section.getBoundingClientRect()
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1
+      const totalDistance = rect.height + viewportHeight
+      const distance = viewportHeight - rect.top
+      const nextProgress = Math.min(Math.max(distance / totalDistance, 0), 1)
+      setCarouselScrollProgress((prev) => {
+        if (Math.abs(prev - nextProgress) < 0.01) {
+          return prev
+        }
+        return nextProgress
+      })
+    }
+
+    updateProgress()
+
+    const handleScroll = () => {
+      if (frame) {
+        return
+      }
+      frame = window.requestAnimationFrame(updateProgress)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+
+    return () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame)
+      }
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
     }
   }, [])
 
@@ -297,6 +373,30 @@ export default function CarouselLayoutClient({
   ]
     .filter(Boolean)
     .join(' ')
+  const scrollAnimatedCount = Math.min(posts.length, SCROLL_ANIMATED_ITEM_COUNT)
+  const scrollWindow =
+    scrollAnimatedCount > 0 ? SCROLL_ANIMATION_END / scrollAnimatedCount : 1
+  const scheduleSettledReset = () => {
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current)
+    }
+    resetTimeoutRef.current = setTimeout(() => {
+      setShouldForceSettled(false)
+      resetTimeoutRef.current = null
+    }, 220)
+  }
+  const handleSlideMotionStart = () => {
+    if (!shouldForceSettled) {
+      setShouldForceSettled(true)
+    }
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current)
+      resetTimeoutRef.current = null
+    }
+  }
+  const handleSlideMotionEnd = () => {
+    scheduleSettledReset()
+  }
 
   return (
     <div ref={sectionRef} className="mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0">
@@ -345,13 +445,32 @@ export default function CarouselLayoutClient({
                 spaceBetween: 20
               }
             }}
+            onSliderMove={handleSlideMotionStart}
+            onTouchStart={handleSlideMotionStart}
+            onTransitionStart={handleSlideMotionStart}
+            onTouchEnd={handleSlideMotionEnd}
+            onTransitionEnd={handleSlideMotionEnd}
+            onSlideChangeTransitionEnd={handleSlideMotionEnd}
           >
             {posts.map((post, index) => {
               const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
-            return (
-              <SwiperSlide key={post.slug} className="carousel-item">
-                <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
-                  <Link href={`/articles/${post.slug}`} className="block">
+              const useScrollReveal = index < scrollAnimatedCount
+              return (
+                <SwiperSlide key={post.slug} className="carousel-item">
+                  <AnimatedCarouselItem
+                    className="group relative"
+                    delay={itemDelay}
+                    forceVisible={isCarouselVisible}
+                    {...(useScrollReveal
+                      ? {
+                          scrollProgress: carouselScrollProgress,
+                          scrollWindow,
+                          scrollIndex: index
+                        }
+                      : {})}
+                    shouldForceSettled={shouldForceSettled}
+                  >
+                    <Link href={`/articles/${post.slug}`} className="block">
                       {post.optionsArticles?.imagePortait?.node?.guid ? (
                         <div className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}>
                           <Image
@@ -383,6 +502,7 @@ export default function CarouselLayoutClient({
                 <AnimatedCarouselItem
                   delay={BASE_DELAY_MS + posts.length * STAGGER_DELAY_MS}
                   forceVisible={isCarouselVisible}
+                  shouldForceSettled={shouldForceSettled}
                 >
                   <Link
                     href={`/categories/${categorySlug}`}
@@ -403,11 +523,11 @@ export default function CarouselLayoutClient({
       <style jsx global>{`
         .carousel-animated-item {
           will-change: transform, opacity;
-          transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.4s ease-out;
+          transition: transform 1.9s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.9s cubic-bezier(0.19, 1, 0.22, 1);
         }
         .carousel-animated-item--hidden {
           opacity: 0;
-          transform: translateX(100px);
+          transform: translateX(60px);
           transition-delay: 0ms !important;
         }
         .carousel-animated-item--visible {
