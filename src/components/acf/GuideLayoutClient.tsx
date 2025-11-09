@@ -12,6 +12,8 @@ import 'swiper/css/effect-fade'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
+type GSAPMatchMedia = import('gsap').MatchMedia
+
 interface GuideLayoutClientProps {
   posts: Article[]
   link?: {
@@ -107,127 +109,60 @@ function AnimatedGuideSubtitle({
 
 export default function GuideLayoutClient({ posts, link, titreDeLaSection }: GuideLayoutClientProps) {
   const sectionRef = useRef<HTMLElement | null>(null)
-  const targetRef = useRef<HTMLElement | null>(null)
-  const lastOffsetRef = useRef(0)
-  const previousSectionRef = useRef<HTMLElement | null>(null)
-  const isPrevFixedRef = useRef(false)
-  const initialLiftRef = useRef(0)
-  const initialScrollYRef = useRef(0)
-
-  const togglePreviousSectionFixed = (shouldFix: boolean, lift = 0, scrollY = 0) => {
-    const prev = previousSectionRef.current
-    if (!prev) {
+  useEffect(() => {
+    if (typeof window === 'undefined' || !sectionRef.current) {
       return
     }
-    if (shouldFix && !isPrevFixedRef.current) {
-      initialLiftRef.current = lift
-      initialScrollYRef.current = scrollY
-      prev.style.position = 'sticky'
-      prev.style.top = '0px'
-      prev.style.zIndex = '0'
-      prev.style.willChange = 'transform'
-      isPrevFixedRef.current = true
-    } else if (shouldFix && isPrevFixedRef.current) {
-      const deltaFromLift = Math.max(lift - initialLiftRef.current, 0)
-      const deltaFromScroll = Math.abs(scrollY - initialScrollYRef.current)
-      const delta = Math.max(deltaFromLift, deltaFromScroll)
-      prev.style.top = `${-delta * 0.3}px`
-    } else if (!shouldFix && isPrevFixedRef.current) {
-      // keep the last applied styles so the transition remains smooth even after leaving viewport
-      isPrevFixedRef.current = false
-      initialLiftRef.current = 0
-      initialScrollYRef.current = 0
-    }
-  }
 
-  useEffect(() => {
-    const current = sectionRef.current
-    if (!current) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (prefersReducedMotion.matches) {
       return
     }
-    const target =
-      current.closest<HTMLElement>('section[id^="section-homepageblocsguidelayout"]') ?? current
-    targetRef.current = target
-    target.style.position = target.style.position || 'relative'
-    target.style.zIndex = target.style.zIndex || '0'
-    previousSectionRef.current = target.previousElementSibling as HTMLElement | null
+
+    let mm: GSAPMatchMedia | undefined
+    let isCancelled = false
+
+    const setupAnimation = async () => {
+      try {
+        const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+          import('gsap'),
+          import('gsap/ScrollTrigger')
+        ])
+
+        if (!sectionRef.current || isCancelled) {
+          return
+        }
+
+        gsap.registerPlugin(ScrollTrigger)
+        mm = gsap.matchMedia()
+        mm.add('(min-width: 1024px)', () => {
+          const node = sectionRef.current
+          if (!node) {
+            return undefined
+          }
+
+          return gsap.to(node, {
+            yPercent: -10,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: node,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+              invalidateOnRefresh: true
+            }
+          })
+        })
+      } catch (error) {
+        console.error('Unable to initialize guide ScrollSmoother animation', error)
+      }
+    }
+
+    setupAnimation()
 
     return () => {
-      if (targetRef.current === target) {
-        target.style.transform = ''
-        if (target.style.zIndex === '0') {
-          target.style.zIndex = ''
-        }
-        if (target.style.position === 'relative') {
-          target.style.position = ''
-        }
-        targetRef.current = null
-      }
-      const prev = previousSectionRef.current
-      if (prev) {
-        prev.style.position = ''
-        prev.style.top = ''
-        prev.style.zIndex = ''
-        prev.style.willChange = ''
-      }
-      previousSectionRef.current = null
-      isPrevFixedRef.current = false
-    }
-  }, [])
-
-  useEffect(() => {
-    const SPEED_FACTOR = 2
-    let frame = 0
-
-    const updateOffset = () => {
-      frame = 0
-
-      const node = targetRef.current ?? sectionRef.current
-      if (!node) {
-        return
-      }
-
-      const rect = node.getBoundingClientRect()
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1
-      const offsetMultiplier = (SPEED_FACTOR - 1) / SPEED_FACTOR
-      let targetOffset = 0
-      if (rect.top >= viewportHeight) {
-        targetOffset = -(rect.top - viewportHeight) * offsetMultiplier
-      } else if (rect.bottom <= 0) {
-        targetOffset = (0 - rect.bottom) * offsetMultiplier
-      }
-      const shouldFixPrevious = rect.top <= viewportHeight && rect.bottom >= 0
-      const liftAmount =
-        rect.top >= viewportHeight ? Math.max(viewportHeight - rect.top, 0) : 0
-      const currentScrollY = window.scrollY || window.pageYOffset || 0
-
-      if (Math.abs(lastOffsetRef.current - targetOffset) < 0.5) {
-        togglePreviousSectionFixed(shouldFixPrevious, liftAmount, currentScrollY)
-        return
-      }
-      lastOffsetRef.current = targetOffset
-      node.style.transform = `translate3d(0, ${targetOffset}px, 0)`
-      node.style.willChange = 'transform'
-      togglePreviousSectionFixed(shouldFixPrevious, liftAmount, currentScrollY)
-    }
-
-    const handleScroll = () => {
-      if (frame) {
-        return
-      }
-      frame = window.requestAnimationFrame(updateOffset)
-    }
-
-    updateOffset()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
-
-    return () => {
-      if (frame) {
-        window.cancelAnimationFrame(frame)
-      }
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
+      isCancelled = true
+      mm?.revert()
     }
   }, [])
 

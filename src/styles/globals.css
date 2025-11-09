@@ -47,3 +47,14 @@ a {
 .home-block:last-of-type {
   padding-bottom: 0;
 }
+
+.scroll-smoother-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.scroll-smoother-content {
+  width: 100%;
+  will-change: transform;
+}
