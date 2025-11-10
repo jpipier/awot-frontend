@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      borderRadius: {
+        xxl: '3rem'
+      },
       height: {
         590: '34vw'
       },

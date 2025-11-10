@@ -166,9 +166,11 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
             sliderNode,
             {
               width: '40vw',
+              borderRadius: '1rem'
             },
             {
               width: '80vw',
+              borderRadius: '0px',
               duration: 0.5,
               immediateRender: false
             },
@@ -179,14 +181,16 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
             sliderNode,
             {
               width: '80vw',
-              duration: 0.5
+              borderRadius: '2px',
+              duration: 0.5,
+              immediateRender: false
             },
             0.5
           )
 
           return () => {
             timeline.kill()
-            gsap.set(sliderNode, { clearProps: 'width' })
+            gsap.set(sliderNode, { clearProps: 'width,borderRadius' })
           }
         })
       } catch (error) {
@@ -203,12 +207,19 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
   }, [])
 
   return (
-    <section ref={sectionRef} className="max-w-screen-full bg-white pt-[5rem]">
-      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row rounded-md">
-        <div ref={sliderShellRef} className="relative w-full lg:mx-auto rounded-md">
+    <section
+      id="section-homepageblocsguidelayout"
+      ref={sectionRef}
+      className="max-w-screen-full bg-white pt-[5rem]"
+    >
+      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row">
+        <div
+          ref={sliderShellRef}
+          className="relative w-full overflow-hidden rounded-xxl lg:mx-auto"
+        >
           <Swiper
             modules={[Navigation, Pagination, EffectFade]}
-            className="mySwiper rounded-lg"
+            className="mySwiper"
             slidesPerView={1}
             spaceBetween={20}
             effect="fade"

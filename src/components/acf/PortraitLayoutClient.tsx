@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import clsx from 'clsx'
@@ -35,6 +35,72 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const textBlockRef = useRef<HTMLDivElement | null>(null)
+  const gsapRef = useRef<any>(null)
+  const splitTextCtorRef = useRef<any>(null)
+  const splitInstancesRef = useRef<Array<{ revert: () => void }> | null>(null)
+  const textAnimationRef = useRef<any>(null)
+  const splitReadyRef = useRef(false)
+  const isTextVisibleRef = useRef(false)
+
+  const animateSplitText = useCallback(() => {
+    const container = textBlockRef.current
+    const gsapInstance = gsapRef.current
+    const SplitTextCtor = splitTextCtorRef.current
+
+    if (!container || !gsapInstance || !SplitTextCtor || !splitReadyRef.current) {
+      return
+    }
+
+    textAnimationRef.current?.kill()
+    splitInstancesRef.current?.forEach((instance) => {
+      if (typeof instance?.revert === 'function') {
+        instance.revert()
+      }
+    })
+    splitInstancesRef.current = null
+
+    const elements = Array.from(container.querySelectorAll('.portraits-split'))
+    if (!elements.length) {
+      return
+    }
+
+    gsapInstance.set(elements, { opacity: 1 })
+
+    const splitOptions = {
+      type: 'words,lines',
+      linesClass: 'portrait-line-mask',
+      autoSplit: true,
+      mask: 'lines'
+    }
+
+    let instances: any[] = []
+    if (typeof SplitTextCtor.create === 'function') {
+      const createdInstances = SplitTextCtor.create(elements, splitOptions)
+      instances = Array.isArray(createdInstances) ? createdInstances : [createdInstances]
+    } else {
+      instances = elements.map((element) => new SplitTextCtor(element, splitOptions))
+    }
+
+    splitInstancesRef.current = instances
+
+    const lines = instances.flatMap((instance) => instance?.lines ?? [])
+    if (!lines.length) {
+      return
+    }
+
+    textAnimationRef.current = gsapInstance.fromTo(
+      lines,
+      { yPercent: 100, opacity: 0 },
+      {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'expo.out'
+      }
+    )
+  }, [])
 
   useEffect(() => {
     const element = containerRef.current
@@ -42,16 +108,84 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
       return
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        setIsVisible(entry.isIntersecting)
-      })
-    }, { threshold: 0.5 })
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting)
+          isTextVisibleRef.current = entry.isIntersecting
+        })
+      },
+      { threshold: 0.5 }
+    )
 
     observer.observe(element)
 
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    const loadSplitText = async () => {
+      try {
+        const [{ default: gsap }, splitModule] = await Promise.all([
+          import('gsap'),
+          import('gsap/SplitText')
+        ])
+
+        if (isCancelled) {
+          return
+        }
+
+        const SplitTextCtor = splitModule.SplitText ?? splitModule.default
+        if (!SplitTextCtor) {
+          console.warn('SplitText plugin is unavailable for the portraits block')
+          return
+        }
+
+        gsap.registerPlugin(SplitTextCtor)
+        gsapRef.current = gsap
+        splitTextCtorRef.current = SplitTextCtor
+
+        if (typeof document !== 'undefined' && 'fonts' in document) {
+          await document.fonts.ready
+        }
+
+        if (isCancelled) {
+          return
+        }
+
+        splitReadyRef.current = true
+        if (isTextVisibleRef.current) {
+          animateSplitText()
+        }
+      } catch (error) {
+        console.error('Unable to initialize SplitText for the portraits block', error)
+      }
+    }
+
+    loadSplitText()
+
+    return () => {
+      isCancelled = true
+      textAnimationRef.current?.kill()
+      textAnimationRef.current = null
+      splitInstancesRef.current?.forEach((instance) => {
+        if (typeof instance?.revert === 'function') {
+          instance.revert()
+        }
+      })
+      splitInstancesRef.current = null
+    }
+  }, [animateSplitText])
+
+  useEffect(() => {
+    if (!isVisible) {
+      return
+    }
+
+    animateSplitText()
+  }, [isVisible, currentIndex, animateSplitText])
 
   const slides = useMemo(() => posts, [posts])
   const activePost = useMemo(() => slides[currentIndex] ?? slides[0], [slides, currentIndex])
@@ -69,11 +203,6 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
       .map((line) => line.replace(/<\/?[^>]+(>|$)/g, '').trim())
       .filter(Boolean)
   }, [excerpt])
-  const ANIMATION_STEP = 0.18
-  const categoryDelay = ANIMATION_STEP
-  const titleDelay = ANIMATION_STEP * 2
-  const excerptBaseDelay = ANIMATION_STEP * 3
-  const ctaDelay = excerptBaseDelay + ANIMATION_STEP * excerptLines.length
 
   if (!slides.length) {
     return null
@@ -155,23 +284,19 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           </div> */}
         </div>
         <div
-          className={clsx(
-            'order-2 flex w-full flex-col justify-center lg:w-1/2 text-black'
-          )}
+          id="portraits"
+          ref={textBlockRef}
+          className={clsx('order-2 flex w-full flex-col justify-center lg:w-1/2 text-black')}
         >
           <div className="flex flex-col gap-10 overflow-hidden">
-            <h2 className="text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem] lg:mb-3rem">
+            <h2 className="portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem] lg:mb-3rem">
               {titreDeLaSection}
             </h2>
             <div key={activePost?.slug ?? currentIndex} className="flex flex-col gap-4 text-current">
               {categoryLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
-                  className={clsx(
-                    'font-brandon_grotesquelight_italic text-xs uppercase tracking-[0.3em] -mb-4 opacity-70 portrait-line',
-                    isVisible && 'portrait-line-visible'
-                  )}
-                  style={{ transitionDelay: `${categoryDelay}s` }}
+                  className="portraits-split font-brandon_grotesquelight_italic text-xs uppercase tracking-[0.3em] -mb-4 opacity-70"
                 >
                   {categoryLabel}
                 </span>
@@ -183,10 +308,8 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               >
                 <h3
                   className={clsx(
-                    'font-schnyder_xl_webdemi text-[2.5rem] leading-tight transition duration-300 group-hover:opacity-70 portrait-line',
-                    isVisible && 'portrait-line-visible'
+                    'portraits-split font-schnyder_xl_webdemi text-[2.5rem] leading-tight transition duration-300 group-hover:opacity-70'
                   )}
-                  style={{ transitionDelay: `${titleDelay}s` }}
                 >
                   {activePost?.title}
                 </h3>
@@ -195,13 +318,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                 ? excerptLines.map((line, idx) => (
                     <p
                       key={`${activePost?.slug ?? currentIndex}-line-${idx}`}
-                      className={clsx(
-                        'font-montserrat lato-light text-sm opacity-80 portrait-line',
-                        isVisible && 'portrait-line-visible'
-                      )}
-                      style={{
-                        transitionDelay: `${excerptBaseDelay + ANIMATION_STEP * idx}s`
-                      }}
+                      className="portraits-split font-montserrat lato-light text-sm opacity-80"
                     >
                       {line}
                     </p>
@@ -210,11 +327,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               <Link
                 key={`cta-${activePost?.slug ?? currentIndex}`}
                 href={activePost?.slug ? `/articles/${activePost.slug}` : '#'}
-                className={clsx(
-                  'text-xs uppercase tracking-[0.2em] text-current portrait-line',
-                  isVisible && 'portrait-line-visible'
-                )}
-                style={{ transitionDelay: `${ctaDelay}s` }}
+                className="portraits-split text-xs uppercase tracking-[0.2em] text-current"
               >
                 Découvrir <span aria-hidden="true">→</span>
               </Link>
@@ -249,14 +362,12 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         .portrait-slider {
           overflow: visible;
         }
-        .portrait-line {
+        #portraits .portraits-split {
           opacity: 0;
-          transform: translateY(-16px);
-          transition: opacity 0.7s ease-out, transform 0.7s ease-out;
         }
-        .portrait-line-visible {
-          opacity: 1;
-          transform: translateY(0);
+        .portrait-line-mask {
+          display: block;
+          overflow: hidden;
         }
       `}</style>
     </div>
