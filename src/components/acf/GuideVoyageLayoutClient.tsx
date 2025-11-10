@@ -18,7 +18,10 @@ interface GuideVoyageLayoutClientProps {
 }
 
 const STAGGER_DELAY_MS = 80
-const BASE_DELAY_MS = 120
+const BASE_DELAY_MS = 240
+const STICKY_START_OFFSET_PX = 500
+const STICKY_MEDIA_QUERY = '(min-width: 1024px)'
+const VOYAGES_SECTION_SELECTOR = '#voyages'
 
 function AnimatedCarouselItem({
   children,
@@ -73,6 +76,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   const [activeIndex, setActiveIndex] = useState(0)
   const swiperContainerRef = useRef<HTMLDivElement | null>(null)
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
+  const stickyRowRef = useRef<HTMLDivElement | null>(null)
 
   const sanitizedPosts = useMemo(
     () =>
@@ -110,9 +114,88 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
     }
   }, [])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (prefersReducedMotion.matches) {
+      return
+    }
+
+    let revertMatchMedia: (() => void) | undefined
+    let isCancelled = false
+
+    const setupSticky = async () => {
+      try {
+        const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+          import('gsap'),
+          import('gsap/ScrollTrigger')
+        ])
+
+        if (!stickyRowRef.current || isCancelled) {
+          return
+        }
+
+        const voyagesContainer = stickyRowRef.current.closest(VOYAGES_SECTION_SELECTOR) as HTMLElement | null
+        if (!voyagesContainer) {
+          return
+        }
+
+        gsap.registerPlugin(ScrollTrigger)
+        const mm = gsap.matchMedia()
+        revertMatchMedia = () => mm.revert()
+
+        mm.add(STICKY_MEDIA_QUERY, () => {
+          const target = stickyRowRef.current
+          if (!target) {
+            return undefined
+          }
+
+          const computePinDistance = () => {
+            if (!voyagesContainer || !target) {
+              return 0
+            }
+
+            const containerRect = voyagesContainer.getBoundingClientRect()
+            const targetRect = target.getBoundingClientRect()
+            const distanceBelowTarget =
+              voyagesContainer.offsetHeight - (targetRect.top - containerRect.top) - targetRect.height
+
+            return Math.max(distanceBelowTarget, 0)
+          }
+
+          const trigger = ScrollTrigger.create({
+            trigger: target,
+            start: () => `top top+=${STICKY_START_OFFSET_PX}`,
+            end: () => `+=${computePinDistance()}`,
+            pin: target,
+            pinSpacing: false,
+            anticipatePin: 0.5,
+            invalidateOnRefresh: true
+          })
+
+          return () => {
+            trigger.kill()
+          }
+        })
+      } catch (error) {
+        console.error('Unable to initialize GuideVoyage sticky behaviour', error)
+      }
+    }
+
+    setupSticky()
+
+    return () => {
+      isCancelled = true
+      revertMatchMedia?.()
+    }
+  }, [])
+
   return (
     <div className="mt-10 flex flex-row items-start gap-4 sm:gap-10">
-      <div className="flex flex-1 min-w-0 flex-col gap-4 pb-16 text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
+      <div ref={stickyRowRef} className="flex flex-1 min-w-0 flex-col gap-4 pb-24 text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
