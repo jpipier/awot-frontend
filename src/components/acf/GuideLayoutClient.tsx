@@ -12,8 +12,6 @@ import 'swiper/css/effect-fade'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
-type GSAPMatchMedia = import('gsap').MatchMedia
-
 interface GuideLayoutClientProps {
   posts: Article[]
   link?: {
@@ -109,6 +107,7 @@ function AnimatedGuideSubtitle({
 
 export default function GuideLayoutClient({ posts, link, titreDeLaSection }: GuideLayoutClientProps) {
   const sectionRef = useRef<HTMLElement | null>(null)
+  const sliderShellRef = useRef<HTMLDivElement | null>(null)
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) {
       return
@@ -119,7 +118,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       return
     }
 
-    let mm: GSAPMatchMedia | undefined
+    let revertMatchMedia: (() => void) | undefined
     let isCancelled = false
 
     const setupAnimation = async () => {
@@ -129,29 +128,66 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           import('gsap/ScrollTrigger')
         ])
 
-        if (!sectionRef.current || isCancelled) {
+        if (!sectionRef.current || !sliderShellRef.current || isCancelled) {
           return
         }
 
         gsap.registerPlugin(ScrollTrigger)
-        mm = gsap.matchMedia()
+        const mm = gsap.matchMedia()
+        revertMatchMedia = () => mm.revert()
         mm.add('(min-width: 1024px)', () => {
           const node = sectionRef.current
-          if (!node) {
+          const sliderNode = sliderShellRef.current
+          if (!node || !sliderNode) {
             return undefined
           }
 
-          return gsap.to(node, {
-            yPercent: -10,
-            ease: 'none',
+          const timeline = gsap.timeline({
+            defaults: { ease: 'none' },
             scrollTrigger: {
               trigger: node,
-              start: 'top bottom',
-              end: 'bottom top',
+              start: 'top 80%',
+              end: 'bottom 50%',
               scrub: true,
               invalidateOnRefresh: true
             }
           })
+
+          timeline.to(
+            node,
+            {
+              yPercent: -10,
+              duration: 1
+            },
+            0
+          )
+
+          timeline.fromTo(
+            sliderNode,
+            {
+              width: '40vw',
+            },
+            {
+              width: '80vw',
+              duration: 0.5,
+              immediateRender: false
+            },
+            0
+          )
+
+          timeline.to(
+            sliderNode,
+            {
+              width: '80vw',
+              duration: 0.5
+            },
+            0.5
+          )
+
+          return () => {
+            timeline.kill()
+            gsap.set(sliderNode, { clearProps: 'width' })
+          }
         })
       } catch (error) {
         console.error('Unable to initialize guide ScrollSmoother animation', error)
@@ -162,17 +198,17 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
 
     return () => {
       isCancelled = true
-      mm?.revert()
+      revertMatchMedia?.()
     }
   }, [])
 
   return (
-    <section ref={sectionRef} className="max-w-screen-full bg-zinc-900">
-      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row">
-        <div className="relative w-full lg:w-10/12">
+    <section ref={sectionRef} className="max-w-screen-full bg-white pt-[5rem]">
+      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row rounded-md">
+        <div ref={sliderShellRef} className="relative w-full lg:mx-auto rounded-md">
           <Swiper
             modules={[Navigation, Pagination, EffectFade]}
-            className="mySwiper"
+            className="mySwiper rounded-lg"
             slidesPerView={1}
             spaceBetween={20}
             effect="fade"
@@ -213,7 +249,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           <div className="custom-pagination" />
         </div>
         {link?.url ? (
-          <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12">
+          <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black h-full">
             <a
               href={link.url}
               className="transform rounded-md px-4 py-2 text-sm uppercase text-white font-montserrat lg:-rotate-90"

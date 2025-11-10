@@ -3,7 +3,7 @@
 import { type PropsWithChildren, useEffect, useRef } from 'react'
 
 type ScrollSmootherInstance = import('gsap/ScrollSmoother').ScrollSmoother | null
-type GSAPContext = import('gsap').Context | undefined
+type GSAPContext = { revert: (config?: object) => void } | undefined
 
 export default function ScrollSmootherProvider({ children }: PropsWithChildren) {
   const wrapperRef = useRef<HTMLDivElement | null>(null)
@@ -43,7 +43,7 @@ export default function ScrollSmootherProvider({ children }: PropsWithChildren) 
           smoother = ScrollSmoother.create({
             wrapper: wrapperRef.current!,
             content: contentRef.current!,
-            smooth: 0.8,
+            smooth: 1,
             smoothTouch: 0.1,
             effects: true
           })
