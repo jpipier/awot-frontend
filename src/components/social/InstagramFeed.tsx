@@ -152,7 +152,7 @@ export default async function InstagramFeed({
                     priority={false}
                   />
 
-                  <div className="pointer-events-none inset-0 flex flex-col justify-between p-4 text-white opacity-0 transition duration-300 group-hover:opacity-100">
+                  <div className="pointer-events-none inset-0 flex flex-col justify-between text-white opacity-0 transition duration-300 group-hover:opacity-100">
                     <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/80">
                       <span>Instagram</span>
                       <svg
