@@ -9,11 +9,14 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import he from 'he'
 import type { Article } from '@/types/wordpress'
 import type { Swiper as SwiperInstance } from 'swiper'
-import type { GSAPTimeline, Tween } from 'gsap'
+import type { gsap as GSAP } from 'gsap'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
+
+type GSAPTimeline = ReturnType<GSAP['timeline']>
+type Tween = ReturnType<GSAP['to']>
 
 interface GuideVoyageLayoutClientProps {
   posts: Article[]
