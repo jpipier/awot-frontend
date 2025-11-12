@@ -29,7 +29,8 @@ The component `InstagramFeed` fetches media from the Instagram Basic Display API
 
 1. Generate a long-lived access token for the Instagram account (see Meta’s documentation) and store it in `INSTAGRAM_ACCESS_TOKEN`.
 2. Optionally set `INSTAGRAM_USER_ID` if the token does not resolve to the desired user (otherwise the API defaults to `me`).
-3. Import the component where you need it in the App Router:
+3. If you are using a Facebook Page / Business token (values that usually start with `EAA`), set `INSTAGRAM_GRAPH_HOST=graph.facebook.com`. Basic Display tokens (they start with `IG…`) automatically use `graph.instagram.com`, so no change is needed in that case.
+4. Import the component where you need it in the App Router:
 
 ```tsx
 import InstagramFeed from '@/components/social/InstagramFeed'

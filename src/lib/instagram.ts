@@ -7,8 +7,13 @@ import type {
 } from '@/types/instagram'
 
 const GRAPH_VERSION = process.env.IG_GRAPH_VERSION || 'v21.0'
-const FB_GRAPH_API = `https://graph.facebook.com/${GRAPH_VERSION}`
-const INSTAGRAM_OEMBED_ENDPOINT = `${FB_GRAPH_API}/instagram_oembed`
+const DEFAULT_INSTAGRAM_GRAPH_HOST = (() => {
+  const token = process.env.INSTAGRAM_ACCESS_TOKEN ?? ''
+  return token.startsWith('IG') ? 'graph.instagram.com' : 'graph.facebook.com'
+})()
+const INSTAGRAM_GRAPH_HOST = process.env.INSTAGRAM_GRAPH_HOST ?? DEFAULT_INSTAGRAM_GRAPH_HOST
+const INSTAGRAM_GRAPH_API = `https://${INSTAGRAM_GRAPH_HOST}/${GRAPH_VERSION}`
+const INSTAGRAM_OEMBED_ENDPOINT = `https://graph.facebook.com/${GRAPH_VERSION}/instagram_oembed`
 
 const DEFAULT_FIELDS = [
   'id',
@@ -73,7 +78,7 @@ function buildInstagramUrl({
     throw new Error('Missing Instagram user id. Set INSTAGRAM_USER_ID env var.')
   }
 
-  return `${FB_GRAPH_API}/${targetUser}/media?${params.toString()}`
+  return `${INSTAGRAM_GRAPH_API}/${targetUser}/media?${params.toString()}`
 }
 
 export async function getInstagramPosts({
