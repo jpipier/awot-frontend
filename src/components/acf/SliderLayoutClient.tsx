@@ -36,6 +36,7 @@ interface SliderLayoutClientProps {
 export default function SliderLayoutClient({ slides, siteTitle, siteDescription }: SliderLayoutClientProps) {
   const loop = slides.length > 1
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const initialProgress = useRef<number | null>(null)
   const [parallaxProgress, setParallaxProgress] = useState(0)
 
   useEffect(() => {
@@ -49,7 +50,18 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
       const totalDistance = rect.height + viewportHeight
       const distance = viewportHeight - rect.top
       const progress = Math.min(Math.max(distance / totalDistance, 0), 1)
-      setParallaxProgress(progress)
+
+      if (initialProgress.current === null) {
+        initialProgress.current = progress
+      }
+
+      // Use the initial measurement as the baseline so the image starts at translate3d(0, 0, 0)
+      const start = initialProgress.current ?? 0
+      const range = 1 - start
+      const normalizedProgress = range <= 0 ? 0 : (progress - start) / range
+      const clampedNormalizedProgress = Math.min(Math.max(normalizedProgress, 0), 1)
+
+      setParallaxProgress(clampedNormalizedProgress)
     }
 
     let frame = 0
@@ -77,8 +89,8 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
   }, [])
 
   const clampedProgress = Math.min(Math.max(parallaxProgress, 0), 1)
-  const parallaxImageOffset = clampedProgress * -80
-  const parallaxImageScale = 1 + clampedProgress * 0.03
+  const parallaxImageOffset = clampedProgress * -200
+  const parallaxImageScale = 1 + clampedProgress * 0.02
   const parallaxImageStyle: CSSProperties = {
     transform: `translate3d(0, ${parallaxImageOffset}px, 0) scale(${parallaxImageScale})`,
     transition: 'transform 0.45s ease-out'
