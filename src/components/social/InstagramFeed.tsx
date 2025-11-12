@@ -111,35 +111,17 @@ export default async function InstagramFeed({
 
   return (
     <section className="home-block">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col gap-6 pb-6 text-left md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="uppercase tracking-[0.4em] text-xs text-neutral-500">Instagram</p>
-            <h2 className="font-custom text-4xl leading-tight md:text-7xl">{title}</h2>
-            {description ? <p className="mt-3 max-w-2xl text-base text-neutral-600">{description}</p> : null}
-          </div>
-          {profileUrl ? (
-            <Link
-              href={profileUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-black px-6 py-2 text-sm font-semibold uppercase tracking-wide transition hover:bg-black hover:text-white"
-            >
-              {ctaLabel}
-            </Link>
-          ) : null}
-        </div>
-
+      <div className="relative -mb-[120px] z-10">
         {hasEmbeds ? (
           <div className="-mx-6 md:mx-0">
-            <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 md:px-0">
+            <div className="flex snap-x snap-mandatory overflow-x-auto">
               {feedItems.map((item) => (
                 <a
                   key={item.id}
                   href={item.permalink ?? '#'}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative  min-w-[220px] flex-shrink-0 overflow-hidden"
+                  className="group relative  w-[220px] h-[220px] flex-shrink-0 overflow-hidden"
                   aria-label="Voir sur Instagram"
                 >
                   <div className="absolute inset-0 bg-neutral-900/0 transition duration-300 group-hover:bg-neutral-900/50" />
@@ -154,7 +136,7 @@ export default async function InstagramFeed({
 
                   <div className="pointer-events-none inset-0 flex flex-col justify-between text-white opacity-0 transition duration-300 group-hover:opacity-100">
                     <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/80">
-                      <span>Instagram</span>
+                      {/* <span>Instagram</span>
                       <svg
                         viewBox="0 0 24 24"
                         className="h-4 w-4 text-white"
@@ -162,9 +144,9 @@ export default async function InstagramFeed({
                         aria-hidden="true"
                       >
                         <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm0 2h10c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3zm9 2a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2c1.654 0 3 1.346 3 3s-1.346 3-3 3-3-1.346-3-3 1.346-3 3-3z" />
-                      </svg>
+                      </svg> */}
                     </div>
-                    {item.caption ? (
+                    {/* {item.caption ? (
                       <p
                         className="text-sm leading-snug text-white"
                         style={{
@@ -176,7 +158,7 @@ export default async function InstagramFeed({
                       >
                         {item.caption}
                       </p>
-                    ) : null}
+                    ) : null} */}
                   </div>
                 </a>
               ))}
