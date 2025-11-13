@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
 import PostFooter from '@/components/footer/PostFooter'
 import ElementorStylesLoader from '@/components/ElementorStylesLoader'
+import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import StickyWatcher from '@/components/article/StickyWatcher'
-import { getArticleBySlug, getElementorCssFiles } from '@/lib/article'
+import { getArticleBySlug, getElementorCssFiles, getElementorJsAssets } from '@/lib/article'
 
 interface ArticlePageProps {
   params: {
@@ -37,13 +38,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const cssFiles = await getElementorCssFiles()
+  const elementorAssets = await getElementorJsAssets(article.databaseId ?? undefined)
   const fallbackBodyClasses = extractElementorBodyClasses(article.elementorContent ?? article.content)
 
   return (
     <div className="article-container font-brandon_grotesquelight">
       <ElementorStylesLoader cssFiles={cssFiles} bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined} />
+      <ElementorScriptsLoader assets={elementorAssets} />
       <StickyWatcher />
-      <section className="elementor-section elementor-section-height-default elementor-element-40717a53" id="sticky-anchor">
+      <section className="elementor-section elementor-section-height-default elementor-element-40717a53">
         <div
           className="contentElementor"
           dangerouslySetInnerHTML={{ __html: article.elementorContent ?? article.content ?? '' }}

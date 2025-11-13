@@ -1,5 +1,5 @@
 import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
-import type { Article } from '@/types/wordpress'
+import type { Article, ElementorJsPayload } from '@/types/wordpress'
 
 interface ArticleResponse {
   postBy: Article & {
@@ -77,4 +77,22 @@ export async function getArticleBySlug(slug: string) {
 
 export async function getElementorCssFiles() {
   return fetchWordPressRest<string[]>("elementor/v1/css-files")
+}
+
+export async function getElementorJsAssets(postId?: number | null) {
+  const params = new URLSearchParams()
+
+  if (postId) {
+    params.set('post_id', String(postId))
+  }
+
+  const query = params.toString()
+  const path = query ? `elementor/v1/js-files?${query}` : 'elementor/v1/js-files'
+
+  try {
+    return await fetchWordPressRest<ElementorJsPayload>(path, { cache: 'no-store' })
+  } catch (error) {
+    console.warn('Failed to load Elementor JS assets', error)
+    return null
+  }
 }

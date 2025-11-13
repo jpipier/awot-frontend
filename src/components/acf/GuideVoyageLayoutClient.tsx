@@ -318,9 +318,9 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
         parallaxTweenRef.current?.kill()
         parallaxTweenRef.current = gsap.fromTo(
           backgroundLayerRef.current,
-          { yPercent: -6 },
+          { yPercent: -18 },
           {
-            yPercent: 6,
+            yPercent: 18,
             ease: 'none',
             scrollTrigger: {
               trigger: voyagesSectionNode,
@@ -482,19 +482,19 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           </div>
         ) : null} */}
         <Swiper
-          modules={[Autoplay, Navigation, Pagination]}
+          modules={[Navigation, Pagination]}
           className="mySwiper guide-voyage-carousel__swiper"
           slidesPerView={1.1}
           spaceBetween={18}
-          autoplay={
-            shouldAutoplay
-              ? {
-                  delay: CAROUSEL_AUTOPLAY_DELAY_MS,
-                  disableOnInteraction: false
-                }
-              : undefined
-          }
-          loop={shouldAutoplay}
+          // autoplay={
+          //   shouldAutoplay
+          //     ? {
+          //         delay: CAROUSEL_AUTOPLAY_DELAY_MS,
+          //         disableOnInteraction: false
+          //       }
+          //     : undefined
+          // }
+          // loop={shouldAutoplay}
           breakpoints={{
             480: { slidesPerView: 1.2, spaceBetween: 20 },
             640: { slidesPerView: 1.3, spaceBetween: 22 },

@@ -183,3 +183,24 @@ export interface CategoryPageData {
     }
   }
 }
+
+export interface ElementorScriptAsset {
+  handle: string
+  src: string
+  dependencies?: string[]
+  inFooter?: boolean
+  strategy?: 'async' | 'defer' | null
+  type?: string | null
+}
+
+export interface ElementorInlineScript {
+  id: string
+  target?: string | null
+  position?: 'before' | 'after'
+  code: string
+}
+
+export interface ElementorJsPayload {
+  scripts: ElementorScriptAsset[]
+  inline: ElementorInlineScript[]
+}

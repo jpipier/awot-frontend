@@ -1,10 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import type { ScrollTrigger as ScrollTriggerType } from 'gsap/ScrollTrigger'
 
 export default function StickyWatcher() {
   useEffect(() => {
-    const stickyAwot = () => {
+    let destroyed = false
+    let stickyTrigger: ScrollTriggerType | null = null
+
+    const initSticky = async () => {
       const stickyEl = document.getElementById('sticky1')
       const stickyAnchor = document.getElementById('sticky-anchor')
       const stickyTitle = document.getElementById('stickyTitle')
@@ -17,27 +21,64 @@ export default function StickyWatcher() {
         return
       }
 
-      const windowTop = window.scrollY
-      const footerTop = removeSticky.getBoundingClientRect().top + window.scrollY
-      const divTop = stickyAnchor.getBoundingClientRect().top + window.scrollY
-      const divHeight = stickyEl.offsetHeight
-      const isTablet = document.querySelector('[data-elementor-device-mode="tablet"]')
-      const padding = isTablet ? 50 : 10
+      const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
+        import('gsap'),
+        import('gsap/ScrollTrigger')
+      ])
 
-      if (windowTop + divHeight > footerTop - padding) {
-        stickyEl.style.top = `${(windowTop + divHeight - footerTop + padding) * -1}px`
-        stickyEl.classList.remove('stick')
-        stickyTitle.classList.remove('titleStick')
-      } else if (windowTop > divTop) {
-        stickyEl.classList.add('stick')
-        stickyEl.style.top = '0px'
-        stickyTitle.classList.add('titleStick')
-      } else {
-        stickyEl.classList.remove('stick')
-        stickyEl.style.top = ''
-        stickyTitle.classList.remove('titleStick')
+      if (destroyed) {
+        return
       }
+
+      gsap.registerPlugin(ScrollTrigger)
+
+      const padding = document.querySelector('[data-elementor-device-mode="tablet"]') ? 50 : 10
+
+      const computePinDistance = () => {
+        const anchorTop = stickyAnchor.getBoundingClientRect().top + window.scrollY
+        const footerTop = (removeSticky as HTMLElement).getBoundingClientRect().top + window.scrollY
+        const distance = footerTop - anchorTop - stickyEl.offsetHeight - padding
+        return Math.max(distance, 0)
+      }
+
+      const initialDistance = computePinDistance()
+      if (initialDistance <= 0) {
+        stickyEl.classList.remove('stick')
+        stickyTitle.classList.remove('titleStick')
+        return
+      }
+
+      stickyTrigger = ScrollTrigger.create({
+        trigger: stickyAnchor,
+        start: 'top top',
+        end: () => `+=${computePinDistance()}`,
+        pin: stickyEl,
+        pinSpacing: false,
+        invalidateOnRefresh: true,
+        onEnter: () => {
+          stickyEl.classList.add('stick')
+          stickyTitle.classList.add('titleStick')
+          gsap.set(stickyEl, { top: 0 })
+        },
+        onEnterBack: () => {
+          stickyEl.classList.add('stick')
+          stickyTitle.classList.add('titleStick')
+          gsap.set(stickyEl, { top: 0 })
+        },
+        onLeave: () => {
+          stickyEl.classList.remove('stick')
+          stickyTitle.classList.remove('titleStick')
+          gsap.set(stickyEl, { top: '' })
+        },
+        onLeaveBack: () => {
+          stickyEl.classList.remove('stick')
+          stickyTitle.classList.remove('titleStick')
+          gsap.set(stickyEl, { top: '' })
+        }
+      })
     }
+
+    void initSticky()
 
     const imgScroll = () => {
       const el = document.querySelector('.elementor-element-27c5e308') as HTMLElement | null
@@ -53,17 +94,14 @@ export default function StickyWatcher() {
       }
     }
 
-    const onScroll = () => {
-      stickyAwot()
-      imgScroll()
-    }
-
-    window.addEventListener('scroll', onScroll)
-    window.addEventListener('load', onScroll)
+    window.addEventListener('scroll', imgScroll)
+    window.addEventListener('load', imgScroll)
 
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('load', onScroll)
+      destroyed = true
+      stickyTrigger?.kill()
+      window.removeEventListener('scroll', imgScroll)
+      window.removeEventListener('load', imgScroll)
     }
   }, [])
 
