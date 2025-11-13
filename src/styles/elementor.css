@@ -928,7 +928,7 @@ html{
     }
     #stickyTitle {
       float: right;
-      margin-left: 50%;
+      margin-left: 0;
     }
     body .elementor-22512 .elementor-element.elementor-element-ddbc5cb > .elementor-element-populated {
       padding: 3.9vw 15.9vw 3.9vw 15.9vw;
@@ -1045,7 +1045,7 @@ html{
     }
     #stickyTitle {
       float: right;
-      margin-left: 50%;
+      margin-left: 0;
     }
     body .elementor-22512 .elementor-element.elementor-element-ddbc5cb > .elementor-element-populated {
       padding: 3.9vw 10.9vw 3.9vw 10.9vw;
@@ -1179,7 +1179,7 @@ html{
     }
     #stickyTitle {
       float: right;
-      margin-left: 50%;
+      margin-left: 0;
     }
     .not-built-with-elementor #awot-section-content {
       width: 50%;
@@ -1421,7 +1421,7 @@ html{
     }
     #stickyTitle {
       float: right;
-      margin-left: 50%;
+      margin-left: 0;
     }
     .not-built-with-elementor #awot-section-content {
       width: 50%;

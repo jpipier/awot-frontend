@@ -1,9 +1,18 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type ReactNode
+} from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import he from 'he'
@@ -81,6 +90,7 @@ function AnimatedCarouselItem({
 }
 
 export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVoyageLayoutClientProps) {
+  const router = useRouter()
   const [activeIndex, setActiveIndex] = useState(0)
   const swiperContainerRef = useRef<HTMLDivElement | null>(null)
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
@@ -91,6 +101,28 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   const backgroundLayerRef = useRef<HTMLDivElement | null>(null)
   const coverRef = useRef<HTMLDivElement | null>(null)
   const parallaxTweenRef = useRef<Tween | null>(null)
+  const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const transitionElementsRef = useRef<{
+    overlay?: HTMLDivElement
+    image?: HTMLImageElement
+    timeline?: GSAPTimeline
+  } | null>(null)
+  const isTransitioningRef = useRef(false)
+  const transitionCleanupTimeoutRef = useRef<number | null>(null)
+  const clearTransitionElements = () => {
+    if (transitionCleanupTimeoutRef.current) {
+      window.clearTimeout(transitionCleanupTimeoutRef.current)
+      transitionCleanupTimeoutRef.current = null
+    }
+    if (transitionElementsRef.current?.timeline) {
+      transitionElementsRef.current.timeline.kill()
+    }
+    transitionElementsRef.current?.overlay?.remove()
+    transitionElementsRef.current?.image?.remove()
+    transitionElementsRef.current = null
+    isTransitioningRef.current = false
+    document.documentElement.classList.remove('is-guide-transitioning')
+  }
 
   const sanitizedPosts = useMemo(
     () =>
@@ -113,6 +145,136 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   const slideNumbersStyle: CSSProperties = {
     transform: `translateY(-${activeIndex * 100}%)`
   }
+  const startImageTransition = async (
+    imageWrapper: HTMLDivElement,
+    imageElement: HTMLImageElement,
+    href: string
+  ) => {
+    if (isTransitioningRef.current) {
+      return
+    }
+    isTransitioningRef.current = true
+    document.documentElement.classList.add('is-guide-transitioning')
+
+    const overlay = document.createElement('div')
+    overlay.className = 'guide-voyage-transition-backdrop'
+    overlay.setAttribute('aria-hidden', 'true')
+    document.body.appendChild(overlay)
+
+    const floatingImage = imageElement.cloneNode(true) as HTMLImageElement
+    const wrapperBounds = imageWrapper.getBoundingClientRect()
+    const wrapperStyles = window.getComputedStyle(imageWrapper)
+    floatingImage.classList.add('guide-voyage-transition-image')
+    floatingImage.style.top = `${wrapperBounds.top}px`
+    floatingImage.style.left = `${wrapperBounds.left}px`
+    floatingImage.style.width = `${wrapperBounds.width}px`
+    floatingImage.style.height = `${wrapperBounds.height}px`
+    floatingImage.style.borderRadius = wrapperStyles.borderRadius || '0px'
+    floatingImage.style.position = 'fixed'
+    floatingImage.style.objectFit = 'cover'
+    floatingImage.style.pointerEvents = 'none'
+    floatingImage.style.zIndex = '9997'
+    floatingImage.style.willChange = 'transform, top, left, width, height'
+    document.body.appendChild(floatingImage)
+    transitionElementsRef.current = { overlay, image: floatingImage }
+
+    try {
+      const { default: gsap } = await import('gsap')
+      const viewportHeight = window.innerHeight || wrapperBounds.height
+      const viewportWidth = window.innerWidth || wrapperBounds.width
+      const topTarget = viewportHeight * 0.005
+      const leftTarget = viewportWidth * 0.005
+      let finalHeight = viewportHeight * 0.9
+      const aspectRatio = wrapperBounds.width / Math.max(wrapperBounds.height, 1)
+      let finalWidth = finalHeight * aspectRatio
+      const maxWidth = viewportWidth - leftTarget * 2
+      if (finalWidth > maxWidth) {
+        finalWidth = maxWidth
+        finalHeight = finalWidth / Math.max(aspectRatio, 0.0001)
+      }
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+        onComplete: () => {
+          router.push(href)
+          transitionCleanupTimeoutRef.current = window.setTimeout(() => {
+            clearTransitionElements()
+          }, 700)
+        },
+        onInterrupt: clearTransitionElements
+      })
+
+      timeline.to(
+        overlay,
+        {
+          opacity: 1,
+          backgroundColor: 'rgba(5, 5, 5, 0.65)',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          duration: 0.45
+        },
+        0
+      )
+
+      timeline.to(
+        floatingImage,
+        {
+          top: `${topTarget}px`,
+          left: `${leftTarget}px`,
+          width: `${finalWidth}px`,
+          height: `${finalHeight}px`,
+          borderRadius: '18px',
+          duration: 0.6,
+          ease: 'power4.inOut'
+        },
+        0
+      )
+
+      if (transitionElementsRef.current) {
+        transitionElementsRef.current.timeline = timeline
+      }
+    } catch (error) {
+      console.error('Unable to animate GuideVoyage transition', error)
+      clearTransitionElements()
+      router.push(href)
+    }
+  }
+
+  const handleSlideClick = (event: MouseEvent<HTMLAnchorElement>, post: Article) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    const imageWrapper = slideImageRefs.current[post.slug] ?? null
+    const imageElement = imageWrapper?.querySelector('img') ?? null
+    if (!imageWrapper || !(imageElement instanceof HTMLImageElement)) {
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    if (prefersReducedMotion?.matches) {
+      return
+    }
+
+    if (isTransitioningRef.current) {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+    void startImageTransition(imageWrapper, imageElement, `/articles/${post.slug}`)
+  }
 
   const handlePrevSlide = () => {
     indicatorTimelineRef.current?.restart()
@@ -124,6 +286,12 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
     swiperInstanceRef.current?.slideNext()
   }
   const [voyagesSectionNode, setVoyagesSectionNode] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    return () => {
+      clearTransitionElements()
+    }
+  }, [])
 
   useEffect(() => {
     setActiveIndex((prev) => Math.min(prev, Math.max(sanitizedPosts.length - 1, 0)))
@@ -516,10 +684,25 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
             return (
               <SwiperSlide key={post.slug} className="carousel-item guide-voyage-carousel__slide">
                 <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
-                  <Link href={`/articles/${post.slug}`}
-                    className="block">
+                  <Link
+                    href={`/articles/${post.slug}`}
+                    className="block"
+                    onClick={(event) => handleSlideClick(event, post)}
+                  >
                     {post.optionsArticles?.imagePortait?.node?.guid ? (
-                      <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
+                      <div
+                        ref={(node) => {
+                          if (!post.slug) {
+                            return
+                          }
+                          if (node) {
+                            slideImageRefs.current[post.slug] = node
+                          } else {
+                            delete slideImageRefs.current[post.slug]
+                          }
+                        }}
+                        className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]"
+                      >
                         <Image
                           src={post.optionsArticles.imagePortait.node.guid}
                           alt={post.title}
@@ -725,6 +908,24 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
         .guide-voyage-carousel__slide {
           position: relative;
           z-index: 10;
+        }
+        .guide-voyage-transition-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0);
+          backdrop-filter: blur(0);
+          -webkit-backdrop-filter: blur(0);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 9996;
+          will-change: opacity, backdrop-filter;
+        }
+        .guide-voyage-transition-image {
+          position: fixed;
+          pointer-events: none;
+          object-fit: cover;
+          z-index: 9997;
+          box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
         }
         @media (max-width: 768px) {
           .guide-voyage-carousel__hud {

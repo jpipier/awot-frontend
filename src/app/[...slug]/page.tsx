@@ -3,7 +3,7 @@ import ElementorStylesLoader from '@/components/ElementorStylesLoader'
 import Footer from '@/components/footer/Footer'
 import PageDebugLogger from '@/components/PageDebugLogger'
 import { getPageByUri } from '@/lib/pages'
-import { getElementorCssFiles } from '@/lib/article'
+import { getElementorCssBundle } from '@/lib/article'
 
 interface GenericPageProps {
   params: {
@@ -21,12 +21,12 @@ export default async function GenericPage({ params }: GenericPageProps) {
     notFound()
   }
 
-  const cssFiles = await getElementorCssFiles()
+  const cssBundle = await getElementorCssBundle()
   const isHomePage = page.isFrontPage || page.uri === '/' || uri === '/'
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
-      <ElementorStylesLoader cssFiles={cssFiles} />
+      <ElementorStylesLoader cssBundle={cssBundle} />
       <PageDebugLogger label="isHomePage" value={isHomePage} />
       <h1 className="mb-6 text-4xl font-custom">{page.title}</h1>
       {!isHomePage ? (

@@ -64,3 +64,13 @@ a {
   top: 0;
   z-index: 10;
 }
+
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--awot-black, #050505);
+  z-index: 9999;
+  transform: translateY(100%);
+  pointer-events: none;
+  opacity: 0;
+}

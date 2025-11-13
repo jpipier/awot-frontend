@@ -1,54 +1,40 @@
-'use client'
-
-import { useEffect, useMemo } from 'react'
+import ElementorBodyClassManager from './ElementorBodyClassManager'
+import type { ElementorCssAsset } from '@/lib/article'
 
 interface ElementorStylesLoaderProps {
-  cssFiles: string[]
+  cssBundle?: ElementorCssAsset[]
   bodyClasses?: string[] | null
 }
 
-export default function ElementorStylesLoader({ cssFiles, bodyClasses }: ElementorStylesLoaderProps) {
-  const normalizedBodyClasses = useMemo(() => {
-    return (bodyClasses ?? []).filter((cls): cls is string => Boolean(cls))
-  }, [bodyClasses])
+export default function ElementorStylesLoader({ cssBundle, bodyClasses }: ElementorStylesLoaderProps) {
+  const normalizedCssBundle = Array.from(
+    new Map(
+      (cssBundle ?? [])
+        .filter((asset): asset is ElementorCssAsset => Boolean(asset?.content?.trim()))
+        .map((asset) => [asset.id, asset])
+    ).values()
+  )
 
-  useEffect(() => {
-    const appended: HTMLLinkElement[] = []
+  const normalizedBodyClasses = Array.from(
+    new Set((bodyClasses ?? []).filter((cls): cls is string => Boolean(cls && cls.trim())))
+  )
 
-    cssFiles.forEach((fileUrl) => {
-      const link = document.createElement('link')
-      link.rel = 'stylesheet'
-      link.href = fileUrl
-      document.head.appendChild(link)
-      appended.push(link)
-    })
+  if (!normalizedCssBundle.length && !normalizedBodyClasses.length) {
+    return null
+  }
 
-    return () => {
-      appended.forEach((link) => {
-        if (document.head.contains(link)) {
-          document.head.removeChild(link)
-        }
-      })
-    }
-  }, [cssFiles])
-
-  useEffect(() => {
-    const classesToApply = normalizedBodyClasses
-    const addedClasses: string[] = []
-
-    classesToApply.forEach((cls) => {
-      if (!document.body.classList.contains(cls)) {
-        document.body.classList.add(cls)
-        addedClasses.push(cls)
-      }
-    })
-
-    return () => {
-      addedClasses.forEach((cls) => {
-        document.body.classList.remove(cls)
-      })
-    }
-  }, [normalizedBodyClasses])
-
-  return null
+  return (
+    <>
+      {normalizedCssBundle.map((asset) => (
+        <style
+          key={asset.id}
+          data-awot-elementor-stylesheet="true"
+          dangerouslySetInnerHTML={{ __html: asset.content }}
+        />
+      ))}
+      {normalizedBodyClasses.length ? (
+        <ElementorBodyClassManager bodyClasses={normalizedBodyClasses} />
+      ) : null}
+    </>
+  )
 }

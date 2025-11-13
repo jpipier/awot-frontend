@@ -76,7 +76,40 @@ export async function getArticleBySlug(slug: string) {
 }
 
 export async function getElementorCssFiles() {
-  return fetchWordPressRest<string[]>("elementor/v1/css-files")
+  return fetchWordPressRest<string[]>('elementor/v1/css-files')
+}
+
+export type ElementorCssAsset = {
+  id: string
+  content: string
+}
+
+export async function getElementorCssBundle(): Promise<ElementorCssAsset[]> {
+  const files = await getElementorCssFiles()
+  if (!files.length) {
+    return []
+  }
+
+  const entries = await Promise.all(
+    files.map(async (href) => {
+      if (!href) {
+        return null
+      }
+      try {
+        const response = await fetch(href, { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Elementor CSS: ${response.status}`)
+        }
+        const content = await response.text()
+        return { id: href, content }
+      } catch (error) {
+        console.warn('Unable to inline Elementor stylesheet', href, error)
+        return null
+      }
+    })
+  )
+
+  return entries.filter((entry): entry is ElementorCssAsset => Boolean(entry))
 }
 
 export async function getElementorJsAssets(postId?: number | null) {

@@ -5,6 +5,7 @@ import Header from '@/components/header/Header'
 import { getSiteChrome } from '@/lib/site'
 import { SiteChromeProvider } from '@/components/providers/SiteChromeProvider'
 import ScrollSmootherProvider from '@/components/providers/ScrollSmootherProvider'
+import PageTransition from '@/components/providers/PageTransition'
 
 export const metadata: Metadata = {
   title: 'A Way of Travel',
@@ -26,9 +27,11 @@ export default async function RootLayout({
       <body>
         <SiteChromeProvider value={siteChrome}>
           <Header />
-          <ScrollSmootherProvider>
-            <main>{children}</main>
-          </ScrollSmootherProvider>
+          <PageTransition>
+            <ScrollSmootherProvider>
+              <main>{children}</main>
+            </ScrollSmootherProvider>
+          </PageTransition>
         </SiteChromeProvider>
         {shouldLoadFacebookSdk ? (
           <>
