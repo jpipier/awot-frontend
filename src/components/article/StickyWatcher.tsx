@@ -13,9 +13,9 @@ export default function StickyWatcher() {
       const stickyAnchor = document.getElementById('sticky-anchor')
       const stickyTitle = document.getElementById('stickyTitle')
       const removeSticky =
-        document.getElementById('removeSticky') ||
-        document.querySelector('[data-elementor-type="footer"]') ||
-        document.querySelector('.removeSticky')
+        (document.getElementById('removeSticky') as HTMLElement | null) ||
+        (document.querySelector('[data-elementor-type="footer"]') as HTMLElement | null) ||
+        (document.querySelector('.removeSticky') as HTMLElement | null)
 
       if (!stickyEl || !stickyAnchor || !stickyTitle || !removeSticky) {
         return
@@ -33,15 +33,25 @@ export default function StickyWatcher() {
       gsap.registerPlugin(ScrollTrigger)
 
       const padding = document.querySelector('[data-elementor-device-mode="tablet"]') ? 50 : 10
+      const remToPx = (rem: number) => {
+        const rootFontSize = parseFloat(
+          getComputedStyle(document.documentElement).fontSize || '16'
+        )
+        const resolvedFontSize = Number.isNaN(rootFontSize) ? 16 : rootFontSize
+        return rem * resolvedFontSize
+      }
+      const extraReleaseOffset = remToPx(30)
+      const releaseOffsetPx = padding + extraReleaseOffset
+      const releaseOffsetPxRounded = Math.round(releaseOffsetPx)
 
-      const computePinDistance = () => {
+      const computeDistanceUntilRelease = () => {
         const anchorTop = stickyAnchor.getBoundingClientRect().top + window.scrollY
-        const footerTop = (removeSticky as HTMLElement).getBoundingClientRect().top + window.scrollY
-        const distance = footerTop - anchorTop - stickyEl.offsetHeight - padding
+        const footerTop = removeSticky.getBoundingClientRect().top + window.scrollY
+        const distance = footerTop - anchorTop - window.innerHeight + releaseOffsetPx
         return Math.max(distance, 0)
       }
 
-      const initialDistance = computePinDistance()
+      const initialDistance = computeDistanceUntilRelease()
       if (initialDistance <= 0) {
         stickyEl.classList.remove('stick')
         stickyTitle.classList.remove('titleStick')
@@ -51,7 +61,8 @@ export default function StickyWatcher() {
       stickyTrigger = ScrollTrigger.create({
         trigger: stickyAnchor,
         start: 'top top',
-        end: () => `+=${computePinDistance()}`,
+        endTrigger: removeSticky,
+        end: () => `top bottom-=${releaseOffsetPxRounded}`,
         pin: stickyEl,
         pinSpacing: false,
         invalidateOnRefresh: true,

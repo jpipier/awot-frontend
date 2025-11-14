@@ -65,12 +65,6 @@ a {
   z-index: 10;
 }
 
-.page-transition-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--awot-black, #050505);
-  z-index: 9999;
-  transform: translateY(100%);
-  pointer-events: none;
-  opacity: 0;
-}
+  .elementor-section.elementor-top-section.elementor-element.elementor-element-26f21859.elementor-section-full_width.elementor-section-height-default.elementor-section-height-default{
+    margin-top: -20rem;
+  }

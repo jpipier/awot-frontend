@@ -182,8 +182,8 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
       const { default: gsap } = await import('gsap')
       const viewportHeight = window.innerHeight || wrapperBounds.height
       const viewportWidth = window.innerWidth || wrapperBounds.width
-      const topTarget = viewportHeight * 0.005
-      const leftTarget = viewportWidth * 0.005
+      const topTarget = viewportHeight * 0.05
+      const leftTarget = viewportWidth * 0.05
       let finalHeight = viewportHeight * 0.9
       const aspectRatio = wrapperBounds.width / Math.max(wrapperBounds.height, 1)
       let finalWidth = finalHeight * aspectRatio
@@ -208,9 +208,10 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
         overlay,
         {
           opacity: 1,
-          backgroundColor: 'rgba(5, 5, 5, 0.65)',
+          backgroundColor: 'rgba(255, 255, 255, 0.65)',
           backdropFilter: 'blur(18px)',
           WebkitBackdropFilter: 'blur(18px)',
+          borderRadius: '18px',
           duration: 0.45
         },
         0
@@ -223,7 +224,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           left: `${leftTarget}px`,
           width: `${finalWidth}px`,
           height: `${finalHeight}px`,
-          borderRadius: '18px',
+          borderRadius: '0',
           duration: 0.6,
           ease: 'power4.inOut'
         },
@@ -912,7 +913,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
         .guide-voyage-transition-backdrop {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0);
+          background: rgba(255, 255, 255, 0);
           backdrop-filter: blur(0);
           -webkit-backdrop-filter: blur(0);
           opacity: 0;

@@ -61,7 +61,7 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                 'hidden lg:block': index === 4
               })}
             >
-              <a className="elementor-post__thumbnail__link" href={`/articles/${post.slug}/`}>
+              <a className="elementor-post__thumbnail__link rounded-md" href={`/articles/${post.slug}/`}>
                 <div className="elementor-post__thumbnail footer-elementor-post__thumbnail relative aspect-[3/4] overflow-hidden">
                   {post.featuredImage?.node?.sourceUrl ? (
                     <Image
@@ -69,7 +69,7 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                       src={post.featuredImage.node.sourceUrl}
                       alt={post.featuredImage.node.altText ?? post.title}
                       fill
-                      style={{ top: 'calc(50% + 1px)', left: 'calc(50% + 1px)' }}
+                      // style={{ top: 'calc(50% + 1px)', left: 'calc(50% + 1px)' }}
                       sizes="(min-width: 1280px) 15vw, 50vw"
                       unoptimized
                     />
