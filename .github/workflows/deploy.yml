@@ -1,38 +1,25 @@
-name: Deploy to O2Switch
+name: Deploy to o2switch
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - dev   # ou master
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Run deploy script on o2switch via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.O2_HOST }}
+          username: ${{ secrets.O2_USER }}
+          key: ${{ secrets.O2_SSH_KEY }}
           port: 22
           script: |
-            cd /home/${{ secrets.SSH_USER }}/awot.theshed.fr/app/frontend/awot-frontend
-
-            if [ ! -d .git ]; then
-              git init
-              git remote add origin git@github.com:jpipier/awot-frontend.git
-              git fetch origin
-              git checkout main
-            else
-              git reset --hard
-              git pull origin main
-            fi
-
-            npm install --legacy-peer-deps
-            npm run build
-            pm2 restart awot
+            cd /home/${{ secrets.O2_USER }}/chemin/vers/ton-app
+            ./deploy.sh
