@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -109,6 +110,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   } | null>(null)
   const isTransitioningRef = useRef(false)
   const transitionCleanupTimeoutRef = useRef<number | null>(null)
+  const prefetchedSlugsRef = useRef<Set<string>>(new Set())
   const clearTransitionElements = () => {
     if (transitionCleanupTimeoutRef.current) {
       window.clearTimeout(transitionCleanupTimeoutRef.current)
@@ -145,14 +147,37 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   const slideNumbersStyle: CSSProperties = {
     transform: `translateY(-${activeIndex * 100}%)`
   }
+  const prefetchArticle = useCallback(
+    async (slug?: string) => {
+      if (!slug || prefetchedSlugsRef.current.has(slug) || typeof router.prefetch !== 'function') {
+        return
+      }
+
+      prefetchedSlugsRef.current.add(slug)
+
+      try {
+        const href = `/articles/${slug}`
+        const maybePromise = router.prefetch(href)
+        await Promise.resolve(maybePromise)
+      } catch (error) {
+        prefetchedSlugsRef.current.delete(slug)
+        console.error('Unable to prefetch article page', error)
+      }
+    },
+    [router]
+  )
+
   const startImageTransition = async (
     imageWrapper: HTMLDivElement,
     imageElement: HTMLImageElement,
-    href: string
+    href: string,
+    slug?: string
   ) => {
     if (isTransitioningRef.current) {
       return
     }
+
+    await prefetchArticle(slug)
     isTransitioningRef.current = true
     document.documentElement.classList.add('is-guide-transitioning')
 
@@ -183,15 +208,9 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
       const viewportHeight = window.innerHeight || wrapperBounds.height
       const viewportWidth = window.innerWidth || wrapperBounds.width
       const topTarget = viewportHeight * 0.05
-      const leftTarget = viewportWidth * 0.05
-      let finalHeight = viewportHeight * 0.9
-      const aspectRatio = wrapperBounds.width / Math.max(wrapperBounds.height, 1)
-      let finalWidth = finalHeight * aspectRatio
-      const maxWidth = viewportWidth - leftTarget * 2
-      if (finalWidth > maxWidth) {
-        finalWidth = maxWidth
-        finalHeight = finalWidth / Math.max(aspectRatio, 0.0001)
-      }
+      const leftTarget = viewportWidth * 0.02
+      const finalHeight = viewportHeight * 0.9
+      const finalWidth = viewportWidth * 0.44
 
       const timeline = gsap.timeline({
         defaults: { ease: 'power3.out' },
@@ -274,7 +293,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
     }
 
     event.preventDefault()
-    void startImageTransition(imageWrapper, imageElement, `/articles/${post.slug}`)
+    void startImageTransition(imageWrapper, imageElement, `/articles/${post.slug}`, post.slug)
   }
 
   const handlePrevSlide = () => {
@@ -297,6 +316,13 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
   useEffect(() => {
     setActiveIndex((prev) => Math.min(prev, Math.max(sanitizedPosts.length - 1, 0)))
   }, [sanitizedPosts.length])
+
+  useEffect(() => {
+    const PREFETCH_LIMIT = 4
+    sanitizedPosts.slice(0, PREFETCH_LIMIT).forEach((post) => {
+      void prefetchArticle(post.slug)
+    })
+  }, [sanitizedPosts, prefetchArticle])
 
   useEffect(() => {
     const element = swiperContainerRef.current
@@ -689,6 +715,12 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
                     href={`/articles/${post.slug}`}
                     className="block"
                     onClick={(event) => handleSlideClick(event, post)}
+                    onPointerEnter={() => {
+                      void prefetchArticle(post.slug)
+                    }}
+                    onFocus={() => {
+                      void prefetchArticle(post.slug)
+                    }}
                   >
                     {post.optionsArticles?.imagePortait?.node?.guid ? (
                       <div
@@ -926,7 +958,6 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           pointer-events: none;
           object-fit: cover;
           z-index: 9997;
-          box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
         }
         @media (max-width: 768px) {
           .guide-voyage-carousel__hud {
