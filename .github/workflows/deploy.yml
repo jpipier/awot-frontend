@@ -18,28 +18,28 @@ jobs:
           CPANEL_USERNAME: ${{ secrets.O2_USER }}
           CPANEL_API_TOKEN: ${{ secrets.O2_API_TOKEN }}
           CPANEL_SERVER: ${{ secrets.CPANEL_SERVER }}
-          KEEP_IP: "X.X.X.X"     # ← l'IP que tu veux garder !!!
-          run: |
-            echo "Liste des IP actuelles en whitelist..."
-            LIST=$(curl -sm 45 \
-              -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
-              "$CPANEL_SERVER/execute/SshWhitelist/list")
+          KEEP_IP: "85.122.169.101"
+        run: |
+          echo "Liste des IP actuelles en whitelist..."
+          LIST=$(curl -sm 45 \
+            -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
+            "$CPANEL_SERVER/execute/SshWhitelist/list")
 
-            echo "$LIST"
+          echo "$LIST"
 
-            # Récupérer les IP sous forme d'une liste simple
-            IPS=$(echo "$LIST" | jq -r '.data[]?.address')
+          # Récupérer les IP sous forme d'une liste simple
+          IPS=$(echo "$LIST" | jq -r '.data[]?.address')
 
-            for IP in $IPS; do
-              if [ "$IP" != "$KEEP_IP" ]; then
-                echo "Suppression : $IP"
-                curl -sm 45 \
-                  -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
-                  "$CPANEL_SERVER/execute/SshWhitelist/remove?address=$IP&port=22"
-              else
-                echo "On garde : $IP"
-              fi
-            done
+          for IP in $IPS; do
+            if [ "$IP" != "$KEEP_IP" ]; then
+              echo "Suppression : $IP"
+              curl -sm 45 \
+                -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
+                "$CPANEL_SERVER/execute/SshWhitelist/remove?address=$IP&port=22"
+            else
+              echo "On garde : $IP"
+            fi
+          done
 
       # 2) Récupérer l'IP publique du runner
       - name: Get runner public IP
