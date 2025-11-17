@@ -28,7 +28,9 @@ jobs:
           echo "$LIST"
 
           # Récupérer les IP sous forme d'une liste simple
-          IPS=$(echo "$LIST" | jq -r '.data[]?.address')
+          IPS=$(echo "$LIST" | jq -r '.data.list[]?.address')
+
+          echo "IP trouvées : $IPS"
 
           for IP in $IPS; do
             if [ "$IP" != "$KEEP_IP" ]; then
