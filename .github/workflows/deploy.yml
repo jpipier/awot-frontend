@@ -11,12 +11,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      # 1) Récupérer l'IP publique du runner
-      - name: Get runner public IP
-        id: ip
-        uses: haythem/public-ip@v1.3
-
+      
+      # 1) Supprimer toutes les IP publique du runner
       - name: Clean whitelist (keep one IP)
         env:
           CPANEL_USERNAME: ${{ secrets.O2_USER }}
@@ -45,6 +41,11 @@ jobs:
               fi
             done
 
+      # 2) Récupérer l'IP publique du runner
+      - name: Get runner public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+
       # 3) Ajouter l'IP du runner dans la whitelist SSH o2switch
       - name: Whitelist runner IP on o2switch
         env:
@@ -65,7 +66,7 @@ jobs:
             exit 1
           fi
 
-      # 3) Lancer le script de déploiement via SSH 
+      # 4) Lancer le script de déploiement via SSH 
       - name: Run deploy script on o2switch via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
