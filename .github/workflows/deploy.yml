@@ -12,67 +12,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # 1) Supprimer toutes les IP publique du runner
-      - name: Clean whitelist (keep one IP)
-        env:
-          CPANEL_USERNAME: ${{ secrets.O2_USER }}
-          CPANEL_API_TOKEN: ${{ secrets.O2_API_TOKEN }}
-          CPANEL_SERVER: ${{ secrets.CPANEL_HOST }}
-          KEEP_IP: "85.122.169.101"
-        run: |
-          echo "Liste des IP actuelles en whitelist..."
-          LIST=$(curl -sm 45 \
-            -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
-            "$CPANEL_SERVER/execute/SshWhitelist/list")
-
-          echo "$LIST"
-
-          # Récupérer les IP sous forme d'une liste simple
-          IPS=$(echo "$LIST" | jq -r '.data.list[]?.address')
-
-          echo "IP trouvées : $IPS"
-
-          for IP in $IPS; do
-            if [ "$IP" != "$KEEP_IP" ]; then
-              echo "Suppression : $IP"
-              curl -sm 45 \
-                -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
-                "$CPANEL_SERVER/execute/SshWhitelist/remove?address=$IP&port=22"
-            else
-              echo "On garde : $IP"
-            fi
-          done
-
-      # 2) Récupérer l'IP publique du runner
+      # 1) Récupérer l'IP publique du runner
       - name: Get runner public IP
         id: ip
         uses: haythem/public-ip@v1.3
 
-      # 3) Ajouter l'IP du runner dans la whitelist SSH o2switch
-      - name: Whitelist runner IP on o2switch
+      # 2) Supprimer toutes les IP whitelists
+      - name: Removing all whitelisted IP
         env:
           CPANEL_USERNAME: ${{ secrets.O2_USER }}
           CPANEL_API_TOKEN: ${{ secrets.O2_API_TOKEN }}
-          CPANEL_SERVER: ${{ secrets.CPANEL_HOST }}
+          CPANEL_SERVER: ${{ secrets.CPANEL_SERVER }}
+        run: |
+          curl -sm 45 \
+            -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
+            "$CPANEL_SERVER/execute/SshWhitelist/remove_all"
+
+      # 3) Ajouter ton IP perso + l'IP du runner
+      - name: Whitelist personal + runner IP
+        env:
+          CPANEL_USERNAME: ${{ secrets.O2_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.O2_API_TOKEN }}
+          CPANEL_SERVER: ${{ secrets.CPANEL_SERVER }}
+          PERSONAL_IP: "85.122.169.101"
           RUNNER_IP: ${{ steps.ip.outputs.ipv4 }}
         run: |
-          echo "Ajout de l'IP $RUNNER_IP sur $CPANEL_SERVER…"
-          RESPONSE=$(curl -sm 45 \
+          echo "Ajout de l'IP perso $PERSONAL_IP"
+          RES1=$(curl -sm 45 \
+            -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
+            "$CPANEL_SERVER/execute/SshWhitelist/add?address=$PERSONAL_IP&port=22")
+          echo "$RES1"
+
+          echo "Ajout de l'IP du runner $RUNNER_IP"
+          RES2=$(curl -sm 45 \
             -H "Authorization: cpanel $CPANEL_USERNAME:$CPANEL_API_TOKEN" \
             "$CPANEL_SERVER/execute/SshWhitelist/add?address=$RUNNER_IP&port=22")
-          echo "$RESPONSE"
+          echo "$RES2"
 
-          STATUS=$(echo "$RESPONSE" | jq -r '.status')
-          if [ "$STATUS" != "1" ]; then
-            echo "Échec de la mise en whitelist (status=$STATUS)"
-            exit 1
-          fi
-
-      # 4) Lancer le script de déploiement via SSH 
+      # 4) SSH + deploy
       - name: Run deploy script on o2switch via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.CPANEL_HOST }}
+          host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.O2_USER }}
           key: ${{ secrets.O2_SSH_KEY }}
           port: 22
