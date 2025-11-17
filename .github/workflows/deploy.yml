@@ -3,16 +3,28 @@ name: Deploy to o2switch
 on:
   push:
     branches:
-      - dev 
+      - dev
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
+      # 1) Récupérer l'IP publique du runner
+      - name: Get runner public IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      # 2) Ajouter l'IP du runner dans la whitelist SSH o2switch
+      - name: Whitelist runner IP on o2switch
+        run: |
+          curl -sm 45 \
+            -H "Authorization: cpanel ${{ secrets.O2_USER }}:${{ secrets.O2_API_TOKEN }}" \
+            "https://${{ secrets.O2_HOST }}:2083/execute/SshWhitelist/add?address=${{ steps.ip.outputs.ipv4 }}&port=22"
+
+      # 3) Lancer le script de déploiement via SSH
       - name: Run deploy script on o2switch via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -21,5 +33,5 @@ jobs:
           key: ${{ secrets.O2_SSH_KEY }}
           port: 22
           script: |
-            cd /home/piju8755/app/awot-frontend
+            cd /home/${{ secrets.O2_USER }}/app/awot-frontend
             ./deploy.sh
