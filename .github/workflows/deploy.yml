@@ -17,7 +17,7 @@ jobs:
         env:
           CPANEL_USERNAME: ${{ secrets.O2_USER }}
           CPANEL_API_TOKEN: ${{ secrets.O2_API_TOKEN }}
-          CPANEL_SERVER: ${{ secrets.CPANEL_SERVER }}
+          CPANEL_SERVER: ${{ secrets.CPANEL_HOST }}
           KEEP_IP: "85.122.169.101"
         run: |
           echo "Liste des IP actuelles en whitelist..."
