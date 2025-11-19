@@ -44,10 +44,6 @@ export default function Footer({ postId }: FooterProps) {
           <div className="relative w-44 lg:w-56">
             <p className="absolute left-[-10rem] text-xs italic">C’EST NOUS !</p>
           </div>
-          <div className="mt-2 flex space-x-3">
-            <Image src="/images/trac--6@1x.png" alt="Instagram" width={20} height={20} />
-            <Image src="/images/trac--7@1x.png" alt="Email" width={20} height={20} />
-          </div>
         </div>
       </div>
       <EditBanner postId={postId} />

@@ -16,6 +16,9 @@ interface PostSummary {
       altText?: string
     }
   }
+  optionsArticles?: {
+    champsLibrePageAccueil?: string | null
+  }
 }
 
 const STATIC_TEXT = 'Découvrez d’autres '
@@ -213,10 +216,40 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
   }, [])
 
   useEffect(() => {
-    const PREFETCH_LIMIT = 4
-    posts.slice(0, PREFETCH_LIMIT).forEach((post) => {
-      void prefetchArticle(post.slug)
+    if (!posts.length) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return
+          }
+          const slug = (entry.target as HTMLElement)?.dataset?.postSlug
+          if (!slug) {
+            return
+          }
+          void prefetchArticle(slug)
+          observer.unobserve(entry.target)
+        })
+      },
+      { threshold: 0.25 }
+    )
+
+    posts.slice(0, VIEWPORT_PREFETCH_LIMIT).forEach((post) => {
+      if (!post.slug) {
+        return
+      }
+      const node = cardRefs.current[post.slug]
+      if (node) {
+        observer.observe(node)
+      }
     })
+
+    return () => {
+      observer.disconnect()
+    }
   }, [posts, prefetchArticle])
 
   useEffect(() => {
@@ -252,6 +285,17 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                 'hidden sm:block': index >= 2 && index < 4,
                 'hidden lg:block': index === 4
               })}
+              data-post-slug={post.slug ?? undefined}
+              ref={(node) => {
+                if (!post.slug) {
+                  return
+                }
+                if (node) {
+                  cardRefs.current[post.slug] = node
+                } else {
+                  delete cardRefs.current[post.slug]
+                }
+              }}
             >
               <a
                 className="elementor-post__thumbnail__link rounded-md"
@@ -290,9 +334,18 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                   ) : null}
                 </div>
               </a>
-              <div className="elementor-post__text font-montserrat">
+              <div className="elementor-post__text font-montserrat mt-3">
+                {post.optionsArticles?.champsLibrePageAccueil ? (
+                  <p
+                    className="mb-0 text-[0.5rem] uppercase font-montserrat italic text-gray-600"
+                    dangerouslySetInnerHTML={{
+                      __html: post.optionsArticles.champsLibrePageAccueil
+                    }}
+                  />
+                ) : null}
                 <a
                   href={`/articles/${post.slug}/`}
+                  className="block text-xs uppercase font-montserrat font-medium"
                   onClick={(event) => handleCardClick(event, post)}
                   onPointerEnter={() => {
                     void prefetchArticle(post.slug)
