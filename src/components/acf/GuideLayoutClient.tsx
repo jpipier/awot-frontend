@@ -4,11 +4,10 @@ import { useEffect, useRef, useState, type CSSProperties, type ComponentPropsWit
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { EffectFade, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
 
 import 'swiper/css'
-import 'swiper/css/effect-fade'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
@@ -38,9 +37,12 @@ function AnimatedGuideTitle({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting)
+        if (entry.intersectionRatio >= 0.95) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
       },
-      { threshold: 0.25 }
+      { threshold: [0, 0.5, 0.75, 0.95, 1] }
     )
 
     observer.observe(element)
@@ -50,7 +52,10 @@ function AnimatedGuideTitle({
     }
   }, [])
 
-  const style: CSSProperties = { transitionDelay: isVisible ? `${delay}ms` : '0ms' }
+  const style: CSSProperties = {
+    transitionDelay: isVisible ? `${delay}ms` : '0ms',
+    visibility: isVisible ? 'visible' : 'hidden'
+  }
   const baseClasses = isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
   const combinedClasses = `transform transition-all duration-700 ease-out ${baseClasses}${
     className ? ` ${className}` : ''
@@ -80,9 +85,12 @@ function AnimatedGuideSubtitle({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting)
+        if (entry.intersectionRatio >= 0.95) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
       },
-      { threshold: 0.25 }
+      { threshold: [0, 0.5, 0.75, 0.95, 1] }
     )
 
     observer.observe(element)
@@ -92,7 +100,10 @@ function AnimatedGuideSubtitle({
     }
   }, [])
 
-  const style: CSSProperties = { transitionDelay: isVisible ? `${delay}ms` : '0ms' }
+  const style: CSSProperties = {
+    transitionDelay: isVisible ? `${delay}ms` : '0ms',
+    visibility: isVisible ? 'visible' : 'hidden'
+  }
   const baseClasses = isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
   const combinedClasses = `transform transition-all duration-700 ease-out ${baseClasses}${
     className ? ` ${className}` : ''
@@ -218,11 +229,12 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           className="relative w-full overflow-hidden rounded-xxl lg:mx-auto"
         >
           <Swiper
-            modules={[Navigation, Pagination, EffectFade]}
+            modules={[Navigation, Pagination, Autoplay]}
             className="mySwiper"
             slidesPerView={1}
             spaceBetween={20}
-            effect="fade"
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            loop={true}
             pagination={{ clickable: true, el: '.custom-pagination' }}
             navigation={{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}
           >

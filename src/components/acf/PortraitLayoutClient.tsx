@@ -17,6 +17,9 @@ interface PortraitLayoutClientProps {
   contenu: string
 }
 
+const TEXT_ANIMATION_DURATION = 1.1
+const TEXT_ANIMATION_STAGGER = 0.18
+
 function buildCategoryLabel(post?: Article) {
   const edges = post?.categories?.edges ?? []
   if (!edges.length) {
@@ -36,6 +39,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
   const [isVisible, setIsVisible] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const textBlockRef = useRef<HTMLDivElement | null>(null)
+  const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const gsapRef = useRef<any>(null)
   const splitTextCtorRef = useRef<any>(null)
   const splitInstancesRef = useRef<Array<{ revert: () => void }> | null>(null)
@@ -95,9 +99,9 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
       {
         yPercent: 0,
         opacity: 1,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'expo.out'
+        duration: TEXT_ANIMATION_DURATION,
+        stagger: TEXT_ANIMATION_STAGGER,
+        ease: 'power2.out'
       }
     )
   }, [])
@@ -114,8 +118,8 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           setIsVisible(entry.isIntersecting)
           isTextVisibleRef.current = entry.isIntersecting
         })
-      },
-      { threshold: 0.5 }
+          },
+          { threshold: 0.5 }
     )
 
     observer.observe(element)
@@ -208,6 +212,8 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
     return null
   }
 
+  const textVisibilityClass = isVisible ? 'portraits-text-visible' : 'portraits-text-hidden'
+
   return (
     <div
       ref={containerRef}
@@ -221,59 +227,71 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           className="order-1 flex w-full flex-col justify-center lg:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}
         >
-          <Swiper
-            dir="rtl"
-            modules={[Navigation]}
-            slidesPerView={1.2}
-            spaceBetween={16}
-            loop={true}
-            navigation={{ prevEl: '.swiper-button-prev-portrait', nextEl: '.swiper-button-next-portrait' }}
-            breakpoints={{
-              640: { slidesPerView: 1.2, spaceBetween: 18 },
-              768: { slidesPerView: 1.2, spaceBetween: 20 },
-              1024: { slidesPerView: 1.2, spaceBetween: 20 }
-            }}
-            onSlideChange={(swiper) => {
-              const nextIndex = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex
-              setCurrentIndex(nextIndex ?? 0)
-            }}
-            className="portrait-slider w-full"
-          >
-            {slides.map((post, index) => {
-              const imageNode =
-                post.optionsArticles?.imagePaysage?.node ??
-                post.optionsArticles?.imagePortait?.node ??
-                post.featuredImage?.node
-              const imageSrc = imageNode?.sourceUrl ?? imageNode?.guid ?? null
-              const isActive = currentIndex === index
-              const postHref = post.slug ? `/articles/${post.slug}` : '#'
+          <div className="portrait-slider-wrapper relative">
+            <Swiper
+              dir="rtl"
+              modules={[Navigation]}
+              slidesPerView={1.2}
+              spaceBetween={16}
+              loop={true}
+              navigation={{ prevEl: '.swiper-button-prev-portrait', nextEl: '.swiper-button-next-portrait' }}
+              breakpoints={{
+                640: { slidesPerView: 1.2, spaceBetween: 18 },
+                768: { slidesPerView: 1.2, spaceBetween: 20 },
+                1024: { slidesPerView: 1.2, spaceBetween: 20 }
+              }}
+              onSlideChange={(swiper) => {
+                const nextIndex = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex
+                setCurrentIndex(nextIndex ?? 0)
+              }}
+              className="portrait-slider w-full"
+            >
+              {slides.map((post, index) => {
+                const imageNode =
+                  post.optionsArticles?.imagePaysage?.node ??
+                  post.optionsArticles?.imagePortait?.node ??
+                  post.featuredImage?.node
+                const imageSrc = imageNode?.sourceUrl ?? imageNode?.guid ?? null
+                const isActive = currentIndex === index
+                const postHref = post.slug ? `/articles/${post.slug}` : '#'
 
-              return (
-                <SwiperSlide key={post.slug ?? index} className="relative">
-                  <Link href={postHref} className="block">
-                    {imageSrc ? (
-                      <div
-                        className={clsx(
-                          'relative w-full min-w-[260px] rounded overflow-hidden transition-transform duration-500',
-                          'h-[220px] sm:h-[260px] md:h-[300px] lg:h-[340px] xl:h-[380px]',
-                          isActive ? 'scale-100' : 'scale-[0.95] opacity-80'
-                        )}
-                      >
-                        <Image
-                          src={imageSrc}
-                          alt={imageNode?.altText ?? post.title}
-                          fill
-                          className="object-cover"
-                          sizes="(min-width: 1280px) 45vw, (min-width: 768px) 60vw, 100vw"
-                          unoptimized
-                        />
-                      </div>
-                    ) : null}
-                  </Link>
-                </SwiperSlide>
-              )
-            })}
-          </Swiper>
+                return (
+                  <SwiperSlide key={post.slug ?? index} className="relative">
+                    <Link href={postHref} className="block">
+                      {imageSrc ? (
+                        <div
+                          ref={(node) => {
+                            if (!post.slug) {
+                              return
+                            }
+                            if (node) {
+                              slideImageRefs.current[post.slug] = node
+                            } else {
+                              delete slideImageRefs.current[post.slug]
+                            }
+                          }}
+                          className={clsx(
+                            'relative w-full min-w-[260px] rounded overflow-hidden transition-transform duration-500',
+                            'h-[220px] sm:h-[260px] md:h-[300px] lg:h-[340px] xl:h-[380px]',
+                            isActive ? 'scale-100' : 'scale-[0.95] opacity-80'
+                          )}
+                        >
+                          <Image
+                            src={imageSrc}
+                            alt={imageNode?.altText ?? post.title}
+                            fill
+                            className="object-cover"
+                            sizes="(min-width: 1280px) 45vw, (min-width: 768px) 60vw, 100vw"
+                            unoptimized
+                          />
+                        </div>
+                      ) : null}
+                    </Link>
+                  </SwiperSlide>
+                )
+              })}
+            </Swiper>
+          </div>
           {/* <div className="mt-6 flex items-center justify-between text-xs uppercase tracking-[0.2em]">
             <button type="button" className="swiper-button-prev-portrait flex items-center gap-2">
               ← Précédent
@@ -288,7 +306,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           ref={textBlockRef}
           className={clsx('order-2 flex w-full flex-col justify-center lg:w-1/2 text-black')}
         >
-          <div className="flex flex-col gap-10 overflow-hidden">
+          <div className={clsx('flex flex-col gap-10 overflow-hidden transition-all duration-700', textVisibilityClass)}>
             <h2 className="portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem] lg:mb-3rem">
               {titreDeLaSection}
             </h2>
@@ -368,6 +386,35 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         .portrait-line-mask {
           display: block;
           overflow: hidden;
+        }
+        .portraits-text-hidden {
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(40px);
+        }
+        .portraits-text-visible {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+        .portrait-slider-wrapper {
+          position: relative;
+        }
+        .portrait-slider-fade {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: min(140px, 25vw);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .portrait-slider-fade--left {
+          left: 0;
+          background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+        .portrait-slider-fade--right {
+          right: 0;
+          background: linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
         }
       `}</style>
     </div>

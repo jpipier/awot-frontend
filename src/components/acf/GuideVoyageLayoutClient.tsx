@@ -634,7 +634,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
     <>
       {backgroundPortal}
       <div className="guide-voyage-content mt-10 flex flex-row items-start gap-4 sm:gap-10">
-        <div ref={stickyRowRef} className="flex flex-1 min-w-0 flex-col gap-4 pb-24 text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
+        <div ref={stickyRowRef} className="flex flex-1 min-w-0 flex-col gap-4 pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
@@ -725,21 +725,21 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
                     {post.optionsArticles?.imagePortait?.node?.guid ? (
                       <div
                         ref={(node) => {
-                          if (!post.slug) {
-                            return
-                          }
-                          if (node) {
-                            slideImageRefs.current[post.slug] = node
-                          } else {
-                            delete slideImageRefs.current[post.slug]
-                          }
-                        }}
-                        className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]"
-                      >
-                        <Image
-                          src={post.optionsArticles.imagePortait.node.guid}
-                          alt={post.title}
-                          fill
+                        if (!post.slug) {
+                          return
+                        }
+                        if (node) {
+                          slideImageRefs.current[post.slug] = node
+                        } else {
+                          delete slideImageRefs.current[post.slug]
+                        }
+                      }}
+                      className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]"
+                    >
+                      <Image
+                        src={post.optionsArticles.imagePortait.node.guid}
+                        alt={post.title}
+                        fill
                           className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                           sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                           unoptimized
