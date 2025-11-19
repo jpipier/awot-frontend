@@ -4,6 +4,7 @@ import PostFooter from '@/components/footer/PostFooter'
 import ElementorStylesLoader from '@/components/ElementorStylesLoader'
 import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import StickyWatcher from '@/components/article/StickyWatcher'
+import ElementorHeadingAnimator from '@/components/article/ElementorHeadingAnimator'
 import { getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 
 interface ArticlePageProps {
@@ -45,6 +46,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     <div className="article-container font-brandon_grotesquelight">
       <ElementorStylesLoader cssBundle={cssBundle} bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined} />
       <ElementorScriptsLoader assets={elementorAssets} />
+      <ElementorHeadingAnimator />
       <StickyWatcher />
       <section className="elementor-section elementor-section-height-default elementor-element-40717a53">
         <div

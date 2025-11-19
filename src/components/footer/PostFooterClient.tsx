@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import clsx from 'clsx'
+import type { gsap as GSAP } from 'gsap'
 
 interface PostSummary {
   id: string
@@ -18,13 +20,190 @@ interface PostSummary {
 
 const STATIC_TEXT = 'Découvrez d’autres '
 const WORDS = ['restaurants', 'hôtels', 'coffee shops', 'boutiques', 'sorties']
+const VIEWPORT_PREFETCH_LIMIT = 4
+type GSAPTimeline = ReturnType<GSAP['timeline']>
 
 interface PostFooterClientProps {
   posts: PostSummary[]
 }
 
 export default function PostFooterClient({ posts }: PostFooterClientProps) {
+  const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
+  const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const transitionElementsRef = useRef<{
+    overlay?: HTMLDivElement
+    image?: HTMLImageElement
+    timeline?: GSAPTimeline
+  } | null>(null)
+  const isTransitioningRef = useRef(false)
+  const transitionCleanupTimeoutRef = useRef<number | null>(null)
+  const prefetchedSlugsRef = useRef<Set<string>>(new Set())
+  const cardRefs = useRef<Record<string, HTMLElement | null>>({})
+  const clearTransitionElements = useCallback(() => {
+    if (transitionCleanupTimeoutRef.current) {
+      window.clearTimeout(transitionCleanupTimeoutRef.current)
+      transitionCleanupTimeoutRef.current = null
+    }
+    if (transitionElementsRef.current?.timeline) {
+      transitionElementsRef.current.timeline.kill()
+    }
+    transitionElementsRef.current?.overlay?.remove()
+    transitionElementsRef.current?.image?.remove()
+    transitionElementsRef.current = null
+    isTransitioningRef.current = false
+    document.documentElement.classList.remove('is-guide-transitioning')
+  }, [])
+
+  const prefetchArticle = useCallback(
+    async (slug?: string) => {
+      if (!slug || prefetchedSlugsRef.current.has(slug) || typeof router.prefetch !== 'function') {
+        return
+      }
+
+      prefetchedSlugsRef.current.add(slug)
+
+      try {
+        const href = `/articles/${slug}`
+        const maybePromise = router.prefetch(href)
+        await Promise.resolve(maybePromise)
+      } catch (error) {
+        prefetchedSlugsRef.current.delete(slug)
+        console.error('Unable to prefetch article page', error)
+      }
+    },
+    [router]
+  )
+
+  const startImageTransition = async (
+    imageWrapper: HTMLDivElement,
+    imageElement: HTMLImageElement,
+    href: string,
+    slug?: string
+  ) => {
+    if (isTransitioningRef.current) {
+      return
+    }
+
+    void prefetchArticle(slug)
+    isTransitioningRef.current = true
+    document.documentElement.classList.add('is-guide-transitioning')
+
+    const overlay = document.createElement('div')
+    overlay.className = 'guide-voyage-transition-backdrop'
+    overlay.setAttribute('aria-hidden', 'true')
+    document.body.appendChild(overlay)
+
+    const floatingImage = imageElement.cloneNode(true) as HTMLImageElement
+    const wrapperBounds = imageWrapper.getBoundingClientRect()
+    const wrapperStyles = window.getComputedStyle(imageWrapper)
+    floatingImage.classList.add('guide-voyage-transition-image')
+    floatingImage.style.top = `${wrapperBounds.top}px`
+    floatingImage.style.left = `${wrapperBounds.left}px`
+    floatingImage.style.width = `${wrapperBounds.width}px`
+    floatingImage.style.height = `${wrapperBounds.height}px`
+    floatingImage.style.borderRadius = wrapperStyles.borderRadius || '0px'
+    floatingImage.style.position = 'fixed'
+    floatingImage.style.objectFit = 'cover'
+    floatingImage.style.pointerEvents = 'none'
+    floatingImage.style.zIndex = '9997'
+    floatingImage.style.willChange = 'transform, top, left, width, height'
+    document.body.appendChild(floatingImage)
+    transitionElementsRef.current = { overlay, image: floatingImage }
+
+    try {
+      const { default: gsap } = await import('gsap')
+      const viewportHeight = window.innerHeight || wrapperBounds.height
+      const viewportWidth = window.innerWidth || wrapperBounds.width
+      const topTarget = viewportHeight * 0.05
+      const leftTarget = viewportWidth * 0.02
+      const finalHeight = viewportHeight * 0.9
+      const finalWidth = viewportWidth * 0.44
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+        onComplete: () => {
+          router.push(href)
+          transitionCleanupTimeoutRef.current = window.setTimeout(() => {
+            clearTransitionElements()
+          }, 700)
+        },
+        onInterrupt: clearTransitionElements
+      })
+
+      timeline.to(
+        overlay,
+        {
+          opacity: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          borderRadius: '18px',
+          duration: 0.45
+        },
+        0
+      )
+
+      timeline.to(
+        floatingImage,
+        {
+          top: `${topTarget}px`,
+          left: `${leftTarget}px`,
+          width: `${finalWidth}px`,
+          height: `${finalHeight}px`,
+          borderRadius: '0',
+          duration: 0.6,
+          ease: 'power4.inOut'
+        },
+        0
+      )
+
+      if (transitionElementsRef.current) {
+        transitionElementsRef.current.timeline = timeline
+      }
+    } catch (error) {
+      console.error('Unable to animate footer transition', error)
+      clearTransitionElements()
+      router.push(href)
+    }
+  }
+
+  const handleCardClick = (event: MouseEvent<HTMLAnchorElement>, post: PostSummary) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    const imageWrapper = slideImageRefs.current[post.slug] ?? null
+    const imageElement = imageWrapper?.querySelector('img') ?? null
+    if (!imageWrapper || !(imageElement instanceof HTMLImageElement)) {
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    if (prefersReducedMotion?.matches) {
+      return
+    }
+
+    if (isTransitioningRef.current) {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+    void startImageTransition(imageWrapper, imageElement, `/articles/${post.slug}`, post.slug)
+  }
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((index) => (index + 1) % WORDS.length)
@@ -32,6 +211,19 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
 
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    const PREFETCH_LIMIT = 4
+    posts.slice(0, PREFETCH_LIMIT).forEach((post) => {
+      void prefetchArticle(post.slug)
+    })
+  }, [posts, prefetchArticle])
+
+  useEffect(() => {
+    return () => {
+      clearTransitionElements()
+    }
+  }, [clearTransitionElements])
 
   const visiblePosts = useMemo(() => posts.slice(0, 5), [posts])
 
@@ -61,8 +253,30 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                 'hidden lg:block': index === 4
               })}
             >
-              <a className="elementor-post__thumbnail__link rounded-md" href={`/articles/${post.slug}/`}>
-                <div className="elementor-post__thumbnail footer-elementor-post__thumbnail relative aspect-[3/4] overflow-hidden">
+              <a
+                className="elementor-post__thumbnail__link rounded-md"
+                href={`/articles/${post.slug}/`}
+                onClick={(event) => handleCardClick(event, post)}
+                onPointerEnter={() => {
+                  void prefetchArticle(post.slug)
+                }}
+                onFocus={() => {
+                  void prefetchArticle(post.slug)
+                }}
+              >
+                <div
+                  ref={(node) => {
+                    if (!post.slug) {
+                      return
+                    }
+                    if (node) {
+                      slideImageRefs.current[post.slug] = node
+                    } else {
+                      delete slideImageRefs.current[post.slug]
+                    }
+                  }}
+                  className="elementor-post__thumbnail footer-elementor-post__thumbnail relative aspect-[3/4] overflow-hidden"
+                >
                   {post.featuredImage?.node?.sourceUrl ? (
                     <Image
                       className="rounded-md object-cover transition-transform duration-300 hover:scale-110"
@@ -77,7 +291,17 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                 </div>
               </a>
               <div className="elementor-post__text font-montserrat">
-                <a href={`/articles/${post.slug}/`} dangerouslySetInnerHTML={{ __html: post.title }} />
+                <a
+                  href={`/articles/${post.slug}/`}
+                  onClick={(event) => handleCardClick(event, post)}
+                  onPointerEnter={() => {
+                    void prefetchArticle(post.slug)
+                  }}
+                  onFocus={() => {
+                    void prefetchArticle(post.slug)
+                  }}
+                  dangerouslySetInnerHTML={{ __html: post.title }}
+                />
               </div>
             </article>
           ))}
@@ -104,6 +328,25 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
         .elementor-posts-container.elementor-has-item-ratio .elementor-post__thumbnail img{insert
           top: calc(50% + 1px) !important;
           left: calc(50% + 1px) !important;
+        }
+      `}</style>
+      <style jsx global>{`
+        .guide-voyage-transition-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(255, 255, 255, 0);
+          backdrop-filter: blur(0);
+          -webkit-backdrop-filter: blur(0);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 9996;
+          will-change: opacity, backdrop-filter;
+        }
+        .guide-voyage-transition-image {
+          position: fixed;
+          pointer-events: none;
+          object-fit: cover;
+          z-index: 9997;
         }
       `}</style>
     </div>

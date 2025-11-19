@@ -177,7 +177,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
       return
     }
 
-    await prefetchArticle(slug)
+    void prefetchArticle(slug)
     isTransitioningRef.current = true
     document.documentElement.classList.add('is-guide-transitioning')
 

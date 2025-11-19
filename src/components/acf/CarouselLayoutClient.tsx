@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
+import type { gsap as GSAP } from 'gsap'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -16,6 +18,8 @@ const BASE_DELAY_MS = 250
 const STAGGER_DELAY_MS = 150
 const SCROLL_ANIMATED_ITEM_COUNT = 3
 const SCROLL_ANIMATION_END = 0.5
+
+type GSAPTimeline = ReturnType<GSAP['timeline']>
 
 interface CarouselLayoutClientProps {
   posts: Article[]
@@ -107,6 +111,7 @@ export default function CarouselLayoutClient({
   postParPage,
   categorySlug
 }: CarouselLayoutClientProps) {
+  const router = useRouter()
   const sectionRef = useRef<HTMLDivElement | null>(null)
   const [isTitleVisible, setIsTitleVisible] = useState(false)
   const [isHeadlineVisible, setIsHeadlineVisible] = useState(false)
@@ -122,6 +127,179 @@ export default function CarouselLayoutClient({
   const titleTransition: CSSProperties = { transitionDelay: isTitleVisible ? '120ms' : '0ms' }
   const contentTransition: CSSProperties = { transitionDelay: isContentVisible ? '480ms' : '0ms' }
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const transitionElementsRef = useRef<{
+    overlay?: HTMLDivElement
+    image?: HTMLImageElement
+    timeline?: GSAPTimeline
+  } | null>(null)
+  const isTransitioningRef = useRef(false)
+  const transitionCleanupTimeoutRef = useRef<number | null>(null)
+  const prefetchedSlugsRef = useRef<Set<string>>(new Set())
+
+  const clearTransitionElements = useCallback(() => {
+    if (transitionCleanupTimeoutRef.current) {
+      window.clearTimeout(transitionCleanupTimeoutRef.current)
+      transitionCleanupTimeoutRef.current = null
+    }
+    if (transitionElementsRef.current?.timeline) {
+      transitionElementsRef.current.timeline.kill()
+    }
+    transitionElementsRef.current?.overlay?.remove()
+    transitionElementsRef.current?.image?.remove()
+    transitionElementsRef.current = null
+    isTransitioningRef.current = false
+    document.documentElement.classList.remove('is-guide-transitioning')
+  }, [])
+
+  const prefetchArticle = useCallback(
+    async (slug?: string) => {
+      if (!slug || prefetchedSlugsRef.current.has(slug) || typeof router.prefetch !== 'function') {
+        return
+      }
+
+      prefetchedSlugsRef.current.add(slug)
+
+      try {
+        const href = `/articles/${slug}`
+        const maybePromise = router.prefetch(href)
+        await Promise.resolve(maybePromise)
+      } catch (error) {
+        prefetchedSlugsRef.current.delete(slug)
+        console.error('Unable to prefetch article page', error)
+      }
+    },
+    [router]
+  )
+
+  const startImageTransition = async (
+    imageWrapper: HTMLDivElement,
+    imageElement: HTMLImageElement,
+    href: string,
+    slug?: string
+  ) => {
+    if (isTransitioningRef.current) {
+      return
+    }
+
+    void prefetchArticle(slug)
+    isTransitioningRef.current = true
+    document.documentElement.classList.add('is-guide-transitioning')
+
+    const overlay = document.createElement('div')
+    overlay.className = 'guide-voyage-transition-backdrop'
+    overlay.setAttribute('aria-hidden', 'true')
+    document.body.appendChild(overlay)
+
+    const floatingImage = imageElement.cloneNode(true) as HTMLImageElement
+    const wrapperBounds = imageWrapper.getBoundingClientRect()
+    const wrapperStyles = window.getComputedStyle(imageWrapper)
+    floatingImage.classList.add('guide-voyage-transition-image')
+    floatingImage.style.top = `${wrapperBounds.top}px`
+    floatingImage.style.left = `${wrapperBounds.left}px`
+    floatingImage.style.width = `${wrapperBounds.width}px`
+    floatingImage.style.height = `${wrapperBounds.height}px`
+    floatingImage.style.borderRadius = wrapperStyles.borderRadius || '0px'
+    floatingImage.style.position = 'fixed'
+    floatingImage.style.objectFit = 'cover'
+    floatingImage.style.pointerEvents = 'none'
+    floatingImage.style.zIndex = '9997'
+    floatingImage.style.willChange = 'transform, top, left, width, height'
+    document.body.appendChild(floatingImage)
+    transitionElementsRef.current = { overlay, image: floatingImage }
+
+    try {
+      const { default: gsap } = await import('gsap')
+      const viewportHeight = window.innerHeight || wrapperBounds.height
+      const viewportWidth = window.innerWidth || wrapperBounds.width
+      const topTarget = viewportHeight * 0.05
+      const leftTarget = viewportWidth * 0.02
+      const finalHeight = viewportHeight * 0.9
+      const finalWidth = viewportWidth * 0.44
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+        onComplete: () => {
+          router.push(href)
+          transitionCleanupTimeoutRef.current = window.setTimeout(() => {
+            clearTransitionElements()
+          }, 700)
+        },
+        onInterrupt: clearTransitionElements
+      })
+
+      timeline.to(
+        overlay,
+        {
+          opacity: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          borderRadius: '18px',
+          duration: 0.45
+        },
+        0
+      )
+
+      timeline.to(
+        floatingImage,
+        {
+          top: `${topTarget}px`,
+          left: `${leftTarget}px`,
+          width: `${finalWidth}px`,
+          height: `${finalHeight}px`,
+          borderRadius: '0',
+          duration: 0.6,
+          ease: 'power4.inOut'
+        },
+        0
+      )
+
+      if (transitionElementsRef.current) {
+        transitionElementsRef.current.timeline = timeline
+      }
+    } catch (error) {
+      console.error('Unable to animate carousel transition', error)
+      clearTransitionElements()
+      router.push(href)
+    }
+  }
+
+  const handleSlideClick = (event: MouseEvent<HTMLAnchorElement>, post: Article) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    const imageWrapper = slideImageRefs.current[post.slug] ?? null
+    const imageElement = imageWrapper?.querySelector('img') ?? null
+    if (!imageWrapper || !(imageElement instanceof HTMLImageElement)) {
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    if (prefersReducedMotion?.matches) {
+      return
+    }
+
+    if (isTransitioningRef.current) {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+    void startImageTransition(imageWrapper, imageElement, `/articles/${post.slug}`, post.slug)
+  }
 
   useEffect(() => {
     const element = headlineRef.current
@@ -149,6 +327,19 @@ export default function CarouselLayoutClient({
       }
     }
   }, [])
+
+  useEffect(() => {
+    return () => {
+      clearTransitionElements()
+    }
+  }, [clearTransitionElements])
+
+  useEffect(() => {
+    const PREFETCH_LIMIT = 4
+    posts.slice(0, PREFETCH_LIMIT).forEach((post) => {
+      void prefetchArticle(post.slug)
+    })
+  }, [posts, prefetchArticle])
 
   useEffect(() => {
     const element = titleRef.current
@@ -470,9 +661,31 @@ export default function CarouselLayoutClient({
                       : {})}
                     shouldForceSettled={shouldForceSettled}
                   >
-                    <Link href={`/articles/${post.slug}`} className="block">
+                    <Link
+                      href={`/articles/${post.slug}`}
+                      className="block"
+                      onClick={(event) => handleSlideClick(event, post)}
+                      onPointerEnter={() => {
+                        void prefetchArticle(post.slug)
+                      }}
+                      onFocus={() => {
+                        void prefetchArticle(post.slug)
+                      }}
+                    >
                       {post.optionsArticles?.imagePortait?.node?.guid ? (
-                        <div className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}>
+                        <div
+                          ref={(node) => {
+                            if (!post.slug) {
+                              return
+                            }
+                            if (node) {
+                              slideImageRefs.current[post.slug] = node
+                            } else {
+                              delete slideImageRefs.current[post.slug]
+                            }
+                          }}
+                          className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}
+                        >
                           <Image
                             src={post.optionsArticles.imagePortait.node.guid}
                             alt={post.title}
@@ -533,6 +746,23 @@ export default function CarouselLayoutClient({
         .carousel-animated-item--visible {
           opacity: 1;
           transform: translateX(0);
+        }
+        .guide-voyage-transition-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(255, 255, 255, 0);
+          backdrop-filter: blur(0);
+          -webkit-backdrop-filter: blur(0);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 9996;
+          will-change: opacity, backdrop-filter;
+        }
+        .guide-voyage-transition-image {
+          position: fixed;
+          pointer-events: none;
+          object-fit: cover;
+          z-index: 9997;
         }
       `}</style>
     </div>

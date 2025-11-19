@@ -28,7 +28,7 @@ export default async function GenericPage({ params }: GenericPageProps) {
     <div className="mx-auto max-w-4xl px-6 py-10">
       <ElementorStylesLoader cssBundle={cssBundle} />
       <PageDebugLogger label="isHomePage" value={isHomePage} />
-      <h1 className="mb-6 text-4xl font-custom test">{page.title}</h1>
+      <h1 className="mb-6 text-4xl font-custom">{page.title}</h1>
       {!isHomePage ? (
         <div
           className="contentElementor"
