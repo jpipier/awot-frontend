@@ -19,6 +19,8 @@ interface PortraitLayoutClientProps {
 
 const TEXT_ANIMATION_DURATION = 1.1
 const TEXT_ANIMATION_STAGGER = 0.18
+const CAROUSEL_BASE_DELAY = 300
+const CAROUSEL_STAGGER_DELAY = 140
 
 function buildCategoryLabel(post?: Article) {
   const edges = post?.categories?.edges ?? []
@@ -213,6 +215,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
   }
 
   const textVisibilityClass = isVisible ? 'portraits-text-visible' : 'portraits-text-hidden'
+  const carouselVisibilityClass = isVisible ? 'portraits-carousel-visible' : 'portraits-carousel-hidden'
 
   return (
     <div
@@ -227,7 +230,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           className="order-1 flex w-full flex-col justify-center lg:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}
         >
-          <div className="portrait-slider-wrapper relative">
+          <div className={clsx('portrait-slider-wrapper relative transition-all duration-700', carouselVisibilityClass)}>
             <Swiper
               dir="rtl"
               modules={[Navigation]}
@@ -255,6 +258,8 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                 const isActive = currentIndex === index
                 const postHref = post.slug ? `/articles/${post.slug}` : '#'
 
+                const itemDelay = CAROUSEL_BASE_DELAY + index * CAROUSEL_STAGGER_DELAY
+
                 return (
                   <SwiperSlide key={post.slug ?? index} className="relative">
                     <Link href={postHref} className="block">
@@ -271,10 +276,12 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                             }
                           }}
                           className={clsx(
-                            'relative w-full min-w-[260px] rounded overflow-hidden transition-transform duration-500',
+                            'relative w-full min-w-[260px] rounded overflow-hidden transition-transform duration-700 ease-out',
                             'h-[220px] sm:h-[260px] md:h-[300px] lg:h-[340px] xl:h-[380px]',
-                            isActive ? 'scale-100' : 'scale-[0.95] opacity-80'
+                            isActive ? 'scale-100' : 'scale-[0.95] opacity-80',
+                            isVisible ? 'portraits-carousel-slide--visible' : 'portraits-carousel-slide--hidden'
                           )}
+                          style={isVisible ? { transitionDelay: `${itemDelay}ms` } : undefined}
                         >
                           <Image
                             src={imageSrc}
@@ -310,7 +317,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
             <h2 className="portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem] lg:mb-3rem">
               {titreDeLaSection}
             </h2>
-            <div key={activePost?.slug ?? currentIndex} className="flex flex-col gap-4 text-current">
+            <div key={activePost?.slug ?? currentIndex} className="flex flex-col gap-4 text-current max-w-[32vw]">
               {categoryLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
@@ -397,6 +404,14 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           visibility: visible;
           transform: translateY(0);
         }
+        .portraits-carousel-hidden {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        .portraits-carousel-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
         .portrait-slider-wrapper {
           position: relative;
         }
@@ -415,6 +430,19 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         .portrait-slider-fade--right {
           right: 0;
           background: linear-gradient(270deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+        }
+        .portraits-carousel-slide {
+          opacity: 0;
+          transform: translateX(-60px);
+          will-change: transform, opacity;
+        }
+        .portraits-carousel-slide--visible {
+          opacity: 1;
+          //transform: translateX(0);
+        }
+        .portraits-carousel-slide--hidden {
+          opacity: 0;
+          //transform: translateX(-60px);
         }
       `}</style>
     </div>
