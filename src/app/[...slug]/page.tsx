@@ -1,14 +1,32 @@
 import { notFound } from 'next/navigation'
 import ElementorStylesLoader from '@/components/ElementorStylesLoader'
+import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import Footer from '@/components/footer/Footer'
 import PageDebugLogger from '@/components/PageDebugLogger'
 import { getPageByUri } from '@/lib/pages'
-import { getElementorCssBundle } from '@/lib/article'
+import { getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 
 interface GenericPageProps {
   params: {
     slug: string[]
   }
+}
+
+function extractElementorBodyClasses(content?: string | null) {
+  if (!content) {
+    return []
+  }
+
+  const match = content.match(/<div[^>]+class="([^"]*elementor[^"]*)"[^>]*>/i)
+
+  if (!match) {
+    return []
+  }
+
+  return match[1]
+    .split(/\s+/)
+    .map((cls) => cls.trim())
+    .filter((cls) => cls.length > 0)
 }
 
 export default async function GenericPage({ params }: GenericPageProps) {
@@ -22,13 +40,20 @@ export default async function GenericPage({ params }: GenericPageProps) {
   }
 
   const cssBundle = await getElementorCssBundle()
+  const elementorAssets = await getElementorJsAssets(page.databaseId ?? undefined, page.uri ?? uri)
+  const fallbackBodyClasses = extractElementorBodyClasses(page.elementorContent ?? page.content)
   const isHomePage = page.isFrontPage || page.uri === '/' || uri === '/'
+  const shouldDisplayHeading = !(page.elementorContent && page.elementorContent.trim().length > 0)
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
-      <ElementorStylesLoader cssBundle={cssBundle} />
+    <div className="">
+      <ElementorStylesLoader
+        cssBundle={cssBundle}
+        bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined}
+      />
+      <ElementorScriptsLoader assets={elementorAssets} />
       <PageDebugLogger label="isHomePage" value={isHomePage} />
-      <h1 className="mb-6 text-4xl font-custom">{page.title}</h1>
+      {shouldDisplayHeading ? <h1 className="mb-6 text-4xl font-custom">{page.title}</h1> : null}
       {!isHomePage ? (
         <div
           className="contentElementor"

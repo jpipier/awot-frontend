@@ -140,6 +140,7 @@ export type HomePageBloc =
 export interface Article {
   databaseId?: number
   title: string
+  uri?: string | null
   content?: string | null
   elementorContent?: string | null
   optionsArticles?: {

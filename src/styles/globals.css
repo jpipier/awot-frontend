@@ -18,6 +18,12 @@ body.overflow-hidden {
   overflow: hidden;
 }
 
+.contentElementor .elementor-invisible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: none !important;
+}
+
 a {
   color: inherit;
   text-decoration: none;

@@ -99,6 +99,9 @@ interface RecentPostsResponse {
           altText?: string
         }
       }
+      optionsArticles?: {
+        champsLibrePageAccueil?: string | null
+      }
     }>
   }
 }
@@ -115,6 +118,9 @@ const RECENT_POSTS_QUERY = /* GraphQL */ `
             sourceUrl
             altText
           }
+        }
+        optionsArticles {
+          champsLibrePageAccueil
         }
       }
     }

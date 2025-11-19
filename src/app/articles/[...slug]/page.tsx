@@ -39,7 +39,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const cssBundle = await getElementorCssBundle()
-  const elementorAssets = await getElementorJsAssets(article.databaseId ?? undefined)
+  const elementorAssets = await getElementorJsAssets(article.databaseId ?? undefined, article.uri ?? undefined)
   const fallbackBodyClasses = extractElementorBodyClasses(article.elementorContent ?? article.content)
 
   return (
