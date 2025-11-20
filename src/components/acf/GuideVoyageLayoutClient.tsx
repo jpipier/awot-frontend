@@ -735,7 +735,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
                           delete slideImageRefs.current[post.slug]
                         }
                       }}
-                      className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]"
+                      className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
                     >
                       <Image
                         src={post.optionsArticles.imagePortait.node.guid}
@@ -766,7 +766,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
                   href={categoryUrl}
                   className="block h-full w-full"
                 >
-                  <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]">
+                  <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]">
                     <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
                         Découvrir tous
@@ -925,7 +925,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           align-items: center;
           justify-content: center;
           height: 44px;
-          font-size: 0.85rem;
+          font-size: 0.85vw;
           font-weight: 600;
           letter-spacing: 0.4em;
           color: rgba(255, 255, 255, 0.55);

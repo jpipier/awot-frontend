@@ -1096,7 +1096,7 @@ html{
       font-weight: 300;
       line-height: 0;
       letter-spacing: 2px;
-      margin-left: 106px;
+      /* margin-left: 106px; */
     }
   }
   /* Large screens ----------- */
@@ -1151,7 +1151,7 @@ html{
       font-weight: 300;
       line-height: 28px;
       letter-spacing: 2px;
-      margin-left: 106px;
+      /* margin-left: 106px; */
     }
     .bloc-shop {
       padding-top: 8.6rem;

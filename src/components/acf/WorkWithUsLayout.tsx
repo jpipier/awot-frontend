@@ -89,19 +89,30 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
   }, [])
 
   const mediaClassName = clsx(
-    'flex w-full items-center justify-center transition-all duration-[900ms] ease-out will-change-transform will-change-opacity',
+    'relative z-10 flex w-full items-center justify-center transition-all duration-[900ms] ease-out will-change-transform will-change-opacity md:w-1/2',
     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
   )
   const contentClassName = clsx(
-    'flex w-full flex-col gap-6 md:items-start transition-all duration-700 ease-out will-change-transform will-change-opacity',
+    'relative z-10 flex w-full flex-col gap-6 md:items-start transition-all duration-700 ease-out will-change-transform will-change-opacity md:w-1/2',
     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+  )
+
+  const circleClassName = clsx(
+    'pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-[#f7f4ef]',
+    'shadow-[0_0_120px_rgba(0,0,0,0.08)] transition-transform duration-[1400ms] ease-[cubic-bezier(0.19,1,0.22,1)]',
+    isVisible ? 'scale-[10] translate-x-10 translate-y-16 opacity-100' : 'scale-0 translate-x-0 -translate-y-4 opacity-0'
   )
 
   return (
     <div
       ref={containerRef}
-      className="mx-auto grid w-full max-w-6xl place-items-center gap-10 px-6 sm:px-10 lg:px-0 lg:mx-[8rem] py-10 md:min-h-[80vh] md:grid-cols-[650px_minmax(0,1fr)]"
+      className="relative mx-auto grid w-full max-w-6xl place-items-center gap-10 overflow-hidden px-6 sm:px-10 lg:px-0 lg:mx-[8rem] py-10 md:min-h-[80vh] lg:grid-cols-[650px_minmax(0,1fr)]"
     >
+      <div
+        aria-hidden="true"
+        className={circleClassName}
+        style={{ transformOrigin: 'top right' }}
+      />
       {src ? (
         <div
           ref={imageWrapperRef}
@@ -119,7 +130,7 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
       ) : null}
       <div className={contentClassName} style={{ transitionDelay: isVisible ? '120ms' : '0ms' }}>
         {titre ? (
-          <h2 className="font-custom text-4xl leading-tight md:-ml-[10rem] md:text-6xl md:text-[4.5rem] md:leading-[1.05] md:relative md:z-10">
+          <h2 className="font-custom text-4xl leading-tight lg:-ml-[10rem] md:text-6xl md:text-[4.5vw] md:leading-[1.05] md:relative md:z-10">
             {titre}
           </h2>
         ) : null}

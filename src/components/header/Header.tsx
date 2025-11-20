@@ -10,6 +10,9 @@ export default function Header() {
   const { headerMenu: menuItems } = useSiteChrome()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [shouldRenderMenu, setShouldRenderMenu] = useState(false)
+  const [shouldRenderSearch, setShouldRenderSearch] = useState(false)
+  const OVERLAY_ANIMATION_MS = 320
 
   useEffect(() => {
     const body = document.body
@@ -23,6 +26,28 @@ export default function Header() {
       body.classList.remove('overflow-hidden')
     }
   }, [isMenuOpen, isSearchOpen])
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setShouldRenderMenu(true)
+      return
+    }
+    const timeout = window.setTimeout(() => setShouldRenderMenu(false), OVERLAY_ANIMATION_MS)
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [isMenuOpen])
+
+  useEffect(() => {
+    if (isSearchOpen) {
+      setShouldRenderSearch(true)
+      return
+    }
+    const timeout = window.setTimeout(() => setShouldRenderSearch(false), OVERLAY_ANIMATION_MS)
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [isSearchOpen])
 
   const toggleMenu = () => {
     if (isSearchOpen) {
@@ -97,12 +122,24 @@ export default function Header() {
         />
       </button>
 
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-white">
+      {shouldRenderMenu && (
+        <div
+          className={clsx(
+            'fixed inset-0 z-40 flex items-center justify-center bg-white px-6 transition-all duration-[420ms] ease-[cubic-bezier(0.23,1,0.32,1)] transform',
+            isMenuOpen ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 -translate-y-6'
+          )}
+        >
           <nav>
-            <ul>
-              {menuItems.map((item) => (
-                <li key={item.id} className="font-custom text-[50pt] transition hover:italic">
+            <ul className="flex flex-col items-center gap-6 text-center">
+              {menuItems.map((item, index) => (
+                <li
+                  key={item.id}
+                  style={{ transitionDelay: isMenuOpen ? `${80 + index * 40}ms` : '0ms' }}
+                  className={clsx(
+                    'font-custom text-[50pt] transition-all duration-300 ease-out hover:italic transform',
+                    isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  )}
+                >
                   <Link href={item.path} onClick={closeOverlays}>
                     {item.label}
                   </Link>
@@ -113,10 +150,28 @@ export default function Header() {
         </div>
       )}
 
-      {isSearchOpen && (
-        <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-white">
-          <h4 className="font-custom text-[50pt]">Rechercher...</h4>
-          <div className="w-full max-w-md p-4">
+      {shouldRenderSearch && (
+        <div
+          className={clsx(
+            'fixed inset-0 z-40 flex flex-col items-center justify-center bg-white/95 px-4 backdrop-blur-md transition-all duration-[420ms] ease-[cubic-bezier(0.23,1,0.32,1)] transform',
+            isSearchOpen ? 'opacity-100 scale-100' : 'pointer-events-none opacity-0 scale-95'
+          )}
+        >
+          <h4
+            className={clsx(
+              'font-custom text-[50pt] transition-all duration-300 ease-out transform',
+              isSearchOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+            )}
+          >
+            Rechercher...
+          </h4>
+          <div
+            className={clsx(
+              'w-full max-w-md p-4 transition-all duration-300 ease-out transform',
+              isSearchOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+            )}
+            style={{ transitionDelay: isSearchOpen ? '80ms' : '0ms' }}
+          >
             <Search onNavigate={closeOverlays} />
           </div>
         </div>

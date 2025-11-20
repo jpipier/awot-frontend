@@ -456,8 +456,8 @@ export default function CarouselLayoutClient({
   const titleScrollEnabled = normalizedTitle === 'hebergements'
   const useUniformHeights = normalizedTitle ? UNIFORM_HEIGHT_TITLES.has(normalizedTitle) : false
   const imageWrapperHeightClass = useUniformHeights
-    ? 'h-[320px] md:h-[420px] lg:h-[480px] 3xl:h-[540px]'
-    : 'h-[275px] md:h-[500px] lg:h-[490px] 3xl:h-[590px]'
+    ? 'h-[420px] md:h-[520px] lg:h-[360px] xl:h-[480px] 3xl:h-[540px]'
+    : 'h-[275px] md:h-[500px] lg:h-[360px] xl:h-[480px] 3xl:h-[590px]'
 
   useEffect(() => {
     if (!titleScrollEnabled) {
@@ -533,7 +533,7 @@ export default function CarouselLayoutClient({
         opacity: titleOpacity
       }
     : titleTransition
-  const baseTitleClass = 'font-schnyder_wide_xl_webdemi text-4xl leading-tight lg:text-[5rem] text-left'
+  const baseTitleClass = 'font-schnyder_wide_xl_webdemi leading-tight lg:text-[5vw] text-left'
   const easingClass = titleScrollEnabled
     ? 'transform will-change-transform transition-opacity duration-500 ease-out'
     : 'transform transition-all duration-700 ease-out'
@@ -593,7 +593,7 @@ export default function CarouselLayoutClient({
     <div ref={sectionRef} className="mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
-          className={`flex w-full flex-col gap-6 px-4 text-left pb-[3rem] ${
+          className={`flex w-full flex-col gap-6 px-4 text-left lg:pb-[3rem] ${
             postParPage > 2 ? 'lg:w-2/5 lg:px-[8rem]' : 'lg:w-3/5 lg:px-[8rem]'
           }`}
         >
@@ -699,7 +699,7 @@ export default function CarouselLayoutClient({
                       ) : null}
                       <div className="mt-3">
                         <p
-                          className="mb-0 text-[0.5rem] uppercase font-montserrat italic text-gray-600"
+                          className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600"
                           dangerouslySetInnerHTML={{
                             __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
                           }}

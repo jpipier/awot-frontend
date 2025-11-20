@@ -225,9 +225,9 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         'mb-40 transition-colors duration-500 lg:mb-0 bg-white'
       )}
     >
-      <div className="mx-auto flex w-full flex-col gap-12 px-6 sm:px-10 lg:px-0 lg:flex-row lg:items-start">
+      <div className="mx-auto flex w-full flex-col gap-12 px-6 sm:px-10 lg:px-0 md:flex-row lg:items-start">
         <div
-          className="order-1 flex w-full flex-col justify-center lg:w-1/2"
+          className="order-1 flex w-full flex-col justify-center md:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}
         >
           <div className={clsx('portrait-slider-wrapper relative transition-all duration-700', carouselVisibilityClass)}>
@@ -311,10 +311,10 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         <div
           id="portraits"
           ref={textBlockRef}
-          className={clsx('order-2 flex w-full flex-col justify-center lg:w-1/2 text-black')}
+          className={clsx('order-2 flex w-full flex-col justify-center md:w-1/2 text-black')}
         >
           <div className={clsx('flex flex-col gap-10 overflow-hidden transition-all duration-700', textVisibilityClass)}>
-            <h2 className="portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5rem] lg:mb-3rem">
+            <h2 className="portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5vw] lg:mb-3rem">
               {titreDeLaSection}
             </h2>
             <div key={activePost?.slug ?? currentIndex} className="flex flex-col gap-4 text-current max-w-[32vw]">
@@ -333,7 +333,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               >
                 <h3
                   className={clsx(
-                    'portraits-split font-schnyder_xl_webdemi text-[2.5rem] leading-tight transition duration-300 group-hover:opacity-70'
+                    'portraits-split font-schnyder_xl_webdemi text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
                   )}
                 >
                   {activePost?.title}

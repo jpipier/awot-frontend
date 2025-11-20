@@ -258,7 +258,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}
-          className="relative w-full overflow-hidden rounded-xxl lg:mx-auto"
+          className="relative w-full overflow-hidden md:rounded-md lg:rounded-xxl lg:mx-auto"
         >
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
