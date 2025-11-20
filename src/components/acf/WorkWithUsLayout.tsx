@@ -45,9 +45,6 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
     return () => observer.disconnect()
   }, [])
 
-  if (!src && !hasCopy) {
-    return null
-  }
   useEffect(() => {
     const wrapper = imageWrapperRef.current
     if (!wrapper) {
@@ -87,6 +84,9 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
       window.removeEventListener('resize', handleScroll)
     }
   }, [])
+  if (!src && !hasCopy) {
+    return null
+  }
 
   const mediaClassName = clsx(
     'relative z-10 flex w-full items-center justify-center transition-all duration-[900ms] ease-out will-change-transform will-change-opacity md:w-1/2',
