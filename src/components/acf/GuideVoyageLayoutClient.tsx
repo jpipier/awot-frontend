@@ -34,7 +34,7 @@ interface GuideVoyageLayoutClientProps {
 }
 
 const STAGGER_DELAY_MS = 80
-const BASE_DELAY_MS = 240
+const BASE_DELAY_MS = 350
 const STICKY_START_OFFSET_PX = 500
 const STICKY_MEDIA_QUERY = '(min-width: 1024px)'
 const VOYAGES_SECTION_SELECTOR = '#voyages'
