@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import type { Swiper as SwiperClass } from 'swiper/types'
 import type { Article } from '@/types/wordpress'
 
 import 'swiper/css'
@@ -119,6 +120,37 @@ function AnimatedGuideSubtitle({
 export default function GuideLayoutClient({ posts, link, titreDeLaSection }: GuideLayoutClientProps) {
   const sectionRef = useRef<HTMLElement | null>(null)
   const sliderShellRef = useRef<HTMLDivElement | null>(null)
+  const swiperInstanceRef = useRef<SwiperClass | null>(null)
+  const [autoplayEnabled, setAutoplayEnabled] = useState(false)
+
+  useEffect(() => {
+    const sliderNode = sliderShellRef.current
+    if (!sliderNode) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio >= 0.98) {
+          setAutoplayEnabled(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: [0, 0.5, 0.75, 0.9, 0.98, 1] }
+    )
+
+    observer.observe(sliderNode)
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!autoplayEnabled || !swiperInstanceRef.current?.autoplay) {
+      return
+    }
+    swiperInstanceRef.current.autoplay.start()
+  }, [autoplayEnabled])
+
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) {
       return
@@ -233,10 +265,15 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
             className="mySwiper"
             slidesPerView={1}
             spaceBetween={20}
-            autoplay={{ delay: 5000, disableOnInteraction: false }}
-            loop={true}
             pagination={{ clickable: true, el: '.custom-pagination' }}
             navigation={{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}
+            autoplay={{ delay: 4500, disableOnInteraction: false }}
+            onSwiper={(swiperInstance) => {
+              swiperInstanceRef.current = swiperInstance
+              if (!autoplayEnabled && swiperInstance.autoplay?.running) {
+                swiperInstance.autoplay.stop()
+              }
+            }}
           >
             {posts.map((post) => (
               <SwiperSlide key={post.slug} className="carousel-item">
