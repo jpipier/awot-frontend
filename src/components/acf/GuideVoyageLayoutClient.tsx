@@ -15,7 +15,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, Mousewheel, Navigation, Pagination } from 'swiper/modules'
 import he from 'he'
 import type { Article } from '@/types/wordpress'
 import type { Swiper as SwiperInstance } from 'swiper'
@@ -677,7 +677,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           </div>
         ) : null} */}
         <Swiper
-          modules={[Navigation, Pagination]}
+          modules={[Navigation, Pagination, Mousewheel]}
           className="mySwiper guide-voyage-carousel__swiper"
           slidesPerView={1.1}
           spaceBetween={18}
@@ -696,6 +696,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
             768: { slidesPerView: 1.8, spaceBetween: 26 },
             1024: { slidesPerView: 2.5, spaceBetween: 20 }
           }}
+          mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0.7 }}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
           }}

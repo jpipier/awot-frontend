@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination } from 'swiper/modules'
+import { Mousewheel, Navigation, Pagination } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
 import type { gsap as GSAP } from 'gsap'
 
@@ -624,7 +624,7 @@ export default function CarouselLayoutClient({
         </div>
         <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
           <Swiper
-            modules={[Navigation, Pagination]}
+            modules={[Navigation, Pagination, Mousewheel]}
             className="mySwiper"
             slidesPerView={1.2}
             spaceBetween={20}
@@ -636,6 +636,7 @@ export default function CarouselLayoutClient({
                 spaceBetween: 20
               }
             }}
+            mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0.7 }}
             onSliderMove={handleSlideMotionStart}
             onTouchStart={handleSlideMotionStart}
             onTransitionStart={handleSlideMotionStart}
