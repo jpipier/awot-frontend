@@ -17,8 +17,8 @@ interface PortraitLayoutClientProps {
   contenu: string
 }
 
-const TEXT_ANIMATION_DURATION = 1.1
-const TEXT_ANIMATION_STAGGER = 0.18
+const TEXT_ANIMATION_DURATION = 1.8
+const TEXT_ANIMATION_STAGGER = 0.24
 const CAROUSEL_BASE_DELAY = 300
 const CAROUSEL_STAGGER_DELAY = 140
 
