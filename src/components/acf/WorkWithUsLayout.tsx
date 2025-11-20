@@ -22,6 +22,8 @@ interface WorkWithUsLayoutProps {
 export default function WorkWithUsLayout({ image, titre, contenu, bouton }: WorkWithUsLayoutProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const imageWrapperRef = useRef<HTMLDivElement | null>(null)
+  const [parallax, setParallax] = useState(0)
   const src = image?.node?.guid ?? image?.node?.sourceUrl ?? ''
   const alt = image?.node?.altText ?? ''
   const naturalWidth = image?.node?.mediaDetails?.width ?? 1200
@@ -35,12 +37,9 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
     }
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.intersectionRatio >= 0.6) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
+        setIsVisible(entry.intersectionRatio >= 0.6)
       },
-      { threshold: [0.2, 0.4, 0.6, 0.8, 1] }
+      { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
     )
     observer.observe(node)
     return () => observer.disconnect()
@@ -49,6 +48,45 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
   if (!src && !hasCopy) {
     return null
   }
+  useEffect(() => {
+    const wrapper = imageWrapperRef.current
+    if (!wrapper) {
+      return
+    }
+
+    let frame: number | null = null
+
+    const updateParallax = () => {
+      frame = null
+      const rect = wrapper.getBoundingClientRect()
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1
+      const center = rect.top + rect.height / 2
+      const viewportCenter = viewportHeight / 2
+      const distanceFromCenter = center - viewportCenter
+      const normalized = Math.max(Math.min(distanceFromCenter / viewportHeight, 1), -1)
+      setParallax(normalized * -80)
+    }
+
+    updateParallax()
+
+    const handleScroll = () => {
+      if (frame !== null) {
+        return
+      }
+      frame = window.requestAnimationFrame(updateParallax)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+
+    return () => {
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame)
+      }
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
+  }, [])
 
   const mediaClassName = clsx(
     'flex w-full items-center justify-center transition-all duration-[900ms] ease-out will-change-transform will-change-opacity',
@@ -65,13 +103,17 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
       className="mx-auto grid w-full max-w-6xl place-items-center gap-10 px-6 sm:px-10 lg:px-0 lg:mx-[8rem] py-10 md:min-h-[80vh] md:grid-cols-[650px_minmax(0,1fr)]"
     >
       {src ? (
-        <div className={mediaClassName} style={{ transitionDelay: isVisible ? '0ms' : '0ms' }}>
+        <div
+          ref={imageWrapperRef}
+          className={mediaClassName}
+          style={{ transitionDelay: isVisible ? '0ms' : '0ms', transform: `translateY(${parallax}px)` }}
+        >
           <Image
             src={src}
             alt={alt}
             width="552"
             height="440"
-            className="h-[440px] w-full max-w-[550px] rounded-xl shadow-lg object-cover"
+            className="h-[440px] w-full max-w-[550px] object-cover"
           />
         </div>
       ) : null}
