@@ -26,8 +26,6 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
   const [parallax, setParallax] = useState(0)
   const src = image?.node?.guid ?? image?.node?.sourceUrl ?? ''
   const alt = image?.node?.altText ?? ''
-  const naturalWidth = image?.node?.mediaDetails?.width ?? 1200
-  const naturalHeight = image?.node?.mediaDetails?.height ?? 800
   const hasCopy = Boolean(titre || contenu || (bouton?.title && bouton?.url))
 
   useEffect(() => {
@@ -36,8 +34,11 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
       return
     }
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.intersectionRatio >= 0.6)
+      ([entry], obs) => {
+        if (entry.intersectionRatio >= 0.4) {
+          setIsVisible(true)
+          obs.unobserve(entry.target)
+        }
       },
       { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
     )
@@ -89,60 +90,51 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
   }
 
   const mediaClassName = clsx(
-    'relative z-10 flex w-full items-center justify-center transition-all duration-[900ms] ease-out will-change-transform will-change-opacity md:w-1/2',
+    'flex w-full items-center justify-center transition-[opacity,transform] duration-[900ms] ease-out will-change-transform will-change-opacity',
     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
   )
-  const contentClassName = clsx(
-    'relative z-10 flex w-full flex-col gap-6 md:items-start transition-all duration-700 ease-out will-change-transform will-change-opacity md:w-1/2',
-    isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-  )
-
-  const circleClassName = clsx(
-    'pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-[#f7f4ef]',
-    'shadow-[0_0_120px_rgba(0,0,0,0.08)] transition-transform duration-[1400ms] ease-[cubic-bezier(0.19,1,0.22,1)]',
-    isVisible ? 'scale-[10] translate-x-10 translate-y-16 opacity-100' : 'scale-0 translate-x-0 -translate-y-4 opacity-0'
+  const textBlockClassName = clsx(
+    'work-with-us-text flex w-full flex-col gap-6 md:items-start',
+    isVisible ? 'work-with-us-text--visible' : 'work-with-us-text--hidden'
   )
 
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto grid w-full max-w-6xl place-items-center gap-10 overflow-hidden px-6 sm:px-10 lg:px-0 lg:mx-[8rem] py-10 md:min-h-[80vh] lg:grid-cols-[650px_minmax(0,1fr)]"
+      className="mx-auto grid w-full max-w-6xl place-items-center gap-10 px-6 sm:px-10 lg:px-0 lg:mx-[8rem] py-10 md:min-h-[80vh] lg:grid-cols-[650px_minmax(0,1fr)]"
     >
-      <div
-        aria-hidden="true"
-        className={circleClassName}
-        style={{ transformOrigin: 'top right' }}
-      />
       {src ? (
-        <div
-          ref={imageWrapperRef}
-          className={mediaClassName}
-          style={{ transitionDelay: isVisible ? '0ms' : '0ms', transform: `translateY(${parallax}px)` }}
-        >
-          <Image
-            src={src}
-            alt={alt}
-            width="552"
-            height="440"
-            className="h-[440px] w-full max-w-[550px] object-cover"
-          />
+        <div className={mediaClassName} style={{ transitionDelay: isVisible ? '0ms' : '0ms' }}>
+          <div
+            ref={imageWrapperRef}
+            style={{ transform: `translate3d(0, ${parallax}px, 0)` }}
+            className="w-full will-change-transform flex justify-end"
+          >
+            <Image
+              src={src}
+              alt={alt}
+              width="552"
+              height="440"
+              className="h-[440px] w-full max-w-[550px] object-cover"
+            />
+          </div>
         </div>
       ) : null}
-      <div className={contentClassName} style={{ transitionDelay: isVisible ? '120ms' : '0ms' }}>
+      <div className={textBlockClassName}>
         {titre ? (
           <h2 className="font-custom text-4xl leading-tight lg:-ml-[10rem] md:text-6xl md:text-[4.5vw] md:leading-[1.05] md:relative md:z-10">
             {titre}
           </h2>
         ) : null}
         {contenu ? (
-          <div className="contentElementor" dangerouslySetInnerHTML={{ __html: contenu }} />
+          <div className="contentElementor font-montserrat" dangerouslySetInnerHTML={{ __html: contenu }} />
         ) : null}
         {bouton?.url && bouton?.title ? (
           <Link
             href={bouton.url}
             target={bouton.target ?? undefined}
             rel={bouton.target === '_blank' ? 'noopener noreferrer' : undefined}
-            className="portraits-split text-xs uppercase tracking-[0.2em] text-current hover:underline "
+            className="text-xs uppercase tracking-[0.2em] text-current hover:underline"
           >
             {bouton.title}
             <span aria-hidden="true" >
@@ -151,6 +143,25 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
           </Link>
         ) : null}
       </div>
+      <style jsx>{`
+        .work-with-us-text {
+          transition: opacity 0.8s ease, transform 0.8s ease;
+          will-change: opacity, transform;
+        }
+        .work-with-us-text--hidden {
+          opacity: 0;
+          transform: translateY(40px);
+        }
+        .work-with-us-text--visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        :global(.work-with-us-text .contentElementor > *) {
+          opacity: 1 !important;
+          transform: none !important;
+          transition-delay: 0ms !important;
+        }
+      `}</style>
     </div>
   )
 }

@@ -50,7 +50,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <StickyWatcher />
       <section className="elementor-section elementor-section-height-default elementor-element-40717a53">
         <div
-          className="contentElementor"
+          className="contentElementor font-montserrat"
           dangerouslySetInnerHTML={{ __html: article.elementorContent ?? article.content ?? '' }}
         />
       </section>

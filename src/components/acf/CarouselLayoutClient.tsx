@@ -18,6 +18,7 @@ const BASE_DELAY_MS = 250
 const STAGGER_DELAY_MS = 150
 const SCROLL_ANIMATED_ITEM_COUNT = 3
 const SCROLL_ANIMATION_END = 0.5
+const DESKTOP_MEDIA_QUERY = '(min-width: 1024px)'
 
 type GSAPTimeline = ReturnType<GSAP['timeline']>
 
@@ -120,6 +121,7 @@ export default function CarouselLayoutClient({
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
   const [carouselScrollProgress, setCarouselScrollProgress] = useState(0)
   const [shouldForceSettled, setShouldForceSettled] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   const headlineRef = useRef<HTMLHeadingElement | null>(null)
   const titleRef = useRef<HTMLHeadingElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
@@ -441,6 +443,31 @@ export default function CarouselLayoutClient({
       window.removeEventListener('resize', handleScroll)
     }
   }, [])
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const mediaQuery = window.matchMedia(DESKTOP_MEDIA_QUERY)
+    const updateIsDesktop = (event?: MediaQueryListEvent) => {
+      setIsDesktop(event?.matches ?? mediaQuery.matches)
+    }
+
+    updateIsDesktop()
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateIsDesktop)
+    } else {
+      mediaQuery.addListener(updateIsDesktop)
+    }
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', updateIsDesktop)
+      } else {
+        mediaQuery.removeListener(updateIsDesktop)
+      }
+    }
+  }, [])
 
   const normalizedTitle = titreDeLaSection
     ?.trim()
@@ -453,7 +480,7 @@ export default function CarouselLayoutClient({
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
   const isBonnesAdressesHeadline = normalizedHeadline === 'bonnes adresses'
-  const titleScrollEnabled = normalizedTitle === 'hebergements'
+  const titleScrollEnabled = normalizedTitle === 'hebergements' && isDesktop
   const useUniformHeights = normalizedTitle ? UNIFORM_HEIGHT_TITLES.has(normalizedTitle) : false
   const imageWrapperHeightClass = useUniformHeights
     ? 'h-[420px] md:h-[520px] lg:h-[360px] xl:h-[480px] 3xl:h-[540px]'
@@ -533,7 +560,7 @@ export default function CarouselLayoutClient({
         opacity: titleOpacity
       }
     : titleTransition
-  const baseTitleClass = 'font-schnyder_wide_xl_webdemi leading-tight lg:text-[5vw] text-left'
+  const baseTitleClass = 'font-schnyder_wide_xl_webdemi leading-tight text-[13vw] lg:text-[5vw] text-left'
   const easingClass = titleScrollEnabled
     ? 'transform will-change-transform transition-opacity duration-500 ease-out'
     : 'transform transition-all duration-700 ease-out'
@@ -545,7 +572,7 @@ export default function CarouselLayoutClient({
         ? 'translate-y-0'
         : '-translate-y-16'
   const titleClassName = [baseTitleClass, easingClass, visibilityClass, translateClass].filter(Boolean).join(' ')
-  const baseHeadlineClass = 'text-sm font-light uppercase tracking-wide text-gray-600 -mb-[2rem]'
+  const baseHeadlineClass = 'text-sm uppercase tracking-wide text-gray-600 -mb-[2rem] font-montserrat'
   const headlineEasingClass = titleScrollEnabled
     ? 'transform will-change-transform transition-opacity duration-500 ease-out'
     : 'transform transition-all duration-700 ease-out'
@@ -615,7 +642,7 @@ export default function CarouselLayoutClient({
             <div
               ref={contentRef}
               style={contentTransition}
-              className={`text-sm font-extralight font-montserrat transform transition-all duration-700 ease-out ${
+              className={`font-montserrat transform transition-all duration-700 ease-out ${
                 isContentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
               }`}
               dangerouslySetInnerHTML={{ __html: contenu }}
@@ -699,12 +726,12 @@ export default function CarouselLayoutClient({
                       ) : null}
                       <div className="mt-3">
                         <p
-                          className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600"
+                          className="mb-0 text-[2vw] text-[0.5vw] uppercase font-montserrat italic text-gray-600"
                           dangerouslySetInnerHTML={{
                             __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
                           }}
                         />
-                        <h3 className="text-xs uppercase font-montserrat font-medium ">{post.title}</h3>
+                        <h3 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ">{post.title}</h3>
                       </div>
                     </Link>
                   </AnimatedCarouselItem>

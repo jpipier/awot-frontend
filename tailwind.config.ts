@@ -17,10 +17,10 @@ const config: Config = {
       },
       fontFamily: {
         custom: ['schnyder_xl_weblight', 'sans-serif'],
-        montserrat: ['Montserrat', 'sans-serif'],
+        montserrat: ['brandon_grotesquelight', 'sans-serif'],
         brandonLight: ['brandon_grotesquelight', 'sans-serif'],
         brandonRegular: ['brandon_grotesqueregular', 'sans-serif'],
-        brandonMedium: ['brandon_grotesquemedium', 'sans-serif'],
+        brandonMedium: ['Montserrat', 'sans-serif'],
         lato: ['Lato', 'sans-serif']
       }
     }

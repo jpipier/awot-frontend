@@ -26,7 +26,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
           <li key={child.slug}>
             <a
               href={`/categories/${child.slug}`}
-              className={clsx('text-xs uppercase lato-light', child.slug === selectedSlug && 'font-semibold underline')}
+              className={clsx('text-xs uppercase font-montserrat', child.slug === selectedSlug && 'font-semibold underline')}
             >
               {child.name}
             </a>
@@ -35,7 +35,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
         <li>
           <a
             href="/categories/voyages"
-            className={clsx('text-xs uppercase lato-light', selectedSlug === 'voyages' && 'font-semibold underline')}
+            className={clsx('text-xs uppercase font-montserrat', selectedSlug === 'voyages' && 'font-semibold underline')}
           >
             Toutes les destinations
           </a>

@@ -74,7 +74,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
     gsapInstance.set(elements, { opacity: 1 })
 
     const splitOptions = {
-      type: 'words,lines',
+      type: 'lines',
       linesClass: 'portrait-line-mask',
       autoSplit: true,
       mask: 'lines'
@@ -221,8 +221,8 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
     <div
       ref={containerRef}
       className={clsx(
-        'bloc-portrait relative pb-20 pt-20 lg:pb-24',
-        'mb-40 transition-colors duration-500 lg:mb-0 bg-white'
+        'bloc-portrait relative md:pb-20 md:pt-20 lg:pb-24',
+        'md:mb-40 transition-colors duration-500 lg:mb-0 bg-white'
       )}
     >
       <div className="mx-auto flex w-full flex-col gap-12 px-6 sm:px-10 lg:px-0 md:flex-row lg:items-start">
@@ -314,14 +314,17 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           className={clsx('order-2 flex w-full flex-col justify-center md:w-1/2 text-black')}
         >
           <div className={clsx('flex flex-col gap-10 overflow-hidden transition-all duration-700', textVisibilityClass)}>
-            <h2 className="portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5vw] lg:mb-3rem">
+            <h2 className={clsx('portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5vw] lg:mb-3rem', textVisibilityClass)}>
               {titreDeLaSection}
             </h2>
-            <div key={activePost?.slug ?? currentIndex} className="flex flex-col gap-4 text-current max-w-[32vw]">
+            <div
+              key={activePost?.slug ?? currentIndex}
+              className="portraits-text-animated-block flex flex-col gap-4 text-current md:max-w-[32vw]"
+            >
               {categoryLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
-                  className="portraits-split font-brandon_grotesquelight_italic text-xs uppercase tracking-[0.3em] -mb-4 opacity-70"
+                  className="font-brandon_grotesquelight_italic uppercase tracking-[0.3em] -mb-4 opacity-70"
                 >
                   {categoryLabel}
                 </span>
@@ -333,7 +336,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               >
                 <h3
                   className={clsx(
-                    'portraits-split font-schnyder_xl_webdemi text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
+                    'font-schnyder_xl_webdemi text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
                   )}
                 >
                   {activePost?.title}
@@ -343,7 +346,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                 ? excerptLines.map((line, idx) => (
                     <p
                       key={`${activePost?.slug ?? currentIndex}-line-${idx}`}
-                      className="portraits-split font-montserrat lato-light text-sm opacity-80"
+                      className="font-montserrat lato-montserrat text-sm opacity-80"
                     >
                       {line}
                     </p>
@@ -352,7 +355,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               <Link
                 key={`cta-${activePost?.slug ?? currentIndex}`}
                 href={activePost?.slug ? `/articles/${activePost.slug}` : '#'}
-                className="portraits-split text-xs uppercase tracking-[0.2em] text-current"
+                className="text-xs uppercase tracking-[0.2em] text-current"
               >
                 Découvrir <span aria-hidden="true">→</span>
               </Link>
@@ -389,6 +392,17 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
         }
         #portraits .portraits-split {
           opacity: 0;
+        }
+        .portraits-text-animated-block {
+          opacity: 0;
+          transform: translateY(-2.5rem);
+          transition: opacity 0.65s ease-out, transform 0.65s ease-out;
+          will-change: transform, opacity;
+        }
+        .portraits-text-visible .portraits-text-animated-block {
+          opacity: 1;
+          transform: translateY(0);
+          transition-delay: 0.12s;
         }
         .portrait-line-mask {
           display: block;

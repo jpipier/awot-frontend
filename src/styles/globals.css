@@ -13,7 +13,9 @@ body {
   background-color: #ffffff;
   color: #000000;
 }
-
+html p{
+  line-height: 20px !important;
+}
 body.overflow-hidden {
   overflow: hidden;
 }

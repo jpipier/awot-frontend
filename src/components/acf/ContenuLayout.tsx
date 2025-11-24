@@ -9,7 +9,7 @@ export default function ContenuLayout({ contenu }: ContenuLayoutProps) {
 
   return (
     <section
-      className="contentElementor mx-auto max-w-4xl px-6 py-10"
+      className="contentElementor font-montserrat mx-auto max-w-4xl px-6 py-10"
       dangerouslySetInnerHTML={{ __html: contenu }}
     />
   )

@@ -253,9 +253,9 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
     <section
       id="section-homepageblocsguidelayout"
       ref={sectionRef}
-      className="max-w-screen-full bg-white pt-[5rem]"
+      className="max-w-screen-full bg-white md:pt-[5rem]"
     >
-      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 lg:h-[80vh] lg:flex-row">
+      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-[50vh] lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}
           className="relative w-full overflow-hidden md:rounded-md lg:rounded-xxl lg:mx-auto"
@@ -280,7 +280,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                 <div className="relative">
                   <Link href={`/articles/${post.slug}`} className="block">
                     {post.optionsArticles?.imagePaysage?.node?.guid ? (
-                      <div className="relative h-[500px] w-full md:h-[450px] lg:h-[80vh]">
+                      <div className="relative w-full h-[50vh] md:h-[450px] lg:h-[80vh]">
                         <Image
                           src={post.optionsArticles.imagePaysage.node.guid}
                           alt={post.title}
@@ -309,7 +309,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           <div className="custom-pagination" />
         </div>
         {link?.url ? (
-          <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black h-full">
+          <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black h-auto md:h-full">
             <a
               href={link.url}
               className="transform rounded-md px-4 py-2 text-sm uppercase text-white font-montserrat lg:-rotate-90"

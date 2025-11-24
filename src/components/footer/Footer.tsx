@@ -17,7 +17,7 @@ export default function Footer({ postId }: FooterProps) {
         <div className="elementor-23971 flex flex-col space-y-2 pt-20 text-left text-sm uppercase">
           <ul>
             {menuItems.map((item) => (
-              <li key={item.id} className="transition hover:underline lato-light">
+              <li key={item.id} className="transition hover:underline font-montserrat">
                 <Link href={item.path}>{item.label}</Link>
               </li>
             ))}
@@ -28,7 +28,7 @@ export default function Footer({ postId }: FooterProps) {
           <h2 className="pt-10 text-[40pt] font-custom lg:pt-20 lg:text-[60pt]">
             {settings.title}
           </h2>
-          <p className="mt-2 text-[8pt] uppercase lato-light">{settings.description}</p>
+          <p className="mt-2 text-[8pt] uppercase font-montserrat">{settings.description}</p>
         </div>
 
         <div className="relative flex h-full flex-col items-center space-y-3 lg:items-end">
@@ -40,9 +40,6 @@ export default function Footer({ postId }: FooterProps) {
               className="absolute left-0 z-10 object-contain"
               sizes="(min-width: 1024px) 15vw, 40vw"
             />
-          </div>
-          <div className="relative w-44 lg:w-56">
-            <p className="absolute left-[-10rem] text-xs italic">C’EST NOUS !</p>
           </div>
         </div>
       </div>

@@ -634,18 +634,18 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
     <>
       {backgroundPortal}
       <div className="guide-voyage-content mt-10 flex flex-row items-start gap-4 sm:gap-10">
-        <div ref={stickyRowRef} className="flex flex-1 min-w-0 flex-col gap-4 pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16">
+        <div ref={stickyRowRef} className="flex flex-1 min-w-0 flex-col gap-4 pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
             {current.optionsArticles.champsLibrePageAccueil}
           </h3>
         ) : null}
-        <p className="text-sm font-light font-montserrat">{current?.excerptPlain}</p>
+        <p className="font-light font-montserrat">{current?.excerptPlain}</p>
         {current?.slug ? (
           <Link
             href={`/articles/${current.slug}`}
-            className="mt-4 inline-block bg-black px-4 py-2 text-sm uppercase text-white w-fit"
+            className="mt-4 inline-block bg-black px-4 py-2 uppercase text-white w-fit"
           >
             Lire la suite
           </Link>
@@ -749,7 +749,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
                     ) : null}
                     <div className="mt-3">
                       <p className="mb-1 text-[12px] uppercase font-montserrat italic" dangerouslySetInnerHTML={{ __html: post.optionsArticles?.champsLibrePageAccueil ?? '' }} />
-                      <h3 className="mt-2 text-left text-[15px] uppercase font-montserrat font-medium">{post.title}</h3>
+                      <h3 className="mt-2 text-left text-[15px] uppercase font-brandonRegular font-medium">{post.title}</h3>
                     </div>
                   </Link>
                 </AnimatedCarouselItem>

@@ -56,7 +56,7 @@ export default async function GenericPage({ params }: GenericPageProps) {
       {shouldDisplayHeading ? <h1 className="mb-6 text-4xl font-custom">{page.title}</h1> : null}
       {!isHomePage ? (
         <div
-          className="contentElementor"
+          className="contentElementor font-montserrat"
           dangerouslySetInnerHTML={{ __html: page.elementorContent ?? page.content ?? '' }}
         />
       ) : null}
