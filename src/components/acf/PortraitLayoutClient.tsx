@@ -296,8 +296,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                             }
                           }}
                           className={clsx(
-                            'relative w-full min-w-[260px] rounded overflow-hidden transition-transform duration-700 ease-out',
-                            'h-[220px] sm:h-[260px] md:h-[300px] lg:h-[340px] xl:h-[380px]',
+                            'relative w-full min-w-[260px] aspect-[3/2] rounded overflow-hidden transition-transform duration-700 ease-out',
                             isActive ? 'scale-100' : 'scale-[0.95] opacity-80',
                             isVisible ? 'portraits-carousel-slide--visible' : 'portraits-carousel-slide--hidden'
                           )}
@@ -333,7 +332,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           ref={textBlockRef}
           className={clsx('order-2 flex w-full flex-col justify-center md:w-1/2 text-black')}
         >
-          <div className={clsx('flex flex-col gap-10 overflow-hidden transition-all duration-700', textVisibilityClass)}>
+          <div className={clsx('flex flex-col gap-[4rem] overflow-hidden transition-all duration-700', textVisibilityClass)}>
             <h2 className={clsx('portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5vw] lg:mb-3rem', textVisibilityClass)}>
               {titreDeLaSection}
             </h2>
@@ -350,7 +349,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
               {categoryLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
-                  className="font-brandon_grotesquelight_italic uppercase tracking-[0.3em] -mb-4 opacity-70"
+                  className="font-brandon_grotesquelight_italic uppercase tracking-[0.2em] -mb-4 opacity-70"
                 >
                   {categoryLabel}
                 </span>
