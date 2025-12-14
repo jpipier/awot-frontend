@@ -21,6 +21,8 @@ interface GuideLayoutClientProps {
   titreDeLaSection?: string | null
 }
 
+const AUTOPLAY_DELAY_MS = 2500
+
 function AnimatedGuideTitle({
   className,
   delay = 120,
@@ -122,6 +124,9 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
   const sliderShellRef = useRef<HTMLDivElement | null>(null)
   const swiperInstanceRef = useRef<SwiperClass | null>(null)
   const [autoplayEnabled, setAutoplayEnabled] = useState(false)
+  const paginationProgressStyle: CSSProperties = {
+    ['--progress-duration' as string]: `${AUTOPLAY_DELAY_MS}ms`
+  }
 
   useEffect(() => {
     const sliderNode = sliderShellRef.current
@@ -267,7 +272,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
             spaceBetween={20}
             pagination={{ clickable: true, el: '.custom-pagination' }}
             navigation={{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}
-            autoplay={{ delay: 4500, disableOnInteraction: false }}
+            autoplay={{ delay: AUTOPLAY_DELAY_MS, disableOnInteraction: false }}
             onSwiper={(swiperInstance) => {
               swiperInstanceRef.current = swiperInstance
               if (!autoplayEnabled && swiperInstance.autoplay?.running) {
@@ -306,7 +311,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           </Swiper>
           <div className="swiper-button-prev" />
           <div className="swiper-button-next" />
-          <div className="custom-pagination" />
+          <div className="custom-pagination" style={paginationProgressStyle} />
         </div>
         {link?.url ? (
           <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black h-auto md:h-full">
@@ -340,25 +345,58 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
         }
         .custom-pagination {
           position: absolute;
-          left: 0;
-          width: 100%;
+          left: 50%;
           z-index: 10;
           bottom: 8px;
-          text-align: center;
-          transition: 300ms opacity;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px 12px;
+          border-radius: 999px;
+          transform: translateX(-50%);
+          min-width: 180px;
           transform: translate3d(0, 0, 0);
+          transition: 300ms opacity;
+          --progress-duration: ${AUTOPLAY_DELAY_MS}ms;
         }
         :global(.custom-pagination .swiper-pagination-bullet) {
-          background: rgba(0, 0, 0, 1) !important;
-          transition: width 0.3s ease, background-color 0.3s ease;
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
+          position: relative;
+          background: rgba(255, 255, 255, 0.25) !important;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+          width: 12px;
+          height: 12px;
+          border-radius: 999px;
+          overflow: hidden;
+          margin: 0 2px;
+          opacity: 1 !important;
+          transition: background-color 0.3s ease, width 0.3s ease;
         }
         :global(.custom-pagination .swiper-pagination-bullet-active) {
-          background: #ffffff !important;
-          width: 25px;
-          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.7) !important;
+          border-color: rgba(255, 255, 255, 0.9);
+          width: 54px;
+          height: 12px;
+        }
+        :global(.custom-pagination .swiper-pagination-bullet::after) {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: #ffffff;
+          transform: scaleX(0);
+          transform-origin: left center;
+        }
+        :global(.custom-pagination .swiper-pagination-bullet-active::after) {
+          animation: swiperProgressFill var(--progress-duration) linear forwards;
+        }
+        @keyframes swiperProgressFill {
+          from {
+            transform: scaleX(0);
+          }
+          to {
+            transform: scaleX(1);
+          }
         }
       `}</style>
     </section>
