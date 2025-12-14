@@ -120,7 +120,7 @@ export default function Search({ onNavigate }: SearchProps) {
           value={query}
           onChange={handleChange}
           placeholder={`Vous recherchez ${placeholder}`}
-          className="w-full rounded-l border border-gray-300 p-2 focus:border-black-500 focus:outline-none uppercase text-[6pt] tracking-widest font-montserrat"
+          className="w-full rounded-l border border-gray-300 p-2 focus:border-black-500 focus:outline-none uppercase text-[6pt] tracking-widest font-montserrat text-black"
         />
         <button
           type="submit"
@@ -135,7 +135,7 @@ export default function Search({ onNavigate }: SearchProps) {
           {suggestions.map((post) => (
             <li
               key={post.id}
-              className="cursor-pointer p-2 hover:bg-gray-200 font-montserrat uppercase text-[6pt] tracking-widest"
+              className="cursor-pointer p-2 hover:bg-gray-200 font-montserrat uppercase text-[6pt] tracking-widest text-black"
               onClick={() => navigateTo(post)}
             >
               {post.title}
