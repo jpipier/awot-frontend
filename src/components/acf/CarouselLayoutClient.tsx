@@ -726,7 +726,7 @@ export default function CarouselLayoutClient({
                       ) : null}
                       <div className="mt-3">
                         <p
-                          className="mb-0 text-[2vw] text-[0.5vw] uppercase font-montserrat italic text-gray-600"
+                          className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600"
                           dangerouslySetInnerHTML={{
                             __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
                           }}

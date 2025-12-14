@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import clsx from 'clsx'
@@ -40,7 +40,9 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isTextBlockVisible, setIsTextBlockVisible] = useState(false)
   const textBlockRef = useRef<HTMLDivElement | null>(null)
+  const textAnimatedBlockRef = useRef<HTMLDivElement | null>(null)
   const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const gsapRef = useRef<any>(null)
   const splitTextCtorRef = useRef<any>(null)
@@ -209,11 +211,29 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
       .map((line) => line.replace(/<\/?[^>]+(>|$)/g, '').trim())
       .filter(Boolean)
   }, [excerpt])
+  useEffect(() => {
+    const element = textAnimatedBlockRef.current
+    if (!element) {
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTextBlockVisible(entry.isIntersecting)
+      },
+      { threshold: 0.25 }
+    )
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [activePost?.slug])
 
   if (!slides.length) {
     return null
   }
 
+  const textBlockTransition: CSSProperties = { transitionDelay: isTextBlockVisible ? '480ms' : '0ms' }
   const textVisibilityClass = isVisible ? 'portraits-text-visible' : 'portraits-text-hidden'
   const carouselVisibilityClass = isVisible ? 'portraits-carousel-visible' : 'portraits-carousel-hidden'
 
@@ -319,7 +339,13 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
             </h2>
             <div
               key={activePost?.slug ?? currentIndex}
-              className="portraits-text-animated-block flex flex-col gap-4 text-current md:max-w-[32vw]"
+              ref={textAnimatedBlockRef}
+              style={textBlockTransition}
+              className={clsx(
+                'portraits-text-animated-block flex flex-col gap-4 text-current md:max-w-[32vw]',
+                'transform transition-all duration-700 ease-out',
+                isTextBlockVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
+              )}
             >
               {categoryLabel ? (
                 <span
@@ -394,15 +420,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
           opacity: 0;
         }
         .portraits-text-animated-block {
-          opacity: 0;
-          transform: translateY(-2.5rem);
-          transition: opacity 0.65s ease-out, transform 0.65s ease-out;
           will-change: transform, opacity;
-        }
-        .portraits-text-visible .portraits-text-animated-block {
-          opacity: 1;
-          transform: translateY(0);
-          transition-delay: 0.12s;
         }
         .portrait-line-mask {
           display: block;

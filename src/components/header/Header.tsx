@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
 import Search from '@/components/search/Search'
 import { useSiteChrome } from '@/components/providers/SiteChromeProvider'
@@ -12,6 +13,8 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [shouldRenderMenu, setShouldRenderMenu] = useState(false)
   const [shouldRenderSearch, setShouldRenderSearch] = useState(false)
+  const [shouldShowHeader, setShouldShowHeader] = useState(true)
+  const pathname = usePathname()
   const OVERLAY_ANIMATION_MS = 320
 
   useEffect(() => {
@@ -66,9 +69,53 @@ export default function Header() {
     setIsSearchOpen(false)
   }
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const slider = document.querySelector('[data-home-hero-slider]')
+    if (!slider) {
+      setShouldShowHeader(true)
+      return
+    }
+
+    const computeVisibility = () => {
+      const rect = slider.getBoundingClientRect()
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1
+      const inView = rect.top < viewportHeight && rect.bottom > 0
+      setShouldShowHeader(!inView)
+    }
+
+    computeVisibility()
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShouldShowHeader(!entry.isIntersecting)
+      },
+      { threshold: 0.01 }
+    )
+
+    observer.observe(slider)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [pathname])
+
+  const controlsVisibilityClass = clsx(
+    'transition-opacity duration-300',
+    shouldShowHeader ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+  )
+
   return (
     <>
-      <span className="fixed left-14 top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt]">
+      <span
+        className={clsx(
+          'fixed left-6 md:left-14 top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt]',
+          controlsVisibilityClass
+        )}
+      >
         <Link href="/" onClick={closeOverlays}>
           A way of travel
         </Link>
@@ -77,7 +124,7 @@ export default function Header() {
       <button
         type="button"
         onClick={toggleSearch}
-        className="fixed right-14 top-4 z-50 flex h-10 w-10 items-center justify-center"
+        className={clsx('fixed right-14 top-4 z-50 flex h-10 w-10 items-center justify-center', controlsVisibilityClass)}
         aria-label={isSearchOpen ? 'Fermer la recherche' : 'Ouvrir la recherche'}
       >
         <svg
@@ -99,7 +146,10 @@ export default function Header() {
       <button
         type="button"
         onClick={toggleMenu}
-        className="group fixed right-4 top-4 z-50 flex h-10 w-10 flex-col items-center justify-center"
+        className={clsx(
+          'group fixed right-4 top-4 z-50 flex h-10 w-10 flex-col items-center justify-center',
+          controlsVisibilityClass
+        )}
         aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
       >
         <span

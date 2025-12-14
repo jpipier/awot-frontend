@@ -97,7 +97,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
   }
 
   return (
-    <div ref={containerRef} className="relative h-[85vh] w-full">
+    <div ref={containerRef} data-home-hero-slider className="relative h-[85vh] w-full">
       <div className="absolute left-1/2 top-1/4 z-20 w-full max-w-full -translate-x-1/2">
         <div className="mb-[10vh] mt-[-5vh] text-center text-white">
           <h1 className="font-custom text-[45pt] lg:text-[103pt]">{siteTitle}</h1>
