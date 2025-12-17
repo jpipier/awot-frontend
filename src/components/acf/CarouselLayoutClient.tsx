@@ -169,6 +169,18 @@ export default function CarouselLayoutClient({
     document.documentElement.classList.remove('is-guide-transitioning')
   }, [])
 
+  const clearUrlHash = useCallback(() => {
+    if (typeof window === 'undefined' || typeof window.history.replaceState !== 'function') {
+      return
+    }
+    const { pathname, search } = window.location
+    window.history.replaceState(null, '', `${pathname}${search}`)
+  }, [])
+
+  useEffect(() => {
+    clearUrlHash()
+  }, [clearUrlHash])
+
   const prefetchArticle = useCallback(
     async (slug?: string) => {
       if (!slug || prefetchedSlugsRef.current.has(slug) || typeof router.prefetch !== 'function') {
@@ -686,6 +698,7 @@ export default function CarouselLayoutClient({
             }}
             hashNavigation={{
               watchState: false,
+              replaceState: true
             }}
             mousewheel={{
               forceToAxis: true,
@@ -694,6 +707,7 @@ export default function CarouselLayoutClient({
               thresholdTime: 420,
               sensitivity: 0.6
             }}
+            onHashSet={clearUrlHash}
             onSliderMove={handleSlideMotionStart}
             onTouchStart={handleSlideMotionStart}
             onTransitionStart={handleSlideMotionStart}

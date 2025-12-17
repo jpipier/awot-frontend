@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties, type ComponentPropsWithoutRef } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ComponentPropsWithoutRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -137,6 +137,17 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
   const paginationProgressStyle: CSSProperties = {
     ['--progress-duration' as string]: `${AUTOPLAY_DELAY_MS}ms`
   }
+  const clearUrlHash = useCallback(() => {
+    if (typeof window === 'undefined' || typeof window.history.replaceState !== 'function') {
+      return
+    }
+    const { pathname, search } = window.location
+    window.history.replaceState(null, '', `${pathname}${search}`)
+  }, [])
+
+  useEffect(() => {
+    clearUrlHash()
+  }, [clearUrlHash])
 
   useEffect(() => {
     const sliderNode = sliderShellRef.current
@@ -290,7 +301,8 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               }
             }}
             hashNavigation={{
-              watchState: false
+              watchState: false,
+              replaceState: true
             }}
             mousewheel={{
               forceToAxis: true,
@@ -299,6 +311,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               thresholdTime: 420,
               sensitivity: 0.6
             }}
+            onHashSet={clearUrlHash}
           >
             {posts.map((post) => (
               <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">

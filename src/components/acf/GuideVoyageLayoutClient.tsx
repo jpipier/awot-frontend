@@ -140,6 +140,18 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
     document.documentElement.classList.remove('is-guide-transitioning')
   }
 
+  const clearUrlHash = useCallback(() => {
+    if (typeof window === 'undefined' || typeof window.history.replaceState !== 'function') {
+      return
+    }
+    const { pathname, search } = window.location
+    window.history.replaceState(null, '', `${pathname}${search}`)
+  }, [])
+
+  useEffect(() => {
+    clearUrlHash()
+  }, [clearUrlHash])
+
   const sanitizedPosts = useMemo(
     () =>
       posts.map((post) => ({
@@ -701,7 +713,8 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
           spaceBetween={18}
           loop={true}
           hashNavigation={{
-              watchState: false,
+            watchState: false,
+            replaceState: true
           }}
           // autoplay={
           //   shouldAutoplay
@@ -725,6 +738,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
             thresholdTime: 420,
             sensitivity: 0.6
           }}
+          onHashSet={clearUrlHash}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
           }}
@@ -797,7 +811,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
                   className="block h-full w-full"
                 >
                   <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]">
-                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:border-none hover:text-black">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
                         {viewAllLabel}
                       </span>
