@@ -718,7 +718,13 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
             768: { slidesPerView: 1.8, spaceBetween: 26 },
             1024: { slidesPerView: 2.5, spaceBetween: 20 }
           }}
-          mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0 }}
+          mousewheel={{
+            forceToAxis: true,
+            releaseOnEdges: true,
+            thresholdDelta: 24,
+            thresholdTime: 420,
+            sensitivity: 0.6
+          }}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
           }}

@@ -687,7 +687,13 @@ export default function CarouselLayoutClient({
             hashNavigation={{
               watchState: false,
             }}
-            mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0 }}
+            mousewheel={{
+              forceToAxis: true,
+              releaseOnEdges: true,
+              thresholdDelta: 24,
+              thresholdTime: 420,
+              sensitivity: 0.6
+            }}
             onSliderMove={handleSlideMotionStart}
             onTouchStart={handleSlideMotionStart}
             onTransitionStart={handleSlideMotionStart}

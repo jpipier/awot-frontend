@@ -289,10 +289,16 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                 swiperInstance.autoplay.stop()
               }
             }}
-             hashNavigation={{
-              watchState: false,
+            hashNavigation={{
+              watchState: false
             }}
-            mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 10 }}
+            mousewheel={{
+              forceToAxis: true,
+              releaseOnEdges: true,
+              thresholdDelta: 24,
+              thresholdTime: 420,
+              sensitivity: 0.6
+            }}
           >
             {posts.map((post) => (
               <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
