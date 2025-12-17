@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ComponentPropsWit
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, Navigation, Pagination, Mousewheel, HashNavigation } from 'swiper/modules'
 import type { Swiper as SwiperClass } from 'swiper/types'
 import type { Article } from '@/types/wordpress'
 
@@ -23,6 +23,16 @@ interface GuideLayoutClientProps {
 
 const AUTOPLAY_DELAY_MS = 2500
 
+const slugify = (str: string) =>
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+
+    
 function AnimatedGuideTitle({
   className,
   delay = 120,
@@ -266,11 +276,11 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           className="relative w-full overflow-hidden md:rounded-md lg:rounded-xxl lg:mx-auto"
         >
           <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
+            modules={[Navigation, Autoplay, Mousewheel, HashNavigation]}
             className="mySwiper"
             slidesPerView={1}
             spaceBetween={20}
-            pagination={{ clickable: true, el: '.custom-pagination' }}
+            //pagination={{ clickable: true, el: '.custom-pagination' }}
             navigation={{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}
             autoplay={{ delay: AUTOPLAY_DELAY_MS, disableOnInteraction: false }}
             onSwiper={(swiperInstance) => {
@@ -279,9 +289,13 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                 swiperInstance.autoplay.stop()
               }
             }}
+             hashNavigation={{
+              watchState: false,
+            }}
+            mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 10 }}
           >
             {posts.map((post) => (
-              <SwiperSlide key={post.slug} className="carousel-item">
+              <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
                 <div className="relative">
                   <Link href={`/articles/${post.slug}`} className="block">
                     {post.optionsArticles?.imagePaysage?.node?.guid ? (

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Mousewheel, Navigation, Pagination, History } from 'swiper/modules'
+import { Mousewheel, Navigation, Pagination, HashNavigation } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
 import type { gsap as GSAP } from 'gsap'
 
@@ -19,6 +19,15 @@ const STAGGER_DELAY_MS = 150
 const SCROLL_ANIMATED_ITEM_COUNT = 3
 const SCROLL_ANIMATION_END = 0.5
 const DESKTOP_MEDIA_QUERY = '(min-width: 1024px)'
+
+const slugify = (str: string) =>
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
 
 type GSAPTimeline = ReturnType<GSAP['timeline']>
 
@@ -662,7 +671,7 @@ export default function CarouselLayoutClient({
         </div>
         <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
           <Swiper
-            modules={[Navigation, Pagination, Mousewheel, History]}
+            modules={[Navigation, Pagination, Mousewheel, HashNavigation]}
             className="mySwiper"
             slidesPerView={1.2}
             spaceBetween={20}
@@ -675,10 +684,10 @@ export default function CarouselLayoutClient({
                 spaceBetween: 20
               }
             }}
-            history={{
-              key: 'slide',
+            hashNavigation={{
+              watchState: false,
             }}
-            mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0.7 }}
+            mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0 }}
             onSliderMove={handleSlideMotionStart}
             onTouchStart={handleSlideMotionStart}
             onTransitionStart={handleSlideMotionStart}
@@ -690,7 +699,7 @@ export default function CarouselLayoutClient({
               const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
               const useScrollReveal = index < scrollAnimatedCount
               return (
-                <SwiperSlide key={post.slug} className="carousel-item">
+                <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
                   <AnimatedCarouselItem
                     className="group relative"
                     delay={itemDelay}
@@ -754,7 +763,7 @@ export default function CarouselLayoutClient({
               )
             })}
             {viewAllHref ? (
-              <SwiperSlide key="view-all" className="carousel-item">
+              <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} className="carousel-item">
                 <AnimatedCarouselItem
                   delay={BASE_DELAY_MS + posts.length * STAGGER_DELAY_MS}
                   forceVisible={isCarouselVisible}

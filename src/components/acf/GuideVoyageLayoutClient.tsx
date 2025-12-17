@@ -15,7 +15,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { History, Mousewheel, Navigation, Pagination } from 'swiper/modules'
+import { HashNavigation, Mousewheel, Navigation, Pagination } from 'swiper/modules'
 import he from 'he'
 import type { Article } from '@/types/wordpress'
 import type { Swiper as SwiperInstance } from 'swiper'
@@ -45,6 +45,15 @@ const STICKY_MEDIA_QUERY = '(min-width: 1024px)'
 const VOYAGES_SECTION_SELECTOR = '#voyages'
 const CAROUSEL_AUTOPLAY_DELAY_MS = 5200
 const CAROUSEL_EASE = 'sine.inOut'
+
+const slugify = (str: string) =>
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
 
 function AnimatedCarouselItem({
   children,
@@ -686,13 +695,13 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
           </div>
         ) : null} */}
         <Swiper
-          modules={[Navigation, Pagination, History, Mousewheel]}
+          modules={[Navigation, Pagination, HashNavigation, Mousewheel]}
           className="mySwiper guide-voyage-carousel__swiper"
           slidesPerView={1.1}
           spaceBetween={18}
           loop={true}
-          history={{
-            key: 'slide',
+          hashNavigation={{
+              watchState: false,
           }}
           // autoplay={
           //   shouldAutoplay
@@ -709,7 +718,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
             768: { slidesPerView: 1.8, spaceBetween: 26 },
             1024: { slidesPerView: 2.5, spaceBetween: 20 }
           }}
-          mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0.7 }}
+          mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0 }}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
           }}
@@ -723,7 +732,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
           {sanitizedPosts.map((post, index) => {
             const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
             return (
-              <SwiperSlide key={post.slug} className="carousel-item guide-voyage-carousel__slide">
+              <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item guide-voyage-carousel__slide">
                 <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
                   <Link
                     href={`/articles/${post.slug}`}
@@ -770,7 +779,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
             )
           })}
           {viewAllHref ? (
-            <SwiperSlide key="view-all" className="carousel-item guide-voyage-carousel__slide">
+            <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} className="carousel-item guide-voyage-carousel__slide">
               <AnimatedCarouselItem
                 delay={BASE_DELAY_MS + sanitizedPosts.length * STAGGER_DELAY_MS}
                 forceVisible={isCarouselVisible}
