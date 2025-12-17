@@ -74,6 +74,7 @@ function renderBloc(bloc: HomePageBloc) {
             (bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideVoyageLayout' }>).titreDeLaSection
           }
           categorie={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideVoyageLayout' }>).categorie}
+          lien={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideVoyageLayout' }>).lien}
           postParPage={(
             bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsGuideVoyageLayout' }>
           ).postParPage}
@@ -89,6 +90,7 @@ function renderBloc(bloc: HomePageBloc) {
           contenu={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsCarouselLayout' }>).contenu}
           categorie={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsCarouselLayout' }>).categorie}
           postParPage={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsCarouselLayout' }>).postParPage}
+          lien={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsCarouselLayout' }>).lien}
         />
       )
     case 'HomepageBlocsGuideLayout':

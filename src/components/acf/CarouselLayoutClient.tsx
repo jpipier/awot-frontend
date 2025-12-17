@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Mousewheel, Navigation, Pagination } from 'swiper/modules'
+import { Mousewheel, Navigation, Pagination, History } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
 import type { gsap as GSAP } from 'gsap'
 
@@ -29,6 +29,11 @@ interface CarouselLayoutClientProps {
   contenu?: string | null
   postParPage: number
   categorySlug?: string
+  link?: {
+    target?: string | null
+    title?: string | null
+    url?: string | null
+  }
 }
 
 function AnimatedCarouselItem({
@@ -110,7 +115,8 @@ export default function CarouselLayoutClient({
   headline,
   contenu,
   postParPage,
-  categorySlug
+  categorySlug,
+  link
 }: CarouselLayoutClientProps) {
   const router = useRouter()
   const sectionRef = useRef<HTMLDivElement | null>(null)
@@ -616,6 +622,11 @@ export default function CarouselLayoutClient({
     scheduleSettledReset()
   }
 
+  const viewAllHref = link?.url ?? (categorySlug ? `/categories/${categorySlug}` : undefined)
+  const viewAllLabel = link?.title ?? 'Découvrir tous'
+  const viewAllTarget = link?.target ?? undefined
+  const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
+
   return (
     <div ref={sectionRef} className="mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0">
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
@@ -651,7 +662,7 @@ export default function CarouselLayoutClient({
         </div>
         <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
           <Swiper
-            modules={[Navigation, Pagination, Mousewheel]}
+            modules={[Navigation, Pagination, Mousewheel, History]}
             className="mySwiper"
             slidesPerView={1.2}
             spaceBetween={20}
@@ -663,6 +674,9 @@ export default function CarouselLayoutClient({
                 slidesPerView: postParPage > 2 ? 2.5 : 1.5,
                 spaceBetween: 20
               }
+            }}
+            history={{
+              key: 'slide',
             }}
             mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 0.7 }}
             onSliderMove={handleSlideMotionStart}
@@ -739,7 +753,7 @@ export default function CarouselLayoutClient({
                 </SwiperSlide>
               )
             })}
-            {categorySlug ? (
+            {viewAllHref ? (
               <SwiperSlide key="view-all" className="carousel-item">
                 <AnimatedCarouselItem
                   delay={BASE_DELAY_MS + posts.length * STAGGER_DELAY_MS}
@@ -747,12 +761,14 @@ export default function CarouselLayoutClient({
                   shouldForceSettled={shouldForceSettled}
                 >
                   <Link
-                    href={`/categories/${categorySlug}`}
+                    href={viewAllHref}
+                    target={viewAllTarget}
+                    rel={viewAllRel}
                     className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
                   >
-                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
+                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black hover:border-none">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
-                        Découvrir tous
+                        {viewAllLabel}
                       </span>
                     </div>
                   </Link>

@@ -345,7 +345,6 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
         }
         .custom-pagination {
           position: absolute;
-          left: 50%;
           z-index: 10;
           bottom: 8px;
           display: flex;

@@ -15,7 +15,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, Mousewheel, Navigation, Pagination } from 'swiper/modules'
+import { History, Mousewheel, Navigation, Pagination } from 'swiper/modules'
 import he from 'he'
 import type { Article } from '@/types/wordpress'
 import type { Swiper as SwiperInstance } from 'swiper'
@@ -31,6 +31,11 @@ type Tween = ReturnType<GSAP['to']>
 interface GuideVoyageLayoutClientProps {
   posts: Article[]
   categorySlug?: string
+  link?: {
+    target?: string | null
+    title?: string | null
+    url?: string | null
+  }
 }
 
 const STAGGER_DELAY_MS = 80
@@ -90,7 +95,7 @@ function AnimatedCarouselItem({
   )
 }
 
-export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVoyageLayoutClientProps) {
+export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: GuideVoyageLayoutClientProps) {
   const router = useRouter()
   const [activeIndex, setActiveIndex] = useState(0)
   const swiperContainerRef = useRef<HTMLDivElement | null>(null)
@@ -140,7 +145,11 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
 
   const current = sanitizedPosts[activeIndex] ?? sanitizedPosts[0]
 
-  const categoryUrl = categorySlug ? `/categories/${categorySlug}` : null
+  const fallbackViewAllHref = categorySlug ? `/categories/${categorySlug}` : null
+  const viewAllHref = link?.url ?? fallbackViewAllHref
+  const viewAllLabel = link?.title ?? 'Découvrir tous'
+  const viewAllTarget = link?.target ?? undefined
+  const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
   const shouldAutoplay = sanitizedPosts.length > 1
   const currentBackgroundImage = current?.optionsArticles?.imagePortait?.node?.guid ?? null
   const paginationDisabled = sanitizedPosts.length <= 1
@@ -677,10 +686,14 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
           </div>
         ) : null} */}
         <Swiper
-          modules={[Navigation, Pagination, Mousewheel]}
+          modules={[Navigation, Pagination, History, Mousewheel]}
           className="mySwiper guide-voyage-carousel__swiper"
           slidesPerView={1.1}
           spaceBetween={18}
+          loop={true}
+          history={{
+            key: 'slide',
+          }}
           // autoplay={
           //   shouldAutoplay
           //     ? {
@@ -756,20 +769,22 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug }: GuideVo
               </SwiperSlide>
             )
           })}
-          {categoryUrl ? (
+          {viewAllHref ? (
             <SwiperSlide key="view-all" className="carousel-item guide-voyage-carousel__slide">
               <AnimatedCarouselItem
                 delay={BASE_DELAY_MS + sanitizedPosts.length * STAGGER_DELAY_MS}
                 forceVisible={isCarouselVisible}
               >
                 <Link
-                  href={categoryUrl}
+                  href={viewAllHref}
+                  target={viewAllTarget}
+                  rel={viewAllRel}
                   className="block h-full w-full"
                 >
                   <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]">
                     <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
-                        Découvrir tous
+                        {viewAllLabel}
                       </span>
                     </div>
                   </div>

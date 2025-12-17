@@ -9,11 +9,17 @@ interface GuideVoyageLayoutProps {
     nodes: Array<{ slug: string }>
   }
   postParPage?: number | null
+  lien?: {
+    target?: string | null
+    title?: string | null
+    url?: string | null
+  }
 }
 
 export default async function GuideVoyageLayout({
   titreDeLaSection,
-  categorie
+  categorie,
+  lien
 }: GuideVoyageLayoutProps) {
   const slug = categorie?.nodes?.[0]?.slug ?? ''
   const limit = 4
@@ -33,7 +39,7 @@ export default async function GuideVoyageLayout({
         ) : null}
         <CategoryMenu selectedSlug={slug} />
       </div>
-      <GuideVoyageLayoutClient posts={posts} categorySlug={slug} />
+      <GuideVoyageLayoutClient posts={posts} categorySlug={slug} link={lien} />
     </div>
   )
 }

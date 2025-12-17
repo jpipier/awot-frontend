@@ -74,6 +74,11 @@ const HOME_PAGE_QUERY = /* GraphQL */ `
                 headline
                 contenu
                 titreDeLaSection
+                lien {
+                  target
+                  title
+                  url
+                }
                 categorie {
                   nodes {
                     slug
@@ -133,6 +138,11 @@ const HOME_PAGE_QUERY = /* GraphQL */ `
                 fieldGroupName
                 postParPage
                 titreDeLaSection
+                lien {
+                  target
+                  title
+                  url
+                }
                 categorie {
                   nodes {
                     slug
