@@ -112,6 +112,7 @@ function renderBloc(bloc: HomePageBloc) {
           categorie={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsPortraitLayout' }>).categorie}
           postParPage={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsPortraitLayout' }>).postParPage}
           contenu={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsPortraitLayout' }>).contenu}
+          lien={(bloc as Extract<HomePageBloc, { fieldGroupName: 'HomepageBlocsPortraitLayout' }>).lien}
         />
       )
     case 'HomepageBlocsWorkWithUsLayout':

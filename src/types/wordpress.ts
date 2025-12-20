@@ -128,6 +128,11 @@ export type HomePageBloc =
       headline?: string | null
       contenu?: string | null
       titreDeLaSection?: string | null
+      lien?: {
+        target?: string | null
+        title?: string | null
+        url?: string | null
+      }
       categorie?: {
         nodes: { slug: string }[]
       }

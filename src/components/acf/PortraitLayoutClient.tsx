@@ -257,8 +257,8 @@ export default function PortraitLayoutClient({
   const textBlockTransition: CSSProperties = { transitionDelay: isTextBlockVisible ? '480ms' : '0ms' }
   const textVisibilityClass = isVisible ? 'portraits-text-visible' : 'portraits-text-hidden'
   const carouselVisibilityClass = isVisible ? 'portraits-carousel-visible' : 'portraits-carousel-hidden'
-  const viewAllHref = link?.url ?? (categorySlug ? `/categories/${categorySlug}` : undefined)
-  const viewAllLabel = link?.title ?? 'Découvrir tous'
+  const viewAllHref = link?.url ?? (categorySlug ? `/categories/${categorySlug}` : '/articles')
+  const viewAllLabel = link?.title ?? 'Voir tout'
   const viewAllTarget = link?.target ?? undefined
   const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
   const imageWrapperClass = 'relative w-full min-w-[260px] aspect-[3/2] rounded overflow-hidden'

@@ -8,12 +8,18 @@ interface PortraitLayoutProps {
   }
   postParPage?: number | null
   contenu?: string | null
+  lien?: {
+    target?: string | null
+    title?: string | null
+    url?: string | null
+  }
 }
 
 export default async function PortraitLayout({
   titreDeLaSection,
   categorie,
-  contenu
+  contenu,
+  lien
 }: PortraitLayoutProps) {
   const slug = categorie?.nodes?.[0]?.slug ?? ''
   const limit = 4
@@ -28,6 +34,8 @@ export default async function PortraitLayout({
       posts={posts}
       titreDeLaSection={titreDeLaSection ?? ''}
       contenu={contenu ?? ''}
+      categorySlug={slug || undefined}
+      link={lien ?? undefined}
     />
   )
 }
