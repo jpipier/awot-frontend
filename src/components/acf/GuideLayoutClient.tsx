@@ -291,6 +291,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
             className="mySwiper"
             slidesPerView={1}
             spaceBetween={20}
+            loop={true}
             //pagination={{ clickable: true, el: '.custom-pagination' }}
             navigation={{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}
             autoplay={{ delay: AUTOPLAY_DELAY_MS, disableOnInteraction: false }}
@@ -347,10 +348,10 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           <div className="custom-pagination" style={paginationProgressStyle} />
         </div>
         {link?.url ? (
-          <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black h-auto md:h-full">
+          <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black text-white h-auto md:h-full hover:bg-white hover:text-black transition-colors duration-300">
             <a
               href={link.url}
-              className="transform rounded-md px-4 py-2 text-sm uppercase text-white font-montserrat lg:-rotate-90"
+              className="transform rounded-md px-4 py-2 text-sm uppercase font-montserrat lg:-rotate-90"
               target="_blank"
               rel="noreferrer"
             >
