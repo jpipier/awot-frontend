@@ -15,12 +15,27 @@ interface PortraitLayoutClientProps {
   posts: Article[]
   titreDeLaSection: string
   contenu: string
+  categorySlug?: string
+  link?: {
+    target?: string | null
+    title?: string | null
+    url?: string | null
+  }
 }
 
 const TEXT_ANIMATION_DURATION = 1.8
 const TEXT_ANIMATION_STAGGER = 0.24
 const CAROUSEL_BASE_DELAY = 300
 const CAROUSEL_STAGGER_DELAY = 140
+
+const slugify = (str: string) =>
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
 
 function buildCategoryLabel(post?: Article) {
   const edges = post?.categories?.edges ?? []
@@ -36,7 +51,13 @@ function buildCategoryLabel(post?: Article) {
   return parentName ? `${target.node.name} | ${parentName}` : target.node.name
 }
 
-export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu }: PortraitLayoutClientProps) {
+export default function PortraitLayoutClient({
+  posts,
+  titreDeLaSection,
+  contenu,
+  categorySlug,
+  link
+}: PortraitLayoutClientProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -193,7 +214,7 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
     }
 
     animateSplitText()
-  }, [isVisible, currentIndex, animateSplitText])
+  }, [isVisible, animateSplitText])
 
   const slides = useMemo(() => posts, [posts])
   const activePost = useMemo(() => slides[currentIndex] ?? slides[0], [slides, currentIndex])
@@ -236,6 +257,11 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
   const textBlockTransition: CSSProperties = { transitionDelay: isTextBlockVisible ? '480ms' : '0ms' }
   const textVisibilityClass = isVisible ? 'portraits-text-visible' : 'portraits-text-hidden'
   const carouselVisibilityClass = isVisible ? 'portraits-carousel-visible' : 'portraits-carousel-hidden'
+  const viewAllHref = link?.url ?? (categorySlug ? `/categories/${categorySlug}` : undefined)
+  const viewAllLabel = link?.title ?? 'Découvrir tous'
+  const viewAllTarget = link?.target ?? undefined
+  const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
+  const imageWrapperClass = 'relative w-full min-w-[260px] aspect-[3/2] rounded overflow-hidden'
 
   return (
     <div
@@ -296,7 +322,8 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                             }
                           }}
                           className={clsx(
-                            'relative w-full min-w-[260px] aspect-[3/2] rounded overflow-hidden transition-transform duration-700 ease-out',
+                            imageWrapperClass,
+                            'transition-transform duration-700 ease-out',
                             isActive ? 'scale-100' : 'scale-[0.95] opacity-80',
                             isVisible ? 'portraits-carousel-slide--visible' : 'portraits-carousel-slide--hidden'
                           )}
@@ -316,6 +343,22 @@ export default function PortraitLayoutClient({ posts, titreDeLaSection, contenu 
                   </SwiperSlide>
                 )
               })}
+              {viewAllHref ? (
+                <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} className="relative">
+                  <Link
+                    href={viewAllHref}
+                    target={viewAllTarget}
+                    rel={viewAllRel}
+                    className={clsx('relative block h-full w-full overflow-hidden', imageWrapperClass)}
+                  >
+                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black hover:border-none">
+                      <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
+                        {viewAllLabel}
+                      </span>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              ) : null}
             </Swiper>
           </div>
           {/* <div className="mt-6 flex items-center justify-between text-xs uppercase tracking-[0.2em]">
