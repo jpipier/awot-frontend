@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation } from 'swiper/modules'
+import { Mousewheel, Navigation, Pagination, HashNavigation } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
 
 import 'swiper/css'
@@ -279,7 +279,7 @@ export default function PortraitLayoutClient({
           <div className={clsx('portrait-slider-wrapper relative transition-all duration-700', carouselVisibilityClass)}>
             <Swiper
               dir="rtl"
-              modules={[Navigation]}
+              modules={[Navigation, Pagination, Mousewheel, HashNavigation]}
               slidesPerView={1.2}
               spaceBetween={16}
               loop={true}
@@ -288,6 +288,13 @@ export default function PortraitLayoutClient({
                 640: { slidesPerView: 1.2, spaceBetween: 18 },
                 768: { slidesPerView: 1.2, spaceBetween: 20 },
                 1024: { slidesPerView: 1.2, spaceBetween: 20 }
+              }}
+              mousewheel={{
+                forceToAxis: true,
+                releaseOnEdges: true,
+                thresholdDelta: 24,
+                thresholdTime: 420,
+                sensitivity: 0.6
               }}
               onSlideChange={(swiper) => {
                 const nextIndex = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex
