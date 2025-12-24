@@ -45,6 +45,7 @@ const STICKY_MEDIA_QUERY = '(min-width: 1024px)'
 const VOYAGES_SECTION_SELECTOR = '#voyages'
 const CAROUSEL_AUTOPLAY_DELAY_MS = 5200
 const CAROUSEL_EASE = 'sine.inOut'
+const POSTS_PER_CATEGORY = 4
 
 const slugify = (str: string) =>
   str
@@ -106,6 +107,9 @@ function AnimatedCarouselItem({
 
 export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: GuideVoyageLayoutClientProps) {
   const router = useRouter()
+  const [displayedPosts, setDisplayedPosts] = useState<Article[]>(() => posts)
+  const [activeCategorySlug, setActiveCategorySlug] = useState<string | undefined>(categorySlug)
+  const [isUpdatingCategory, setIsUpdatingCategory] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const swiperContainerRef = useRef<HTMLDivElement | null>(null)
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
@@ -125,6 +129,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
   const isTransitioningRef = useRef(false)
   const transitionCleanupTimeoutRef = useRef<number | null>(null)
   const prefetchedSlugsRef = useRef<Set<string>>(new Set())
+  const isFetchingCategoryRef = useRef(false)
   const clearTransitionElements = () => {
     if (transitionCleanupTimeoutRef.current) {
       window.clearTimeout(transitionCleanupTimeoutRef.current)
@@ -152,27 +157,39 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
     clearUrlHash()
   }, [clearUrlHash])
 
+  useEffect(() => {
+    setDisplayedPosts(posts)
+    setActiveCategorySlug(categorySlug)
+    setActiveIndex(0)
+    prefetchedSlugsRef.current = new Set()
+    slideImageRefs.current = {}
+  }, [categorySlug, posts])
+
   const sanitizedPosts = useMemo(
     () =>
-      posts.map((post) => ({
+      displayedPosts.map((post) => ({
         ...post,
         excerptPlain: he
           .decode(post.excerpt ?? '')
           .replace(/<[^>]*>/g, '')
           .trim()
       })),
-    [posts]
+    [displayedPosts]
   )
 
   const current = sanitizedPosts[activeIndex] ?? sanitizedPosts[0]
 
-  const fallbackViewAllHref = categorySlug ? `/categories/${categorySlug}` : null
+  const fallbackViewAllHref = activeCategorySlug ? `/categories/${activeCategorySlug}` : null
   const viewAllHref = link?.url ?? fallbackViewAllHref
   const viewAllLabel = link?.title ?? 'Découvrir tous'
   const viewAllTarget = link?.target ?? undefined
   const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
   const shouldAutoplay = sanitizedPosts.length > 1
-  const currentBackgroundImage = current?.optionsArticles?.imagePortait?.node?.guid ?? null
+  const currentBackgroundImage =
+    current?.optionsArticles?.imagePortait?.node?.guid ??
+    current?.optionsArticles?.imagePortait?.node?.sourceUrl ??
+    current?.featuredImage?.node?.sourceUrl ??
+    null
   const paginationDisabled = sanitizedPosts.length <= 1
   const slideNumbersStyle: CSSProperties = {
     transform: `translateY(-${activeIndex * 100}%)`
@@ -195,6 +212,40 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
       }
     },
     [router]
+  )
+
+  const loadCategoryPosts = useCallback(
+    async (slug: string) => {
+      if (!slug || isFetchingCategoryRef.current) {
+        return
+      }
+
+      isFetchingCategoryRef.current = true
+      setIsUpdatingCategory(true)
+
+      try {
+        const params = new URLSearchParams({ limit: String(POSTS_PER_CATEGORY) })
+        const response = await fetch(`/api/categories/${slug}/posts?${params.toString()}`)
+        if (!response.ok) {
+          throw new Error('Unable to load category posts')
+        }
+
+        const data = await response.json()
+        const nextPosts = data?.nodes ?? []
+
+        prefetchedSlugsRef.current = new Set()
+        slideImageRefs.current = {}
+        setActiveIndex(0)
+        setActiveCategorySlug(slug)
+        setDisplayedPosts(nextPosts)
+      } catch (error) {
+        console.error('Unable to load category posts', error)
+      } finally {
+        isFetchingCategoryRef.current = false
+        setIsUpdatingCategory(false)
+      }
+    },
+    []
   )
 
   const startImageTransition = async (
@@ -346,6 +397,40 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
   useEffect(() => {
     setActiveIndex((prev) => Math.min(prev, Math.max(sanitizedPosts.length - 1, 0)))
   }, [sanitizedPosts.length])
+
+  // Listen for category changes triggered by the CategoryMenuClient
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const handleCategoryChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ slug?: string }>).detail
+      const nextSlug = detail?.slug
+
+      if (!nextSlug) {
+        return
+      }
+
+      if (nextSlug === activeCategorySlug) {
+        if (swiperInstanceRef.current) {
+          if (typeof swiperInstanceRef.current.slideToLoop === 'function') {
+            swiperInstanceRef.current.slideToLoop(0, 0)
+          } else {
+            swiperInstanceRef.current.slideTo(0)
+          }
+        }
+        return
+      }
+
+      void loadCategoryPosts(nextSlug)
+    }
+
+    window.addEventListener('guidevoyage:category-change', handleCategoryChange as EventListener)
+    return () => {
+      window.removeEventListener('guidevoyage:category-change', handleCategoryChange as EventListener)
+    }
+  }, [activeCategorySlug, loadCategoryPosts])
 
   useEffect(() => {
     const PREFETCH_LIMIT = 4
@@ -684,6 +769,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
       <div
         ref={swiperContainerRef}
         className="guide-voyage-carousel relative flex-1 min-w-0 overflow-hidden pl-0 pr-0 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
+        aria-busy={isUpdatingCategory}
       >
         {/* {!paginationDisabled ? (
           <div className="guide-voyage-carousel__hud">
@@ -708,6 +794,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
         ) : null} */}
         <Swiper
           modules={[Navigation, Pagination, HashNavigation, Mousewheel]}
+          key={activeCategorySlug ?? 'guide-voyage-default'}
           className="mySwiper guide-voyage-carousel__swiper"
           slidesPerView={1.1}
           spaceBetween={18}
@@ -751,6 +838,10 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
         >
           {sanitizedPosts.map((post, index) => {
             const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
+            const portraitImage = post.optionsArticles?.imagePortait?.node
+            const fallbackImage = post.featuredImage?.node
+            const portraitSrc = portraitImage?.guid ?? portraitImage?.sourceUrl ?? fallbackImage?.sourceUrl
+            const portraitAlt = portraitImage?.altText ?? fallbackImage?.altText ?? post.title
             return (
               <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item guide-voyage-carousel__slide">
                 <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
@@ -765,7 +856,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
                       void prefetchArticle(post.slug)
                     }}
                   >
-                    {post.optionsArticles?.imagePortait?.node?.guid ? (
+                    {portraitSrc ? (
                       <div
                         ref={(node) => {
                         if (!post.slug) {
@@ -780,8 +871,8 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
                       className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
                     >
                       <Image
-                        src={post.optionsArticles.imagePortait.node.guid}
-                        alt={post.title}
+                        src={portraitSrc}
+                        alt={portraitAlt}
                         fill
                           className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                           sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"

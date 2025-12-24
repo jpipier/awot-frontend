@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 import clsx from 'clsx'
 import type { CategoryNode } from '@/types/wordpress'
 
@@ -11,11 +11,48 @@ interface CategoryMenuClientProps {
 }
 
 export default function CategoryMenuClient({ categories, selectedSlug, parentName }: CategoryMenuClientProps) {
-  const router = useRouter()
+  const [activeSlug, setActiveSlug] = useState(selectedSlug ?? '')
+
+  useEffect(() => {
+    setActiveSlug(selectedSlug ?? '')
+  }, [selectedSlug])
+
+  const dispatchCategoryChange = useCallback((slug: string) => {
+    if (!slug || typeof window === 'undefined') {
+      return
+    }
+    window.dispatchEvent(
+      new CustomEvent('guidevoyage:category-change', {
+        detail: { slug }
+      })
+    )
+
+    const carousel = document.querySelector('.guide-voyage-carousel__swiper')
+    carousel?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>, slug: string) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    event.preventDefault()
+    setActiveSlug(slug)
+    dispatchCategoryChange(slug)
+  }
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value
     if (value) {
-      router.push(`/categories/${value}`)
+      setActiveSlug(value)
+      dispatchCategoryChange(value)
     }
   }
 
@@ -26,7 +63,8 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
           <li key={child.slug}>
             <a
               href={`/categories/${child.slug}`}
-              className={clsx('text-xs uppercase font-montserrat', child.slug === selectedSlug && 'font-semibold underline')}
+              onClick={(event) => handleLinkClick(event, child.slug)}
+              className={clsx('text-xs uppercase font-montserrat', child.slug === activeSlug && 'font-semibold underline')}
             >
               {child.name}
             </a>
@@ -35,7 +73,8 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
         <li>
           <a
             href="/categories/voyages"
-            className={clsx('text-xs uppercase font-montserrat', selectedSlug === 'voyages' && 'font-semibold underline')}
+            onClick={(event) => handleLinkClick(event, 'voyages')}
+            className={clsx('text-xs uppercase font-montserrat', activeSlug === 'voyages' && 'font-semibold underline')}
           >
             Toutes les destinations
           </a>
@@ -44,7 +83,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
       <div className="lg:hidden">
         <select
           onChange={handleChange}
-          value={selectedSlug ?? ''}
+          value={activeSlug ?? ''}
           className="w-full rounded border border-gray-300 p-2 text-xs uppercase"
         >
           <option value="">Choisissez une catégorie</option>
