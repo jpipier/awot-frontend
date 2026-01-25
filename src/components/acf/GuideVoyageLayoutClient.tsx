@@ -40,7 +40,8 @@ interface GuideVoyageLayoutClientProps {
 
 const STAGGER_DELAY_MS = 80
 const BASE_DELAY_MS = 350
-const STICKY_START_OFFSET_PX = 320
+const STICKY_START_OFFSET_PX = 520
+const STICKY_END_DISTANCE_MULTIPLIER = 1.5
 const STICKY_MEDIA_QUERY = '(min-width: 1024px)'
 const VOYAGES_SECTION_SELECTOR = '#voyages'
 const CAROUSEL_AUTOPLAY_DELAY_MS = 5200
@@ -703,7 +704,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
             const distanceBelowTarget =
               voyagesContainer.offsetHeight - (targetRect.top - containerRect.top) - targetRect.height
 
-            return Math.max(distanceBelowTarget, 0)
+            return Math.max((distanceBelowTarget - 100) * STICKY_END_DISTANCE_MULTIPLIER, 0)
           }
 
           const trigger = ScrollTrigger.create({
