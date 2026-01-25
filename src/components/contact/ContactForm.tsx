@@ -9,6 +9,7 @@ type ContactFormState = {
   email: string
   subject: string
   message: string
+  website: string
 }
 
 type ContactFormStatus = 'idle' | 'submitting' | 'success' | 'error'
@@ -18,7 +19,8 @@ const initialState: ContactFormState = {
   lastName: '',
   email: '',
   subject: '',
-  message: ''
+  message: '',
+  website: ''
 }
 
 export default function ContactForm() {
@@ -27,6 +29,14 @@ export default function ContactForm() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const isSubmitting = status === 'submitting'
+  const bannerMessage =
+    status === 'success'
+      ? 'Merci, votre message a bien ete envoye. Nous revenons vers vous rapidement.'
+      : status === 'error'
+        ? errorMessage || 'Une erreur est survenue.'
+        : null
+  const helperMessage =
+    status === 'idle' ? 'Nous repondons rapidement a toutes les demandes.' : status === 'submitting' ? 'Envoi en cours...' : null
 
   const handleChange =
     (field: keyof ContactFormState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -47,7 +57,8 @@ export default function ContactForm() {
       lastName: formState.lastName.trim(),
       email: formState.email.trim(),
       subject: formState.subject.trim(),
-      message: formState.message.trim()
+      message: formState.message.trim(),
+      website: formState.website.trim()
     }
 
     try {
@@ -76,6 +87,30 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 grid gap-6 rounded-2xl border border-black/10 bg-white p-6 shadow-sm md:grid-cols-2">
+      {bannerMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`md:col-span-2 rounded-xl border px-5 py-4 text-sm font-montserrat ${
+            status === 'success' ? 'border-black bg-black text-white' : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {bannerMessage}
+        </div>
+      ) : null}
+
+      <div className="absolute left-[-9999px] top-auto h-0 w-0 overflow-hidden" aria-hidden="true">
+        <label htmlFor="contact-website">Website</label>
+        <input
+          id="contact-website"
+          name="website"
+          type="text"
+          autoComplete="off"
+          tabIndex={-1}
+          value={formState.website}
+          onChange={handleChange('website')}
+        />
+      </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="contact-last-name" className="text-[10px] font-montserrat uppercase tracking-[0.35em] text-black/60">
           Nom
@@ -166,10 +201,7 @@ export default function ContactForm() {
 
       <div className="flex flex-col gap-4 md:col-span-2 md:flex-row md:items-center md:justify-between">
         <p className="text-xs text-black/60" role="status" aria-live="polite">
-          {status === 'success' ? 'Merci, votre message a ete envoye.' : null}
-          {status === 'error' ? errorMessage : null}
-          {status === 'idle' ? 'Nous repondons rapidement a toutes les demandes.' : null}
-          {status === 'submitting' ? 'Envoi en cours...' : null}
+          {helperMessage}
         </p>
         <button
           type="submit"

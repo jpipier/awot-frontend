@@ -13,6 +13,7 @@ type ContactPayload = {
   email: string
   subject: string
   message: string
+  website?: string
 }
 
 const normalizeValue = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -50,6 +51,11 @@ export async function POST(request: Request) {
   const email = normalizeValue(payload.email)
   const subject = normalizeValue(payload.subject)
   const message = normalizeValue(payload.message)
+  const website = normalizeValue(payload.website)
+
+  if (website) {
+    return NextResponse.json({ ok: true })
+  }
 
   if (!firstName || !lastName || !email || !subject || !message) {
     return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400 })
