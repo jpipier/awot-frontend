@@ -107,7 +107,10 @@ function AnimatedCarouselItem({
     transform: `translate3d(${translateAmount}px, 0, 0)`
   }
 
-  if (!hasScrollProgress && effectiveVisible && !shouldForceSettled) {
+  if (shouldForceSettled) {
+    style.transition = 'none'
+    style.transitionDelay = '0ms'
+  } else if (!hasScrollProgress && effectiveVisible) {
     style.transitionDelay = `${Math.max(delay, 0)}ms`
   }
 
@@ -647,9 +650,15 @@ export default function CarouselLayoutClient({
   const viewAllLabel = link?.title ?? 'Découvrir tous'
   const viewAllTarget = link?.target ?? undefined
   const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
+  const sectionClassName = [
+    'mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0',
+    shouldForceSettled ? 'carousel-animations-disabled' : ''
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <div ref={sectionRef} className="mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0">
+    <div ref={sectionRef} className={sectionClassName}>
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
           className={`flex w-full flex-col gap-6 px-4 text-left lg:pb-[3rem] ${
@@ -837,6 +846,12 @@ export default function CarouselLayoutClient({
           pointer-events: none;
           object-fit: cover;
           z-index: 9997;
+        }
+        .carousel-animations-disabled .carousel-animated-item {
+          transition: none !important;
+          transition-delay: 0ms !important;
+          transform: translate3d(0, 0, 0) !important;
+          opacity: 1 !important;
         }
       `}</style>
     </div>
