@@ -61,6 +61,12 @@ export default function ContactForm() {
       website: formState.website.trim()
     }
 
+    if (!payload.firstName || !payload.lastName || !payload.email || !payload.subject || !payload.message) {
+      setStatus('error')
+      setErrorMessage('Merci de remplir tous les champs.')
+      return
+    }
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',

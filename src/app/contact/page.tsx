@@ -51,12 +51,9 @@ export default async function ContactPage() {
         />
       ) : null}
       <section className="bg-white py-12">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-6 mt-20">
           <div className="max-w-4xl">
-            <h2 className="text-3xl font-custom">Formulaire de contact</h2>
-            <p className="mt-3 text-sm uppercase tracking-[0.25em] text-black/60 font-montserrat">
-              Nom, prenom, email, objet et message.
-            </p>
+            <h2 className="text-3xl font-custom">Contactez-nous !</h2>
             <ContactForm />
           </div>
         </div>
