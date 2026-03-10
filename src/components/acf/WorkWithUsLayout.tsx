@@ -134,7 +134,7 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
             href={bouton.url}
             target={bouton.target ?? undefined}
             rel={bouton.target === '_blank' ? 'noopener noreferrer' : undefined}
-            className="text-xs uppercase tracking-[0.2em] text-current hover:underline"
+            className="text-xs uppercase tracking-[0.2em] text-current hover:italic"
           >
             {bouton.title}
             <span aria-hidden="true" >

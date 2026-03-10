@@ -761,9 +761,12 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
         {current?.slug ? (
           <Link
             href={`/articles/${current.slug}`}
-            className="mt-4 inline-block bg-black px-4 py-2 uppercase text-white w-fit"
+            className="text-xs uppercase tracking-[0.2em] text-current hover:italic"
           >
             Lire la suite
+            <span aria-hidden="true" >
+              <div aria-hidden="true" style={{ position: 'relative', display: 'inline-block' }}>→</div>
+            </span>
           </Link>
         ) : null}
       </div>
@@ -796,7 +799,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
         <Swiper
           modules={[Navigation, Pagination, HashNavigation, Mousewheel]}
           key={activeCategorySlug ?? 'guide-voyage-default'}
-          className="mySwiper guide-voyage-carousel__swiper"
+          className="mySwiper guide-voyage-carousel__swiper awot-carousel-cursor"
           slidesPerView={1.1}
           spaceBetween={18}
           loop={true}

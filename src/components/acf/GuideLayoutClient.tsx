@@ -288,7 +288,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
         >
           <Swiper
             modules={[Navigation, Autoplay, Mousewheel, HashNavigation]}
-            className="mySwiper"
+            className="mySwiper awot-carousel-cursor"
             slidesPerView={1}
             spaceBetween={20}
             loop={true}

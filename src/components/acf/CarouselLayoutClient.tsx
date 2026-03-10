@@ -693,7 +693,7 @@ export default function CarouselLayoutClient({
         <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
           <Swiper
             modules={[Navigation, Pagination, Mousewheel, HashNavigation]}
-            className="mySwiper"
+            className="mySwiper awot-carousel-cursor"
             slidesPerView={1.2}
             spaceBetween={20}
             loop={true}
@@ -804,7 +804,7 @@ export default function CarouselLayoutClient({
                     rel={viewAllRel}
                     className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
                   >
-                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black hover:border-none">
+                    <div className="flex h-full w-full items-center justify-center rounded-md bg-white text-black transition-colors duration-300 hover:bg-white hover:text-black hover:italic hover:border-none">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
                         {viewAllLabel}
                       </span>

@@ -300,7 +300,7 @@ export default function PortraitLayoutClient({
                 const nextIndex = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex
                 setCurrentIndex(nextIndex ?? 0)
               }}
-              className="portrait-slider w-full"
+              className="portrait-slider awot-carousel-cursor w-full"
             >
               {slides.map((post, index) => {
                 const imageNode =
@@ -430,7 +430,7 @@ export default function PortraitLayoutClient({
               <Link
                 key={`cta-${activePost?.slug ?? currentIndex}`}
                 href={activePost?.slug ? `/articles/${activePost.slug}` : '#'}
-                className="text-xs uppercase tracking-[0.2em] text-current"
+                className="text-xs uppercase tracking-[0.2em] text-current hover:italic"
               >
                 Découvrir <span aria-hidden="true">→</span>
               </Link>

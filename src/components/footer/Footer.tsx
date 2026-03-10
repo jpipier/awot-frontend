@@ -17,7 +17,7 @@ export default function Footer({ postId }: FooterProps) {
         <div className="elementor-23971 flex flex-col space-y-2 pt-20 text-left text-sm uppercase">
           <ul>
             {menuItems.map((item) => (
-              <li key={item.id} className="transition hover:underline font-montserrat">
+              <li key={item.id} className="transition pb-1 hover:italic font-montserrat">
                 <Link href={item.path}>{item.label}</Link>
               </li>
             ))}
