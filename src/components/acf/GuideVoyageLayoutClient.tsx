@@ -31,11 +31,8 @@ type Tween = ReturnType<GSAP['to']>
 interface GuideVoyageLayoutClientProps {
   posts: Article[]
   categorySlug?: string
-  link?: {
-    target?: string | null
-    title?: string | null
-    url?: string | null
-  }
+  initialCursor?: string | null
+  initialHasNextPage?: boolean
 }
 
 const STAGGER_DELAY_MS = 80
@@ -46,7 +43,7 @@ const STICKY_MEDIA_QUERY = '(min-width: 1024px)'
 const VOYAGES_SECTION_SELECTOR = '#voyages'
 const CAROUSEL_AUTOPLAY_DELAY_MS = 5200
 const CAROUSEL_EASE = 'sine.inOut'
-const POSTS_PER_CATEGORY = 4
+const POSTS_BATCH_SIZE = 6
 
 const slugify = (str: string) =>
   str
@@ -106,11 +103,19 @@ function AnimatedCarouselItem({
   )
 }
 
-export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: GuideVoyageLayoutClientProps) {
+export default function GuideVoyageLayoutClient({
+  posts,
+  categorySlug,
+  initialCursor = null,
+  initialHasNextPage = false
+}: GuideVoyageLayoutClientProps) {
   const router = useRouter()
   const [displayedPosts, setDisplayedPosts] = useState<Article[]>(() => posts)
   const [activeCategorySlug, setActiveCategorySlug] = useState<string | undefined>(categorySlug)
+  const [paginationCursor, setPaginationCursor] = useState<string | null>(initialCursor)
+  const [canLoadMorePosts, setCanLoadMorePosts] = useState<boolean>(initialHasNextPage)
   const [isUpdatingCategory, setIsUpdatingCategory] = useState(false)
+  const [isLoadingMorePosts, setIsLoadingMorePosts] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const swiperContainerRef = useRef<HTMLDivElement | null>(null)
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
@@ -131,6 +136,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
   const transitionCleanupTimeoutRef = useRef<number | null>(null)
   const prefetchedSlugsRef = useRef<Set<string>>(new Set())
   const isFetchingCategoryRef = useRef(false)
+  const isFetchingMorePostsRef = useRef(false)
   const clearTransitionElements = () => {
     if (transitionCleanupTimeoutRef.current) {
       window.clearTimeout(transitionCleanupTimeoutRef.current)
@@ -161,10 +167,14 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
   useEffect(() => {
     setDisplayedPosts(posts)
     setActiveCategorySlug(categorySlug)
+    setPaginationCursor(initialCursor ?? null)
+    setCanLoadMorePosts(Boolean(initialHasNextPage))
+    isFetchingMorePostsRef.current = false
+    setIsLoadingMorePosts(false)
     setActiveIndex(0)
     prefetchedSlugsRef.current = new Set()
     slideImageRefs.current = {}
-  }, [categorySlug, posts])
+  }, [categorySlug, initialCursor, initialHasNextPage, posts])
 
   const sanitizedPosts = useMemo(
     () =>
@@ -180,11 +190,6 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
 
   const current = sanitizedPosts[activeIndex] ?? sanitizedPosts[0]
 
-  const fallbackViewAllHref = activeCategorySlug ? `/categories/${activeCategorySlug}` : null
-  const viewAllHref = link?.url ?? fallbackViewAllHref
-  const viewAllLabel = link?.title ?? 'Découvrir tous'
-  const viewAllTarget = link?.target ?? undefined
-  const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
   const shouldAutoplay = sanitizedPosts.length > 1
   const currentBackgroundImage =
     current?.optionsArticles?.imagePortait?.node?.guid ??
@@ -222,10 +227,12 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
       }
 
       isFetchingCategoryRef.current = true
+      isFetchingMorePostsRef.current = false
       setIsUpdatingCategory(true)
+      setIsLoadingMorePosts(false)
 
       try {
-        const params = new URLSearchParams({ limit: String(POSTS_PER_CATEGORY) })
+        const params = new URLSearchParams({ limit: String(POSTS_BATCH_SIZE) })
         const response = await fetch(`/api/categories/${slug}/posts?${params.toString()}`)
         if (!response.ok) {
           throw new Error('Unable to load category posts')
@@ -233,12 +240,15 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
 
         const data = await response.json()
         const nextPosts = data?.nodes ?? []
+        const nextPageInfo = data?.pageInfo ?? {}
 
         prefetchedSlugsRef.current = new Set()
         slideImageRefs.current = {}
         setActiveIndex(0)
         setActiveCategorySlug(slug)
         setDisplayedPosts(nextPosts)
+        setPaginationCursor(nextPageInfo?.endCursor ?? null)
+        setCanLoadMorePosts(Boolean(nextPageInfo?.hasNextPage))
       } catch (error) {
         console.error('Unable to load category posts', error)
       } finally {
@@ -248,6 +258,60 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
     },
     []
   )
+
+  const loadMorePosts = useCallback(async () => {
+    if (
+      !activeCategorySlug ||
+      !canLoadMorePosts ||
+      !paginationCursor ||
+      isFetchingMorePostsRef.current ||
+      isFetchingCategoryRef.current
+    ) {
+      return
+    }
+
+    isFetchingMorePostsRef.current = true
+    setIsLoadingMorePosts(true)
+
+    try {
+      const params = new URLSearchParams({
+        limit: String(POSTS_BATCH_SIZE),
+        cursor: paginationCursor
+      })
+      const response = await fetch(`/api/categories/${activeCategorySlug}/posts?${params.toString()}`)
+      if (!response.ok) {
+        throw new Error('Unable to load more category posts')
+      }
+
+      const data = await response.json()
+      const incomingPosts = data?.nodes ?? []
+      const nextPageInfo = data?.pageInfo ?? {}
+
+      setDisplayedPosts((prev) => {
+        if (!incomingPosts.length) {
+          return prev
+        }
+
+        const existingSlugs = new Set(prev.map((post) => post.slug).filter(Boolean))
+        const uniqueIncomingPosts = incomingPosts.filter((post: Article) =>
+          post.slug ? !existingSlugs.has(post.slug) : true
+        )
+
+        if (!uniqueIncomingPosts.length) {
+          return prev
+        }
+
+        return [...prev, ...uniqueIncomingPosts]
+      })
+      setPaginationCursor(nextPageInfo?.endCursor ?? null)
+      setCanLoadMorePosts(Boolean(nextPageInfo?.hasNextPage))
+    } catch (error) {
+      console.error('Unable to load more category posts', error)
+    } finally {
+      isFetchingMorePostsRef.current = false
+      setIsLoadingMorePosts(false)
+    }
+  }, [activeCategorySlug, canLoadMorePosts, paginationCursor])
 
   const startImageTransition = async (
     imageWrapper: HTMLDivElement,
@@ -773,7 +837,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
       <div
         ref={swiperContainerRef}
         className="guide-voyage-carousel relative flex-1 min-w-0 overflow-hidden pl-0 pr-0 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
-        aria-busy={isUpdatingCategory}
+        aria-busy={isUpdatingCategory || isLoadingMorePosts}
       >
         {/* {!paginationDisabled ? (
           <div className="guide-voyage-carousel__hud">
@@ -802,7 +866,7 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
           className="mySwiper guide-voyage-carousel__swiper awot-carousel-cursor"
           slidesPerView={1.1}
           spaceBetween={18}
-          loop={true}
+          loop={false}
           hashNavigation={{
             watchState: false,
             replaceState: true
@@ -832,6 +896,9 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
           onHashSet={clearUrlHash}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
+          }}
+          onSlideNextTransitionStart={() => {
+            void loadMorePosts()
           }}
           onSlideChange={({ realIndex, activeIndex: fallbackActiveIndex }) => {
             const derivedIndex =
@@ -893,29 +960,6 @@ export default function GuideVoyageLayoutClient({ posts, categorySlug, link }: G
               </SwiperSlide>
             )
           })}
-          {viewAllHref ? (
-            <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} className="carousel-item guide-voyage-carousel__slide">
-              <AnimatedCarouselItem
-                delay={BASE_DELAY_MS + sanitizedPosts.length * STAGGER_DELAY_MS}
-                forceVisible={isCarouselVisible}
-              >
-                <Link
-                  href={viewAllHref}
-                  target={viewAllTarget}
-                  rel={viewAllRel}
-                  className="block h-full w-full"
-                >
-                  <div className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]">
-                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:border-none hover:text-black">
-                      <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
-                        {viewAllLabel}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </AnimatedCarouselItem>
-            </SwiperSlide>
-          ) : null}
         </Swiper>
       </div>
       <style jsx global>{`

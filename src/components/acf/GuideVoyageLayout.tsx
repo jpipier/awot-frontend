@@ -1,7 +1,6 @@
 import GuideVoyageLayoutClient from './GuideVoyageLayoutClient'
 import CategoryMenu from '@/components/menu/CategoryMenu'
-import { getPostsByCategory } from '@/lib/posts'
-import type { Article } from '@/types/wordpress'
+import { getCategoryPosts } from '@/lib/categories'
 
 interface GuideVoyageLayoutProps {
   titreDeLaSection?: string | null
@@ -16,14 +15,17 @@ interface GuideVoyageLayoutProps {
   }
 }
 
+const POSTS_BATCH_SIZE = 6
+
 export default async function GuideVoyageLayout({
   titreDeLaSection,
-  categorie,
-  lien
+  categorie
 }: GuideVoyageLayoutProps) {
   const slug = categorie?.nodes?.[0]?.slug ?? ''
-  const limit = 4
-  const posts = slug ? await getPostsByCategory(slug, limit) : ([] as Article[])
+  const postsConnection = slug ? await getCategoryPosts(slug, POSTS_BATCH_SIZE) : null
+  const posts = postsConnection?.nodes ?? []
+  const initialCursor = postsConnection?.pageInfo?.endCursor ?? null
+  const hasNextPage = Boolean(postsConnection?.pageInfo?.hasNextPage)
 
   if (!posts.length) {
     return null
@@ -39,7 +41,12 @@ export default async function GuideVoyageLayout({
         ) : null}
         <CategoryMenu selectedSlug={slug} />
       </div>
-      <GuideVoyageLayoutClient posts={posts} categorySlug={slug} link={lien} />
+      <GuideVoyageLayoutClient
+        posts={posts}
+        categorySlug={slug}
+        initialCursor={initialCursor}
+        initialHasNextPage={hasNextPage}
+      />
     </div>
   )
 }
