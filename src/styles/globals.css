@@ -84,13 +84,24 @@ a {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .awot-carousel-cursor {
+  .awot-carousel-cursor .swiper-slide,
+  .awot-carousel-cursor .swiper-slide * {
     cursor: ew-resize;
   }
 
-  html.awot-carousel-cursor-active .awot-carousel-cursor,
-  html.awot-carousel-cursor-active .awot-carousel-cursor * {
+  .awot-carousel-cursor .swiper-slide[data-view-all='true'],
+  .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
+    cursor: pointer;
+  }
+
+  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide,
+  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide * {
     cursor: none !important;
+  }
+
+  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide[data-view-all='true'],
+  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
+    cursor: pointer !important;
   }
 }
 

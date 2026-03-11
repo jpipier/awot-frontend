@@ -354,7 +354,7 @@ export default function PortraitLayoutClient({
                 )
               })}
               {viewAllHref ? (
-                <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} className="relative">
+                <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} data-view-all="true" className="relative">
                   <Link
                     href={viewAllHref}
                     target={viewAllTarget}

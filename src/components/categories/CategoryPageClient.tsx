@@ -191,11 +191,11 @@ export default function CategoryPageClient({
                         'overflow-hidden',
                         isFeature ? 'flex flex-col gap-6 sm:flex-row' : ''
                       )}
-                      style={isFeature ? { minHeight: '400px' } : undefined}
+                      style={isFeature ? { minHeight: '670px' } : undefined}
                     >
                       {isFeature ? (
                         <>
-                          <div className="relative max-h-full w-full overflow-hidden sm:w-2/3">
+                          <div className="relative max-h-full w-full overflow-hidden sm:w-3/4">
                             <Image
                               src={featuredImage}
                               alt={altText}

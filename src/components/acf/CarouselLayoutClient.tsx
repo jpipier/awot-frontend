@@ -803,7 +803,7 @@ export default function CarouselLayoutClient({
               )
             })}
             {viewAllHref ? (
-              <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} className="carousel-item">
+              <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} data-view-all="true" className="carousel-item">
                 <AnimatedCarouselItem
                   delay={BASE_DELAY_MS + posts.length * STAGGER_DELAY_MS}
                   forceVisible={isCarouselVisible}

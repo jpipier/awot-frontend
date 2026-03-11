@@ -2,10 +2,14 @@
 
 import { useEffect, useRef } from 'react'
 
-const ACTIVE_CLASS = 'awot-carousel-cursor-active'
-const CAROUSEL_SELECTOR = '.awot-carousel-cursor'
-const OFFSET_X = 12
-const OFFSET_Y = 12
+const IMAGE_ACTIVE_CLASS = 'awot-carousel-cursor-image'
+const POINTER_ACTIVE_CLASS = 'awot-carousel-cursor-pointer'
+const CAROUSEL_SLIDE_SELECTOR = '.awot-carousel-cursor .swiper-slide'
+const VIEW_ALL_ATTR = 'data-view-all'
+const OFFSET_X = -64
+const OFFSET_Y = -15
+
+type CursorMode = 'inactive' | 'image' | 'pointer'
 
 export default function CarouselHoverCursor() {
   const cursorRef = useRef<HTMLDivElement | null>(null)
@@ -25,22 +29,19 @@ export default function CarouselHoverCursor() {
       return
     }
 
-    let active = false
+    let mode: CursorMode = 'inactive'
     let rafId = 0
     let x = -9999
     let y = -9999
 
-    const setActive = (nextActive: boolean) => {
-      if (active === nextActive) {
+    const setMode = (nextMode: CursorMode) => {
+      if (mode === nextMode) {
         return
       }
-      active = nextActive
-      cursorNode.style.opacity = nextActive ? '1' : '0'
-      if (nextActive) {
-        document.documentElement.classList.add(ACTIVE_CLASS)
-      } else {
-        document.documentElement.classList.remove(ACTIVE_CLASS)
-      }
+      mode = nextMode
+      cursorNode.style.opacity = nextMode === 'image' ? '1' : '0'
+      document.documentElement.classList.toggle(IMAGE_ACTIVE_CLASS, nextMode === 'image')
+      document.documentElement.classList.toggle(POINTER_ACTIVE_CLASS, nextMode === 'pointer')
     }
 
     const paint = () => {
@@ -48,19 +49,29 @@ export default function CarouselHoverCursor() {
       cursorNode.style.transform = `translate3d(${Math.round(x + OFFSET_X)}px, ${Math.round(y + OFFSET_Y)}px, 0)`
     }
 
-    const isCarouselTarget = (target: EventTarget | null) => target instanceof Element && Boolean(target.closest(CAROUSEL_SELECTOR))
+    const resolveMode = (target: EventTarget | null): CursorMode => {
+      if (!(target instanceof Element)) {
+        return 'inactive'
+      }
+      const slideNode = target.closest(CAROUSEL_SLIDE_SELECTOR)
+      if (!slideNode) {
+        return 'inactive'
+      }
+      return slideNode.getAttribute(VIEW_ALL_ATTR) === 'true' ? 'pointer' : 'image'
+    }
 
     const handlePointerMove = (event: PointerEvent) => {
       x = event.clientX
       y = event.clientY
-      setActive(isCarouselTarget(event.target))
-      if (active && rafId === 0) {
+      const nextMode = resolveMode(event.target)
+      setMode(nextMode)
+      if (nextMode === 'image' && rafId === 0) {
         rafId = window.requestAnimationFrame(paint)
       }
     }
 
     const handleHide = () => {
-      setActive(false)
+      setMode('inactive')
     }
 
     const handlePointerOut = (event: PointerEvent) => {
@@ -90,7 +101,7 @@ export default function CarouselHoverCursor() {
       if (rafId) {
         window.cancelAnimationFrame(rafId)
       }
-      document.documentElement.classList.remove(ACTIVE_CLASS)
+      document.documentElement.classList.remove(IMAGE_ACTIVE_CLASS, POINTER_ACTIVE_CLASS)
     }
   }, [])
 
