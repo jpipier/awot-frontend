@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import '@/styles/globals.css'
 import Header from '@/components/header/Header'
+import CarouselHoverCursor from '@/components/layout/CarouselHoverCursor'
 import { getSiteChrome } from '@/lib/site'
 import { SiteChromeProvider } from '@/components/providers/SiteChromeProvider'
 import ScrollSmootherProvider from '@/components/providers/ScrollSmootherProvider'
@@ -30,6 +31,7 @@ export default async function RootLayout({
               <main>{children}</main>
             </ScrollSmootherProvider>
         </SiteChromeProvider>
+        <CarouselHoverCursor />
         {shouldLoadFacebookSdk ? (
           <>
             <Script

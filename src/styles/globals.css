@@ -84,10 +84,30 @@ a {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .awot-carousel-cursor:hover,
-  .awot-carousel-cursor:hover .swiper-wrapper,
-  .awot-carousel-cursor:hover .swiper-slide,
-  .awot-carousel-cursor:hover a {
-    cursor: url('/images/scroll.svg') 64 15, ew-resize;
+  .awot-carousel-cursor {
+    cursor: ew-resize;
   }
+
+  html.awot-carousel-cursor-active .awot-carousel-cursor,
+  html.awot-carousel-cursor-active .awot-carousel-cursor * {
+    cursor: none !important;
+  }
+}
+
+.awot-carousel-faux-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 128px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 2147483647;
+  opacity: 0;
+  transform: translate3d(-9999px, -9999px, 0);
+  background-image: url('/images/scroll.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  will-change: transform, opacity;
+  transition: opacity 120ms linear;
 }
