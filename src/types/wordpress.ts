@@ -158,6 +158,11 @@ export interface Article {
   uri?: string | null
   content?: string | null
   elementorContent?: string | null
+  localisations?: {
+    edges: Array<{
+      node: CategoryNode
+    }>
+  }
   optionsArticles?: {
     champsLibre?: string | null
     champsLibrePageAccueil?: string | null

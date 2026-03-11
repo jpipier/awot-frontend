@@ -29,6 +29,19 @@ const slugify = (str: string) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 
+function buildLocalisationLabel(post?: Article) {
+  const edges = post?.localisations?.edges ?? []
+
+  if (!edges.length) {
+    return ''
+  }
+
+  const childEdge = edges.find((edge) => edge.node.parent?.node)
+  const target = childEdge ?? edges[0]
+
+  return target?.node?.name ?? ''
+}
+
 type GSAPTimeline = ReturnType<GSAP['timeline']>
 
 interface CarouselLayoutClientProps {
@@ -727,6 +740,7 @@ export default function CarouselLayoutClient({
             {posts.map((post, index) => {
               const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
               const useScrollReveal = index < scrollAnimatedCount
+              const localisationLabel = buildLocalisationLabel(post)
               return (
                 <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
                   <AnimatedCarouselItem
@@ -778,12 +792,9 @@ export default function CarouselLayoutClient({
                         </div>
                       ) : null}
                       <div className="mt-3">
-                        <p
-                          className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600"
-                          dangerouslySetInnerHTML={{
-                            __html: post.optionsArticles?.champsLibrePageAccueil ?? ''
-                          }}
-                        />
+                        <p className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+                          {localisationLabel}
+                        </p>
                         <h3 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ">{post.title}</h3>
                       </div>
                     </Link>

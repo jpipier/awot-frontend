@@ -37,18 +37,21 @@ const slugify = (str: string) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 
-function buildCategoryLabel(post?: Article) {
-  const edges = post?.categories?.edges ?? []
+function buildLocalisationLabel(post?: Article) {
+  const edges = post?.localisations?.edges ?? []
+
   if (!edges.length) {
     return null
   }
+
   const childEdge = edges.find((edge) => edge.node.parent?.node)
   const target = childEdge ?? edges[0]
+
   if (!target?.node?.name) {
     return null
   }
-  const parentName = target.node.parent?.node?.name
-  return parentName ? `${target.node.name} | ${parentName}` : target.node.name
+
+  return target.node.name
 }
 
 export default function PortraitLayoutClient({
@@ -218,7 +221,7 @@ export default function PortraitLayoutClient({
 
   const slides = useMemo(() => posts, [posts])
   const activePost = useMemo(() => slides[currentIndex] ?? slides[0], [slides, currentIndex])
-  const categoryLabel = useMemo(() => buildCategoryLabel(activePost) ?? '', [activePost])
+  const localisationLabel = useMemo(() => buildLocalisationLabel(activePost) ?? '', [activePost])
   const excerpt = activePost?.excerpt ?? activePost?.optionsArticles?.champsLibrePageAccueil ?? ''
   const excerptLines = useMemo(() => {
     if (!excerpt) {
@@ -396,12 +399,12 @@ export default function PortraitLayoutClient({
                 isTextBlockVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'
               )}
             >
-              {categoryLabel ? (
+              {localisationLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
                   className="font-brandon_grotesquelight_italic uppercase tracking-[0.2em] -mb-4 opacity-70"
                 >
-                  {categoryLabel}
+                  {localisationLabel}
                 </span>
               ) : null}
               <Link

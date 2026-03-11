@@ -50,6 +50,22 @@ const POSTS_BY_CATEGORY_QUERY = /* GraphQL */ `
               }
             }
           }
+          localisations {
+            edges {
+              node {
+                id
+                name
+                slug
+                parent {
+                  node {
+                    id
+                    name
+                    slug
+                  }
+                }
+              }
+            }
+          }
           categories(first: 40) {
             edges {
               node {
