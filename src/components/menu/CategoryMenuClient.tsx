@@ -74,7 +74,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
           <a
             href="/categories/voyages"
             onClick={(event) => handleLinkClick(event, 'voyages')}
-            className={clsx('text-xs uppercase font-montserrat', activeSlug === 'voyages' && 'font-semibold underline')}
+            className={clsx('text-xs uppercase font-montserrat', activeSlug === 'voyages' )}
           >
             Toutes les destinations
           </a>
