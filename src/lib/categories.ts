@@ -1,4 +1,4 @@
-import { fetchWordPressGraphQL } from './wordpress'
+import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
 import type { Article, CategoryNode, CategoryPageData } from '@/types/wordpress'
 
 interface CategoryPageResponse {
@@ -74,6 +74,119 @@ export async function getCategoryPage(slug: string, limit: number) {
   })
 
   return data.category ?? null
+}
+
+interface CategoryRestNode {
+  punchline_category?: string | null
+  punchlineCategory?: string | null
+  punchlinePageCategorie?: string | null
+  acf?: Record<string, unknown> | unknown[] | null
+}
+
+const asNonEmptyString = (value: unknown): string | null => {
+  if (typeof value !== 'string') {
+    return null
+  }
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : null
+}
+
+export async function getCategoryPunchlineBySlug(slug: string): Promise<string | null> {
+  const graphQlCandidates: Array<{
+    query: string
+    extract: (data: Record<string, unknown>) => unknown
+  }> = [
+    {
+      query: /* GraphQL */ `
+        query GetCategoryPunchlineFromCatGorie($slug: ID!) {
+          category(id: $slug, idType: SLUG) {
+            catGorie {
+              punchlinePageCategorie
+            }
+          }
+        }
+      `,
+      extract: (data) =>
+        ((data.category as { catGorie?: { punchlinePageCategorie?: string | null } | null } | undefined)?.catGorie
+          ?.punchlinePageCategorie ?? null)
+    },
+    {
+      query: /* GraphQL */ `
+        query GetCategoryPunchlineDirect($slug: ID!) {
+          category(id: $slug, idType: SLUG) {
+            punchlinePageCategorie
+          }
+        }
+      `,
+      extract: (data) =>
+        ((data.category as { punchlinePageCategorie?: string | null } | undefined)?.punchlinePageCategorie ?? null)
+    }
+  ]
+
+  for (const candidate of graphQlCandidates) {
+    try {
+      const data = await fetchWordPressGraphQL<Record<string, unknown>>(candidate.query, {
+        variables: { slug },
+        cache: 'no-store'
+      })
+      const value = asNonEmptyString(candidate.extract(data))
+      if (value) {
+        return value
+      }
+    } catch {
+      // Fallback to the next candidate / REST strategy.
+    }
+  }
+
+  try {
+    const categories = await fetchWordPressRest<CategoryRestNode[]>(
+      `wp/v2/categories?slug=${encodeURIComponent(slug)}&per_page=1`,
+      { cache: 'no-store' }
+    )
+
+    const category = categories?.[0]
+    if (!category) {
+      return null
+    }
+
+    const directSnake = asNonEmptyString(category.punchline_category)
+    if (directSnake) {
+      return directSnake
+    }
+
+    const directCamel = asNonEmptyString(category.punchlineCategory)
+    if (directCamel) {
+      return directCamel
+    }
+
+    const directFrench = asNonEmptyString(category.punchlinePageCategorie)
+    if (directFrench) {
+      return directFrench
+    }
+
+    const acf = category.acf
+    if (acf && typeof acf === 'object' && !Array.isArray(acf)) {
+      const acfSnake = asNonEmptyString((acf as Record<string, unknown>).punchline_category)
+      if (acfSnake) {
+        return acfSnake
+      }
+
+      const acfCamel = asNonEmptyString((acf as Record<string, unknown>).punchlineCategory)
+      if (acfCamel) {
+        return acfCamel
+      }
+
+      const acfFrench = asNonEmptyString((acf as Record<string, unknown>).punchlinePageCategorie)
+      if (acfFrench) {
+        return acfFrench
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.warn(`Unable to load category punchline for "${slug}"`, error)
+    return null
+  }
 }
 
 interface CategoryChildrenResponse {

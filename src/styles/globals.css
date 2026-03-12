@@ -122,3 +122,8 @@ a {
   will-change: transform, opacity;
   transition: opacity 120ms linear;
 }
+
+
+.template-categories article{
+  margin-top: 0;
+}

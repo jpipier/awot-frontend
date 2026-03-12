@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
 import CategoryPageClient from '@/components/categories/CategoryPageClient'
-import { getCategoryPage } from '@/lib/categories'
+import { getCategoryPage, getCategoryPunchlineBySlug } from '@/lib/categories'
 
 interface CategoryPageProps {
   params: {
@@ -11,7 +11,10 @@ interface CategoryPageProps {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = params
-  const category = await getCategoryPage(slug, 12)
+  const [category, categoryPunchline] = await Promise.all([
+    getCategoryPage(slug, 12),
+    getCategoryPunchlineBySlug(slug)
+  ])
 
   if (!category) {
     notFound()
@@ -28,6 +31,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <CategoryPageClient
         slug={slug}
         categoryName={category.name ?? ''}
+        categoryPunchline={categoryPunchline}
         initialPosts={posts}
         initialCursor={pageInfo?.endCursor}
         hasNextPage={Boolean(pageInfo?.hasNextPage)}
