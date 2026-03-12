@@ -184,7 +184,7 @@ export default function Header() {
               {menuItems.map((item, index) => (
                 <li
                   key={item.id}
-                  style={{ transitionDelay: isMenuOpen ? `${80 + index * 40}ms` : '0ms' }}
+                  style={{ transitionDelay: isMenuOpen ? `${0 + index * 40}ms` : '0ms' }}
                   className={clsx(
                     'font-custom text-[50pt] transition-all duration-300 ease-out hover:italic transform',
                     isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -220,7 +220,6 @@ export default function Header() {
               'w-full max-w-md p-4 transition-all duration-300 ease-out transform',
               isSearchOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
             )}
-            style={{ transitionDelay: isSearchOpen ? '80ms' : '0ms' }}
           >
             <Search onNavigate={closeOverlays} />
           </div>
