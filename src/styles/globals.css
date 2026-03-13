@@ -74,7 +74,7 @@ a {
 }
 
   .elementor-section.elementor-top-section.elementor-element.elementor-element-26f21859.elementor-section-full_width.elementor-section-height-default.elementor-section-height-default{
-    margin-top: -20rem;
+    margin-top: -30rem;
   }
 
 .elementor-element.elementor-element-499a2470 {
@@ -126,4 +126,29 @@ a {
 
 .template-categories article{
   margin-top: 0;
+}
+.contentElementor section h2.elementor-heading-title{
+  font-size: 25px;
+}
+
+.contentElementor .elementor-section-content-middle .elementor-container{
+  display: flex;
+  align-items: center;
+}
+
+.elementor-inline-items.elementor-icon-list-items.elementor-post-info{
+    margin: 70px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-transform: uppercase;
+    font-family: "Lato", Sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    text-transform: uppercase;
+    line-height: 2.3em;
+    letter-spacing: 1.5px;
 }

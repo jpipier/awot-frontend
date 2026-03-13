@@ -308,7 +308,7 @@ export default function CategoryPageClient({
                   {group.feature ? (
                     <article
                       ref={(el) => {
-                        itemRefs.current[group.feature.index] = el
+                        if (group.feature) itemRefs.current[group.feature.index] = el
                       }}
                       data-index={group.feature.index}
                       className={clsx(
