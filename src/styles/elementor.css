@@ -922,7 +922,7 @@ html{
       padding-top: 3rem;
       float: left;
       position: fixed;
-      padding-right: 30px;
+      padding-right: 0px;
       top: 0;
       z-index: 10;
     }
