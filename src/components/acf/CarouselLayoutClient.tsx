@@ -785,7 +785,7 @@ export default function CarouselLayoutClient({
                             src={post.optionsArticles.imagePortait.node.guid}
                             alt={post.title}
                             fill
-                            className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
+                            className="object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                             sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                             unoptimized
                           />
@@ -795,7 +795,7 @@ export default function CarouselLayoutClient({
                         <p className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600">
                           {localisationLabel}
                         </p>
-                        <h3 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ">{post.title}</h3>
+                        <h3 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]">{post.title}</h3>
                       </div>
                     </Link>
                   </AnimatedCarouselItem>
@@ -815,7 +815,7 @@ export default function CarouselLayoutClient({
                     rel={viewAllRel}
                     className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
                   >
-                    <div className="flex h-full w-full items-center justify-center rounded-md bg-white text-black transition-colors duration-300 hover:bg-white hover:text-black hover:italic hover:border-none">
+                    <div className="flex h-full w-full items-center justify-center bg-white text-black transition-colors duration-300 hover:bg-white hover:text-black hover:italic hover:border-none">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
                         {viewAllLabel}
                       </span>

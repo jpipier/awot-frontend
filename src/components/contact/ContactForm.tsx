@@ -130,7 +130,7 @@ export default function ContactForm() {
           maxLength={80}
           value={formState.lastName}
           onChange={handleChange('lastName')}
-          className="h-12 rounded-md border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
+          className="h-12 border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
           placeholder="Nom"
         />
       </div>
@@ -148,7 +148,7 @@ export default function ContactForm() {
           maxLength={80}
           value={formState.firstName}
           onChange={handleChange('firstName')}
-          className="h-12 rounded-md border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
+          className="h-12 border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
           placeholder="Prenom"
         />
       </div>
@@ -166,7 +166,7 @@ export default function ContactForm() {
           maxLength={160}
           value={formState.email}
           onChange={handleChange('email')}
-          className="h-12 rounded-md border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
+          className="h-12 border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
           placeholder="nom@email.com"
         />
       </div>
@@ -183,7 +183,7 @@ export default function ContactForm() {
           maxLength={160}
           value={formState.subject}
           onChange={handleChange('subject')}
-          className="h-12 rounded-md border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
+          className="h-12 border border-black/20 px-4 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
           placeholder="Votre demande"
         />
       </div>
@@ -200,7 +200,7 @@ export default function ContactForm() {
           rows={6}
           value={formState.message}
           onChange={handleChange('message')}
-          className="rounded-md border border-black/20 px-4 py-3 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
+          className="border border-black/20 px-4 py-3 text-sm font-montserrat text-black placeholder:text-black/30 focus:border-black focus:outline-none"
           placeholder="Votre message..."
         />
       </div>
@@ -212,7 +212,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="h-12 rounded-md border border-black bg-black px-6 text-[10px] font-montserrat uppercase tracking-[0.35em] text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+          className="h-12 border border-black bg-black px-6 text-[10px] font-montserrat uppercase tracking-[0.35em] text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? 'Envoi...' : 'Envoyer'}
         </button>

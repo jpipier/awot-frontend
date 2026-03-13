@@ -313,7 +313,7 @@ export default function CategoryPageClient({
                       data-index={group.feature.index}
                       className={clsx(
                         revealClasses(group.feature.index),
-                        'grid gap-7 md:items-start md:gap-8',
+                        'grid gap-7 md:items-end md:gap-8',
                         featureOnLeft
                           ? 'md:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]'
                           : 'md:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)]'
@@ -339,7 +339,7 @@ export default function CategoryPageClient({
                             </div>
                             {renderImageCaption(group.feature.post)}
                           </Link>
-                          <div className="pt-1 md:pl-2">
+                          <div className="pt-1 md:pl-2 mb-[48px]">
                             <p className="font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70">
                               {group.feature.post.optionsArticles?.champsLibrePageAccueil ?? 'Bonnes adresses'}
                             </p>
@@ -359,7 +359,7 @@ export default function CategoryPageClient({
                         </>
                       ) : (
                         <>
-                          <div className="pt-1 md:pr-2">
+                          <div className="pt-1 md:pr-2 mb-[48px]">
                             <p className="font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70">
                               {group.feature.post.optionsArticles?.champsLibrePageAccueil ?? 'Bonnes adresses'}
                             </p>

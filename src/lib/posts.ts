@@ -5,6 +5,7 @@ interface PostsByCategoryResponse {
   posts: {
     edges: Array<{
       node: Article & {
+        id: string
         categories?: {
           edges: Array<{
             node: CategoryNode

@@ -186,7 +186,7 @@ export default function Header() {
                   key={item.id}
                   style={{ transitionDelay: isMenuOpen ? `${0 + index * 40}ms` : '0ms' }}
                   className={clsx(
-                    'font-custom text-[50pt] transition-all duration-300 ease-out hover:italic transform',
+                    'font-custom text-[50pt] transition-[opacity,transform] duration-300 ease-out hover:italic transform',
                     isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                   )}
                 >

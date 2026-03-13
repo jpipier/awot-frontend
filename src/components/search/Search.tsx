@@ -131,7 +131,7 @@ export default function Search({ onNavigate }: SearchProps) {
         </button>
       </form>
         {suggestions.length > 0 && (
-        <ul className="absolute left-0 right-0 top-full z-10 mt-2 w-full rounded bg-white text-left shadow-lg">
+        <ul className="absolute left-0 right-0 top-full z-10 mt-2 w-full bg-white text-left shadow-lg">
           {suggestions.map((post) => (
             <li
               key={post.id}

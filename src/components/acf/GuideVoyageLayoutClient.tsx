@@ -945,7 +945,7 @@ export default function GuideVoyageLayoutClient({
                         src={portraitSrc}
                         alt={portraitAlt}
                         fill
-                          className="rounded-md object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
+                          className="object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                           sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                           unoptimized
                         />

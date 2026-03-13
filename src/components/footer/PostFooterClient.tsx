@@ -9,11 +9,11 @@ import type { gsap as GSAP } from 'gsap'
 interface PostSummary {
   id: string
   title: string
-  slug: string
+  slug?: string
   featuredImage?: {
     node?: {
-      sourceUrl?: string
-      altText?: string
+      sourceUrl?: string | null
+      altText?: string | null
     }
   }
   optionsArticles?: {
@@ -28,9 +28,10 @@ type GSAPTimeline = ReturnType<GSAP['timeline']>
 
 interface PostFooterClientProps {
   posts: PostSummary[]
+  isVoyage?: boolean
 }
 
-export default function PostFooterClient({ posts }: PostFooterClientProps) {
+export default function PostFooterClient({ posts, isVoyage }: PostFooterClientProps) {
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
   const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -267,14 +268,20 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
   return (
     <div className="removeSticky elementor-element-27be2e8c elementor-widget elementor-widget-posts">
       <h2 className="cd-headline wordrotate mt-10 flex flex-row px-[2rem] font-custom text-4xl">
-        <div className="flex-none pr-[10px]">{STATIC_TEXT}</div>
-        <div className="cd-words-wrapper flex-grow font-schnyder_xl_webdemi">
-          {WORDS.map((word, index) => (
-            <span key={word} className={index === currentIndex ? 'is-visible' : 'is-hidden'}>
-              {word}
-            </span>
-          ))}
-        </div>
+        {isVoyage ? (
+          <div className="flex-none font-schnyder_xl_webdemi">Découvrez d&apos;autres destinations</div>
+        ) : (
+          <>
+            <div className="flex-none pr-[10px]">{STATIC_TEXT}</div>
+            <div className="cd-words-wrapper flex-grow font-schnyder_xl_webdemi">
+              {WORDS.map((word, index) => (
+                <span key={word} className={index === currentIndex ? 'is-visible' : 'is-hidden'}>
+                  {word}
+                </span>
+              ))}
+            </div>
+          </>
+        )}
       </h2>
       <div className="elementor-widget-container">
         <div className="elementor-posts-container elementor-posts elementor-posts--skin-classic elementor-has-item-ratio grid grid-cols-2 gap-8 px-[2rem] sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
@@ -323,7 +330,7 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
                 >
                   {post.featuredImage?.node?.sourceUrl ? (
                     <Image
-                      className="rounded-md object-cover transition-transform duration-300 hover:scale-110"
+                      className="object-cover transition-transform duration-300 hover:scale-110"
                       src={post.featuredImage.node.sourceUrl}
                       alt={post.featuredImage.node.altText ?? post.title}
                       fill
@@ -337,22 +344,14 @@ export default function PostFooterClient({ posts }: PostFooterClientProps) {
               <div className="elementor-post__text font-montserrat mt-3">
                 {post.optionsArticles?.champsLibrePageAccueil ? (
                   <p
-                    className="mb-0 text-[0.5vw] uppercase font-brandonRegular italic text-gray-600"
+                    className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600"
                     dangerouslySetInnerHTML={{
                       __html: post.optionsArticles.champsLibrePageAccueil
                     }}
                   />
                 ) : null}
-                <a
-                  href={`/articles/${post.slug}/`}
-                  className="block text-xs uppercase font-montserrat font-medium"
-                  onClick={(event) => handleCardClick(event, post)}
-                  onPointerEnter={() => {
-                    void prefetchArticle(post.slug)
-                  }}
-                  onFocus={() => {
-                    void prefetchArticle(post.slug)
-                  }}
+                <h2
+                  className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]"
                   dangerouslySetInnerHTML={{ __html: post.title }}
                 />
               </div>

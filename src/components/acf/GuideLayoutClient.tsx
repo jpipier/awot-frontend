@@ -284,7 +284,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-[50vh] lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}
-          className="relative w-full overflow-hidden md:rounded-md lg:rounded-xxl lg:mx-auto"
+          className="relative w-full overflow-hidden md:lg:rounded-xxl lg:mx-auto"
         >
           <Swiper
             modules={[Navigation, Autoplay, Mousewheel, HashNavigation]}
@@ -351,7 +351,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black text-white h-auto md:h-full hover:bg-white hover:text-black transition-colors duration-300">
             <a
               href={link.url}
-              className="transform rounded-md px-4 py-2 text-sm uppercase font-montserrat lg:-rotate-90"
+              className="transform px-4 py-2 text-sm uppercase font-montserrat lg:-rotate-90"
               target="_blank"
               rel="noreferrer"
             >

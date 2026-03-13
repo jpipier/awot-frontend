@@ -264,7 +264,7 @@ export default function PortraitLayoutClient({
   const viewAllLabel = link?.title ?? 'Voir tout'
   const viewAllTarget = link?.target ?? undefined
   const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
-  const imageWrapperClass = 'relative w-full min-w-[260px] aspect-[3/2] rounded overflow-hidden'
+  const imageWrapperClass = 'relative w-full min-w-[260px] aspect-[3/2] overflow-hidden'
 
   return (
     <div
@@ -361,7 +361,7 @@ export default function PortraitLayoutClient({
                     rel={viewAllRel}
                     className={clsx('relative block h-full w-full overflow-hidden', imageWrapperClass)}
                   >
-                    <div className="flex h-full w-full items-center justify-center rounded-md border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black hover:border-none">
+                    <div className="flex h-full w-full items-center justify-center border border-black bg-black text-white transition-colors duration-300 hover:bg-white hover:text-black hover:border-none">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
                         {viewAllLabel}
                       </span>
