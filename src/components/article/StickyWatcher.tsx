@@ -12,10 +12,12 @@ export default function StickyWatcher() {
       const stickyEl = document.getElementById('sticky1')
       const stickyAnchor = document.getElementById('sticky-anchor')
       const stickyTitle = document.getElementById('stickyTitle')
+      const removeStickyById = document.getElementById('removeSticky')
       const removeSticky =
-        (document.getElementById('removeSticky') as HTMLElement | null) ||
+        removeStickyById ||
         (document.querySelector('[data-elementor-type="footer"]') as HTMLElement | null) ||
         (document.querySelector('.removeSticky') as HTMLElement | null)
+      const isById = !!removeStickyById
 
       if (!stickyEl || !stickyAnchor || !stickyTitle || !removeSticky) {
         return
@@ -32,22 +34,16 @@ export default function StickyWatcher() {
 
       gsap.registerPlugin(ScrollTrigger)
 
-      const padding = document.querySelector('[data-elementor-device-mode="tablet"]') ? 50 : 10
       const remToPx = (rem: number) => {
-        const rootFontSize = parseFloat(
-          getComputedStyle(document.documentElement).fontSize || '16'
-        )
-        const resolvedFontSize = Number.isNaN(rootFontSize) ? 16 : rootFontSize
-        return rem * resolvedFontSize
+        const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize || '16')
+        return rem * (Number.isNaN(rootFontSize) ? 16 : rootFontSize)
       }
-      const extraReleaseOffset = remToPx(30)
-      const releaseOffsetPx = padding + extraReleaseOffset
-      const releaseOffsetPxRounded = Math.round(releaseOffsetPx)
+      const gap = 3 - remToPx(isById ? 18 : 16)
 
       const computeDistanceUntilRelease = () => {
         const anchorTop = stickyAnchor.getBoundingClientRect().top + window.scrollY
         const footerTop = removeSticky.getBoundingClientRect().top + window.scrollY
-        const distance = footerTop - anchorTop - window.innerHeight + releaseOffsetPx
+        const distance = footerTop - anchorTop - window.innerHeight + stickyEl.offsetHeight + gap
         return Math.max(distance, 0)
       }
 
@@ -62,7 +58,7 @@ export default function StickyWatcher() {
         trigger: stickyAnchor,
         start: 'top top',
         endTrigger: removeSticky,
-        end: () => `top bottom-=${releaseOffsetPxRounded}`,
+        end: () => `top ${stickyEl.offsetHeight + gap}`,
         pin: stickyEl,
         pinSpacing: false,
         invalidateOnRefresh: true,

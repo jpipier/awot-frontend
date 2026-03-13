@@ -112,7 +112,7 @@ export default function Header() {
     <>
       <span
         className={clsx(
-          'fixed left-6 md:left-[3rem] top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt]',
+          'fixed left-6 md:left-[2rem] top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt]',
           controlsVisibilityClass
         )}
       >
