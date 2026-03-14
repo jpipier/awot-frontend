@@ -33,7 +33,8 @@ export default async function ContactPage() {
 
   const cssBundle = await getElementorCssBundle()
   const elementorAssets = await getElementorJsAssets(page.databaseId ?? undefined, page.uri ?? uri)
-  const fallbackBodyClasses = extractElementorBodyClasses(page.elementorContent ?? page.content)
+  const isElementor = page.isBuiltWithElementor !== false
+  const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(page.elementorContent ?? page.content) : []
   const shouldDisplayHeading = !(page.elementorContent && page.elementorContent.trim().length > 0)
   const contentMarkup = page.elementorContent ?? page.content ?? ''
 
@@ -41,7 +42,8 @@ export default async function ContactPage() {
     <div>
       <ElementorStylesLoader
         cssBundle={cssBundle}
-        bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined}
+        bodyClasses={isElementor && fallbackBodyClasses.length ? fallbackBodyClasses : undefined}
+        isBuiltWithElementor={isElementor}
       />
       <ElementorScriptsLoader assets={elementorAssets} />
       {contentMarkup ? (

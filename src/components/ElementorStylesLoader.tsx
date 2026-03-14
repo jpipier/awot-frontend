@@ -4,9 +4,10 @@ import type { ElementorCssAsset } from '@/lib/article'
 interface ElementorStylesLoaderProps {
   cssBundle?: ElementorCssAsset[]
   bodyClasses?: string[] | null
+  isBuiltWithElementor?: boolean
 }
 
-export default function ElementorStylesLoader({ cssBundle, bodyClasses }: ElementorStylesLoaderProps) {
+export default function ElementorStylesLoader({ cssBundle, bodyClasses, isBuiltWithElementor }: ElementorStylesLoaderProps) {
   const normalizedCssBundle = Array.from(
     new Map(
       (cssBundle ?? [])
@@ -19,10 +20,6 @@ export default function ElementorStylesLoader({ cssBundle, bodyClasses }: Elemen
     new Set((bodyClasses ?? []).filter((cls): cls is string => Boolean(cls && cls.trim())))
   )
 
-  if (!normalizedCssBundle.length && !normalizedBodyClasses.length) {
-    return null
-  }
-
   return (
     <>
       {normalizedCssBundle.map((asset) => (
@@ -32,9 +29,7 @@ export default function ElementorStylesLoader({ cssBundle, bodyClasses }: Elemen
           dangerouslySetInnerHTML={{ __html: asset.content }}
         />
       ))}
-      {normalizedBodyClasses.length ? (
-        <ElementorBodyClassManager bodyClasses={normalizedBodyClasses} />
-      ) : null}
+      <ElementorBodyClassManager bodyClasses={normalizedBodyClasses} isBuiltWithElementor={isBuiltWithElementor} />
     </>
   )
 }

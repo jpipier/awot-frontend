@@ -7,6 +7,7 @@ interface PageResponse {
     uri: string
     isFrontPage: boolean
     elementorContent?: string | null
+    isBuiltWithElementor?: boolean | null
     content?: string | null
   } | null
 }
@@ -19,6 +20,7 @@ const PAGE_BY_URI_QUERY = /* GraphQL */ `
       uri
       isFrontPage
       elementorContent
+      isBuiltWithElementor
       content
     }
   }

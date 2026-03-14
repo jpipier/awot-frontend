@@ -22,6 +22,7 @@ const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
       title
       content
       elementorContent
+      isBuiltWithElementor
       uri
       slug
       optionsArticles {

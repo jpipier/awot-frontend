@@ -170,3 +170,17 @@ a {
 .elementor-26168 .elementor-element.elementor-element-12e10f78 img{
   padding: 0 30px 10px 10px;
 }
+
+.not-built-with-elementor .gallery-columns-2, .gallery-columns-2{
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+}
+
+p img{
+  margin-top: 10px;
+  margin-bottom: 20px;
+}

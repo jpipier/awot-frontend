@@ -41,7 +41,8 @@ export default async function GenericPage({ params }: GenericPageProps) {
 
   const cssBundle = await getElementorCssBundle()
   const elementorAssets = await getElementorJsAssets(page.databaseId ?? undefined, page.uri ?? uri)
-  const fallbackBodyClasses = extractElementorBodyClasses(page.elementorContent ?? page.content)
+  const isElementor = page.isBuiltWithElementor !== false
+  const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(page.elementorContent ?? page.content) : []
   const isHomePage = page.isFrontPage || page.uri === '/' || uri === '/'
   const shouldDisplayHeading = !(page.elementorContent && page.elementorContent.trim().length > 0)
 
@@ -49,7 +50,8 @@ export default async function GenericPage({ params }: GenericPageProps) {
     <div className="">
       <ElementorStylesLoader
         cssBundle={cssBundle}
-        bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined}
+        bodyClasses={isElementor && fallbackBodyClasses.length ? fallbackBodyClasses : undefined}
+        isBuiltWithElementor={isElementor}
       />
       <ElementorScriptsLoader assets={elementorAssets} />
       <PageDebugLogger label="isHomePage" value={isHomePage} />

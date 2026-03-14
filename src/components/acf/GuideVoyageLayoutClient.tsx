@@ -939,7 +939,7 @@ export default function GuideVoyageLayoutClient({
                           delete slideImageRefs.current[post.slug]
                         }
                       }}
-                      className="relative w-full overflow-hidden h-[320px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
+                      className="relative w-full overflow-hidden h-[280px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
                     >
                       <Image
                         src={portraitSrc}

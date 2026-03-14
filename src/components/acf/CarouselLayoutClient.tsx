@@ -674,7 +674,7 @@ export default function CarouselLayoutClient({
     <div ref={sectionRef} className={sectionClassName}>
       <div className="flex flex-col gap-12 lg:flex-row lg:items-end">
         <div
-          className={`flex w-full flex-col gap-6 px-4 text-left lg:pb-[3rem] ${
+          className={`flex w-full flex-col gap-6 px-0 md:px-4 text-left lg:pb-[3rem] ${
             postParPage > 2 ? 'lg:w-2/5 lg:px-[8rem]' : 'lg:w-3/5 lg:px-[8rem]'
           }`}
         >

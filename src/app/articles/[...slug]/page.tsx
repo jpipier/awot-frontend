@@ -40,11 +40,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const cssBundle = await getElementorCssBundle()
   const elementorAssets = await getElementorJsAssets(article.databaseId ?? undefined, article.uri ?? undefined)
-  const fallbackBodyClasses = extractElementorBodyClasses(article.elementorContent ?? article.content)
+  const isElementor = article.isBuiltWithElementor !== false
+  const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(article.elementorContent) : []
 
   return (
     <div className="article-container font-brandon_grotesquelight">
-      <ElementorStylesLoader cssBundle={cssBundle} bodyClasses={fallbackBodyClasses.length ? fallbackBodyClasses : undefined} />
+      <ElementorStylesLoader cssBundle={cssBundle} bodyClasses={isElementor && fallbackBodyClasses.length ? fallbackBodyClasses : undefined} isBuiltWithElementor={isElementor} />
       <ElementorScriptsLoader assets={elementorAssets} />
       <ElementorHeadingAnimator />
       <StickyWatcher />

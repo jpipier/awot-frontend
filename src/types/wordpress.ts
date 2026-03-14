@@ -158,6 +158,7 @@ export interface Article {
   uri?: string | null
   content?: string | null
   elementorContent?: string | null
+  isBuiltWithElementor?: boolean | null
   localisations?: {
     edges: Array<{
       node: CategoryNode
