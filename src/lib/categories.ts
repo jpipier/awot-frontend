@@ -370,7 +370,7 @@ interface LocalisationsResponse {
 
 const LOCALISATIONS_QUERY = /* GraphQL */ `
   query GetLocalisations($first: Int!) {
-    localisations(first: $first, where: { hideEmpty: true }) {
+    localisations(first: $first, where: { hideEmpty: true, parent: 0 }) {
       nodes {
         id
         name
