@@ -84,7 +84,7 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
         <select
           onChange={handleChange}
           value={activeSlug ?? ''}
-          className="w-full rounded border border-gray-300 p-2 text-xs uppercase"
+          className="w-full border border-gray-300 p-2 text-xs uppercase"
         >
           <option value="">Choisissez une catégorie</option>
           {categories.map((child) => (

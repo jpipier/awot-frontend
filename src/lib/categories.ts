@@ -284,3 +284,108 @@ export async function getCategoryPosts(slug: string, limit: number, after?: stri
 
   return data.category?.posts
 }
+
+interface PostsByFiltersResponse {
+  posts: {
+    nodes: Article[]
+    pageInfo: {
+      hasNextPage: boolean
+      endCursor?: string | null
+    }
+  }
+}
+
+const CATEGORY_LOCALISATION_POSTS_QUERY = /* GraphQL */ `
+  query GetCategoryLocalisationPosts($limit: Int!, $after: String, $categorySlug: String!, $localisationSlug: [String!]!) {
+    posts(
+      first: $limit
+      after: $after
+      where: {
+        categoryName: $categorySlug
+        taxQuery: {
+          taxArray: [
+            { taxonomy: LOCALISATION, field: SLUG, terms: $localisationSlug }
+          ]
+        }
+      }
+    ) {
+      nodes {
+        title
+        slug
+        excerpt
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+        optionsArticles {
+          champsLibrePageAccueil
+          imagePortait {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+          imagePaysage {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
+export async function getCategoryPostsByLocalisation(
+  categorySlug: string,
+  localisationSlug: string,
+  limit: number,
+  after?: string | null
+) {
+  const data = await fetchWordPressGraphQL<PostsByFiltersResponse>(CATEGORY_LOCALISATION_POSTS_QUERY, {
+    variables: {
+      categorySlug,
+      localisationSlug: [localisationSlug],
+      limit,
+      after: after ?? null
+    },
+    cache: 'no-store'
+  })
+
+  return data.posts ?? { nodes: [], pageInfo: { hasNextPage: false } }
+}
+
+interface LocalisationsResponse {
+  localisations: {
+    nodes: CategoryNode[]
+  }
+}
+
+const LOCALISATIONS_QUERY = /* GraphQL */ `
+  query GetLocalisations($first: Int!) {
+    localisations(first: $first, where: { hideEmpty: true }) {
+      nodes {
+        id
+        name
+        slug
+        count
+      }
+    }
+  }
+`
+
+export async function getLocalisations(first = 100) {
+  const data = await fetchWordPressGraphQL<LocalisationsResponse>(LOCALISATIONS_QUERY, {
+    variables: { first },
+    next: { revalidate: 600 }
+  })
+
+  return data.localisations?.nodes ?? []
+}

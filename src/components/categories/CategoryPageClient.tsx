@@ -14,6 +14,7 @@ interface CategoryPageClientProps {
   initialCursor?: string | null
   hasNextPage: boolean
   subcategories: CategoryNode[]
+  localisations?: CategoryNode[]
 }
 
 interface GroupedCategoryPosts {
@@ -75,15 +76,29 @@ export default function CategoryPageClient({
   initialPosts,
   initialCursor,
   hasNextPage,
-  subcategories
+  subcategories,
+  localisations
 }: CategoryPageClientProps) {
   const [posts, setPosts] = useState(() => initialPosts)
   const [cursor, setCursor] = useState<string | null | undefined>(initialCursor)
   const [loading, setLoading] = useState(false)
   const [canLoadMore, setCanLoadMore] = useState(hasNextPage)
+  const [activeLocalisation, setActiveLocalisation] = useState<string | null>(null)
+  const [localisationLoading, setLocalisationLoading] = useState(false)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const itemRefs = useRef<(HTMLElement | null)[]>([])
   const [visibleItems, setVisibleItems] = useState<Set<number>>(() => new Set<number>())
+
+  const buildApiUrl = useCallback(
+    (extraParams?: Record<string, string>) => {
+      const params = new URLSearchParams({ limit: '10', ...extraParams })
+      if (activeLocalisation) {
+        params.set('localisation', activeLocalisation)
+      }
+      return `/api/categories/${slug}/posts?${params.toString()}`
+    },
+    [activeLocalisation, slug]
+  )
 
   const fetchMore = useCallback(async () => {
     if (!canLoadMore || loading || !cursor) {
@@ -92,11 +107,7 @@ export default function CategoryPageClient({
 
     setLoading(true)
     try {
-      const params = new URLSearchParams({ limit: '10' })
-      if (cursor) {
-        params.set('cursor', cursor)
-      }
-      const response = await fetch(`/api/categories/${slug}/posts?${params.toString()}`)
+      const response = await fetch(buildApiUrl({ cursor }))
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des articles')
       }
@@ -109,7 +120,36 @@ export default function CategoryPageClient({
     } finally {
       setLoading(false)
     }
-  }, [canLoadMore, cursor, loading, slug])
+  }, [buildApiUrl, canLoadMore, cursor, loading])
+
+  const handleLocalisationClick = useCallback(
+    async (locSlug: string) => {
+      const newSlug = locSlug === activeLocalisation ? null : locSlug
+      setActiveLocalisation(newSlug)
+      setLocalisationLoading(true)
+      setVisibleItems(new Set<number>())
+
+      try {
+        const params = new URLSearchParams({ limit: '12' })
+        if (newSlug) {
+          params.set('localisation', newSlug)
+        }
+        const response = await fetch(`/api/categories/${slug}/posts?${params.toString()}`)
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des articles')
+        }
+        const data = await response.json()
+        setPosts(data?.nodes ?? [])
+        setCursor(data?.pageInfo?.endCursor ?? null)
+        setCanLoadMore(Boolean(data?.pageInfo?.hasNextPage))
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLocalisationLoading(false)
+      }
+    },
+    [activeLocalisation, slug]
+  )
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -257,6 +297,28 @@ export default function CategoryPageClient({
                   >
                     {child.name}
                   </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {localisations && localisations.length > 0 ? (
+          <div className="mx-auto mb-14 w-full md:mb-20">
+            <ul className="flex flex-wrap items-center justify-center gap-3 md:gap-5">
+              {localisations.map((loc) => (
+                <li key={loc.slug}>
+                  <button
+                    type="button"
+                    onClick={() => handleLocalisationClick(loc.slug)}
+                    disabled={localisationLoading}
+                    className={clsx(
+                      'inline-flex min-w-[124px] items-center justify-center border border-black px-4 py-[0.55rem] font-montserrat text-[10px] uppercase tracking-[0.24em] transition-colors duration-300 hover:bg-black hover:text-white disabled:opacity-50',
+                      activeLocalisation === loc.slug && 'bg-black text-white'
+                    )}
+                  >
+                    {loc.name}
+                  </button>
                 </li>
               ))}
             </ul>
