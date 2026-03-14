@@ -261,7 +261,7 @@ export default function CategoryPageClient({
     return (
       <>
         <div className="mt-3">
-          <p className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+          <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
             {locationLabel}
           </p>
           <h2 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ">{post.title}</h2>
@@ -305,7 +305,7 @@ export default function CategoryPageClient({
 
         {localisations && localisations.length > 0 ? (
           <div className="mx-auto mb-14 w-full md:mb-20">
-            <ul className="flex flex-wrap items-center justify-center gap-3 md:gap-5">
+            <ul className="hidden flex-wrap items-center justify-center gap-3 md:flex md:gap-5">
               {localisations.map((loc) => (
                 <li key={loc.slug}>
                   <button
@@ -322,6 +322,25 @@ export default function CategoryPageClient({
                 </li>
               ))}
             </ul>
+            <div className="md:hidden">
+              <select
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === activeLocalisation) return
+                  handleLocalisationClick(value || activeLocalisation || '')
+                }}
+                value={activeLocalisation ?? ''}
+                disabled={localisationLoading}
+                className="w-full border border-black px-4 py-[0.55rem] font-montserrat text-[10px] uppercase tracking-[0.24em] disabled:opacity-50"
+              >
+                <option value="">Toutes les localisations</option>
+                {localisations.map((loc) => (
+                  <option key={loc.slug} value={loc.slug}>
+                    {loc.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         ) : null}
 

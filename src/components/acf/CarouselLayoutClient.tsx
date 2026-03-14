@@ -792,7 +792,7 @@ export default function CarouselLayoutClient({
                         </div>
                       ) : null}
                       <div className="mt-3">
-                        <p className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+                        <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
                           {localisationLabel}
                         </p>
                         <h3 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]">{post.title}</h3>

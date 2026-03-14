@@ -344,7 +344,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
               <div className="elementor-post__text font-montserrat mt-3">
                 {post.optionsArticles?.champsLibrePageAccueil ? (
                   <p
-                    className="mb-0 text-[0.5vw] uppercase font-montserrat italic text-gray-600"
+                    className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600"
                     dangerouslySetInnerHTML={{
                       __html: post.optionsArticles.champsLibrePageAccueil
                     }}
