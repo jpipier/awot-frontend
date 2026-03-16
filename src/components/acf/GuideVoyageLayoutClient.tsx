@@ -353,10 +353,11 @@ export default function GuideVoyageLayoutClient({
       const { default: gsap } = await import('gsap')
       const viewportHeight = window.innerHeight || wrapperBounds.height
       const viewportWidth = window.innerWidth || wrapperBounds.width
-      const topTarget = viewportHeight * 0.05
-      const leftTarget = viewportWidth * 0.02
-      const finalHeight = viewportHeight * 0.9
-      const finalWidth = viewportWidth * 0.44
+      const isMobile = viewportWidth < 768
+      const topTarget = isMobile ? 0 : viewportHeight * 0.05
+      const leftTarget = isMobile ? 0 : viewportWidth * 0.02
+      const finalHeight = isMobile ? viewportHeight * 0.61 : viewportHeight * 0.9
+      const finalWidth = isMobile ? viewportWidth : viewportWidth * 0.44
 
       const timeline = gsap.timeline({
         defaults: { ease: 'power3.out' },
@@ -813,8 +814,8 @@ export default function GuideVoyageLayoutClient({
   return (
     <>
       {backgroundPortal}
-      <div className="guide-voyage-content mt-10 flex flex-row items-start gap-4 sm:gap-10">
-        <div ref={stickyRowRef} className="flex flex-1 min-w-0 flex-col gap-4 pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
+      <div className="guide-voyage-content mt-10 flex flex-col md:flex-row items-start gap-4 sm:gap-10">
+        <div ref={stickyRowRef} className="flex w-full min-w-0 flex-col gap-4 pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
@@ -836,7 +837,7 @@ export default function GuideVoyageLayoutClient({
       </div>
       <div
         ref={swiperContainerRef}
-        className="guide-voyage-carousel relative flex-1 min-w-0 overflow-hidden pl-0 pr-0 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
+        className="guide-voyage-carousel relative w-full min-w-0 overflow-hidden pl-0 pr-0 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
         aria-busy={isUpdatingCategory || isLoadingMorePosts}
       >
         {/* {!paginationDisabled ? (

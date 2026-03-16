@@ -119,10 +119,11 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
       const { default: gsap } = await import('gsap')
       const viewportHeight = window.innerHeight || wrapperBounds.height
       const viewportWidth = window.innerWidth || wrapperBounds.width
-      const topTarget = viewportHeight * 0.05
-      const leftTarget = viewportWidth * 0.02
-      const finalHeight = viewportHeight * 0.9
-      const finalWidth = viewportWidth * 0.44
+      const isMobile = viewportWidth < 768
+      const topTarget = isMobile ? 0 : viewportHeight * 0.05
+      const leftTarget = isMobile ? 0 : viewportWidth * 0.02
+      const finalHeight = isMobile ? viewportHeight * 0.61 : viewportHeight * 0.9
+      const finalWidth = isMobile ? viewportWidth : viewportWidth * 0.44
 
       const timeline = gsap.timeline({
         defaults: { ease: 'power3.out' },
@@ -267,7 +268,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
 
   return (
     <div className="removeSticky elementor-element-27be2e8c elementor-widget elementor-widget-posts">
-      <h2 className="cd-headline wordrotate mt-10 flex flex-row px-[2rem] font-custom text-4xl">
+      <h2 className="cd-headline wordrotate mt-10 flex flex-col sm:flex-row px-6 font-custom text-3xl sm:text-4xl">
         {isVoyage ? (
           <div className="flex-none font-schnyder_xl_webdemi">Découvrez d&apos;autres destinations</div>
         ) : (
@@ -284,7 +285,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
         )}
       </h2>
       <div className="elementor-widget-container">
-        <div className="elementor-posts-container elementor-posts elementor-posts--skin-classic elementor-has-item-ratio grid grid-cols-2 gap-8 px-[2rem] sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
+        <div className="elementor-posts-container elementor-posts elementor-posts--skin-classic elementor-has-item-ratio grid grid-cols-2 gap-4 sm:gap-6 md:gap-8 px-6 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
           {visiblePosts.map((post, index) => (
             <article
               key={post.id}
@@ -344,14 +345,14 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
               <div className="elementor-post__text font-montserrat mt-3">
                 {post.optionsArticles?.champsLibrePageAccueil ? (
                   <p
-                    className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600"
+                    className="mb-0 text-[10px] md:text-xs uppercase font-montserrat italic text-gray-600"
                     dangerouslySetInnerHTML={{
                       __html: post.optionsArticles.champsLibrePageAccueil
                     }}
                   />
                 ) : null}
                 <h2
-                  className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]"
+                  className="text-[11px] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]"
                   dangerouslySetInnerHTML={{ __html: post.title }}
                 />
               </div>
@@ -377,7 +378,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
           opacity: 1;
           transform: rotateX(0deg);
         }
-        .elementor-posts-container.elementor-has-item-ratio .elementor-post__thumbnail img{insert
+        .elementor-posts-container.elementor-has-item-ratio .elementor-post__thumbnail img {
           top: calc(50% + 1px) !important;
           left: calc(50% + 1px) !important;
         }

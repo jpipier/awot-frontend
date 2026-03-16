@@ -257,10 +257,11 @@ export default function CarouselLayoutClient({
       const { default: gsap } = await import('gsap')
       const viewportHeight = window.innerHeight || wrapperBounds.height
       const viewportWidth = window.innerWidth || wrapperBounds.width
-      const topTarget = viewportHeight * 0.05
-      const leftTarget = viewportWidth * 0.02
-      const finalHeight = viewportHeight * 0.9
-      const finalWidth = viewportWidth * 0.44
+      const isMobile = viewportWidth < 768
+      const topTarget = isMobile ? 0 : viewportHeight * 0.05
+      const leftTarget = isMobile ? 0 : viewportWidth * 0.02
+      const finalHeight = isMobile ? viewportHeight * 0.61 : viewportHeight * 0.9
+      const finalWidth = isMobile ? viewportWidth : viewportWidth * 0.44
 
       const timeline = gsap.timeline({
         defaults: { ease: 'power3.out' },

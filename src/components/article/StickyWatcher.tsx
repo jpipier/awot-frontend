@@ -7,6 +7,7 @@ export default function StickyWatcher() {
   useEffect(() => {
     let destroyed = false
     let stickyTrigger: ScrollTriggerType | null = null
+    let mm: gsap.MatchMedia | null = null
 
     const initSticky = async () => {
       const stickyEl = document.getElementById('sticky1')
@@ -34,54 +35,58 @@ export default function StickyWatcher() {
 
       gsap.registerPlugin(ScrollTrigger)
 
-      const remToPx = (rem: number) => {
-        const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize || '16')
-        return rem * (Number.isNaN(rootFontSize) ? 16 : rootFontSize)
-      }
-      const gap = 3 - remToPx(isById ? 18 : 16)
+      mm = gsap.matchMedia()
 
-      const computeDistanceUntilRelease = () => {
-        const anchorTop = stickyAnchor.getBoundingClientRect().top + window.scrollY
-        const footerTop = removeSticky.getBoundingClientRect().top + window.scrollY
-        const distance = footerTop - anchorTop - window.innerHeight + stickyEl.offsetHeight + gap
-        return Math.max(distance, 0)
-      }
-
-      const initialDistance = computeDistanceUntilRelease()
-      if (initialDistance <= 0) {
-        stickyEl.classList.remove('stick')
-        stickyTitle.classList.remove('titleStick')
-        return
-      }
-
-      stickyTrigger = ScrollTrigger.create({
-        trigger: stickyAnchor,
-        start: 'top top',
-        endTrigger: removeSticky,
-        end: () => `top ${stickyEl.offsetHeight + gap}`,
-        pin: stickyEl,
-        pinSpacing: false,
-        invalidateOnRefresh: true,
-        onEnter: () => {
-          stickyEl.classList.add('stick')
-          stickyTitle.classList.add('titleStick')
-          gsap.set(stickyEl, { top: 0 })
-        },
-        onEnterBack: () => {
-          stickyEl.classList.add('stick')
-          stickyTitle.classList.add('titleStick')
-          gsap.set(stickyEl, { top: 0 })
-        },
-        onLeave: () => {
-          stickyEl.classList.remove('stick')
-          stickyTitle.classList.remove('titleStick')
-          gsap.set(stickyEl, { top: '' })
-        },
-        onLeaveBack: () => {
-          stickyEl.classList.remove('stick')
-          stickyTitle.classList.remove('titleStick')
-          gsap.set(stickyEl, { top: '' })
+      mm.add('(min-width: 768px)', () => {
+        const remToPx = (rem: number) => {
+          const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize || '16')
+          return rem * (Number.isNaN(rootFontSize) ? 16 : rootFontSize)
         }
+        const gap = 3 - remToPx(isById ? 18 : 16)
+
+        const computeDistanceUntilRelease = () => {
+          const anchorTop = stickyAnchor.getBoundingClientRect().top + window.scrollY
+          const footerTop = removeSticky.getBoundingClientRect().top + window.scrollY
+          const distance = footerTop - anchorTop - window.innerHeight + stickyEl.offsetHeight + gap
+          return Math.max(distance, 0)
+        }
+
+        const initialDistance = computeDistanceUntilRelease()
+        if (initialDistance <= 0) {
+          stickyEl.classList.remove('stick')
+          stickyTitle.classList.remove('titleStick')
+          return
+        }
+
+        stickyTrigger = ScrollTrigger.create({
+          trigger: stickyAnchor,
+          start: 'top top',
+          endTrigger: removeSticky,
+          end: () => `top ${stickyEl.offsetHeight + gap}`,
+          pin: stickyEl,
+          pinSpacing: false,
+          invalidateOnRefresh: true,
+          onEnter: () => {
+            stickyEl.classList.add('stick')
+            stickyTitle.classList.add('titleStick')
+            gsap.set(stickyEl, { top: 0 })
+          },
+          onEnterBack: () => {
+            stickyEl.classList.add('stick')
+            stickyTitle.classList.add('titleStick')
+            gsap.set(stickyEl, { top: 0 })
+          },
+          onLeave: () => {
+            stickyEl.classList.remove('stick')
+            stickyTitle.classList.remove('titleStick')
+            gsap.set(stickyEl, { top: '' })
+          },
+          onLeaveBack: () => {
+            stickyEl.classList.remove('stick')
+            stickyTitle.classList.remove('titleStick')
+            gsap.set(stickyEl, { top: '' })
+          }
+        })
       })
     }
 
@@ -107,6 +112,7 @@ export default function StickyWatcher() {
     return () => {
       destroyed = true
       stickyTrigger?.kill()
+      mm?.revert()
       window.removeEventListener('scroll', imgScroll)
       window.removeEventListener('load', imgScroll)
     }

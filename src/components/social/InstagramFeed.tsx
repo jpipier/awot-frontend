@@ -111,17 +111,17 @@ export default async function InstagramFeed({
 
   return (
     <section className="home-block">
-      <div className="relative -mb-[120px] z-10">
+      <div className="relative -mb-[60px] md:-mb-[120px] z-10">
         {hasEmbeds ? (
           <div className="-mx-6 md:mx-0">
-            <div className="flex snap-x snap-mandatory overflow-x-auto">
+            <div className="flex snap-x snap-mandatory overflow-x-auto gap-[2px] pl-6 md:pl-0">
               {feedItems.map((item) => (
                 <a
                   key={item.id}
                   href={item.permalink ?? '#'}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative  w-[220px] h-[220px] flex-shrink-0 overflow-hidden"
+                  className="group relative w-[44vw] h-[44vw] sm:w-[200px] sm:h-[200px] md:w-[220px] md:h-[220px] flex-shrink-0 overflow-hidden snap-start"
                   aria-label="Voir sur Instagram"
                 >
                   <div className="absolute inset-0 bg-neutral-900/0 transition duration-300 group-hover:bg-neutral-900/50" />

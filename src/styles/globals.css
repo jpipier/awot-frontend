@@ -68,9 +68,14 @@ a {
 }
 
 #sticky1 {
-  position: fixed;
-  top: 0;
+  position: relative;
   z-index: 10;
+}
+@media (min-width: 768px) {
+  #sticky1 {
+    position: fixed;
+    top: 0;
+  }
 }
 
 .removeSticky {
@@ -166,21 +171,64 @@ a {
     justify-content: center;
     align-items: center;
 }
-
-.elementor-26168 .elementor-element.elementor-element-12e10f78 img{
-  padding: 0 30px 10px 10px;
+.not-built-with-elementor .elementor-26168 .elementor-element.elementor-element-12e10f78 > .elementor-widget-container{
+  padding: 0px 0px 40px 30px !important
 }
 
-.not-built-with-elementor .gallery-columns-2, .gallery-columns-2{
+.not-built-with-elementor .elementor-26168 .elementor-element.elementor-element-12e10f78 > .elementor-widget-container{
+    padding: 0px 0px 40px 0px !important;
+  @media (min-width: 768px) {
+    padding: 0px 0px 40px 10px !important;
+  }
+}
+.not-built-with-elementor .elementor-26168 .elementor-element.elementor-element-12e10f78 img{
+  padding: 0;
+}
+.not-built-with-elementor .contentElementor .elementor-26168 .elementor-element.elementor-element-5b8f86f6{
+  padding: 0;
+}
+.contentElementor .elementor-26168 .elementor-element.elementor-element-2957891d{
+  padding: 0px 20px 30px 20px;
+}
+@media (min-width: 768px) {
+  .elementor-26168 .elementor-element.elementor-element-5b8f86f6{
+    padding:0px 0px 30px 30px;
+  }
+  .elementor-26168 .elementor-element.elementor-element-2957891d{
+    padding: 0px 40px 30px 40px;
+  }
+}
+.not-built-with-elementor .gallery-columns-2{
     display: flex;
     flex-wrap: nowrap;
     gap: 20px;
     flex-direction: row;
     align-content: center;
     align-items: center;
+    margin-top: 30px;
+    @media (min-width: 768px) {
+      margin-top: inherit;
+    }
 }
 
-p img{
-  margin-top: 10px;
+
+.not-built-with-elementor p img{
+  margin-top: 30px;
   margin-bottom: 20px;
+  @media (min-width: 768px) {
+    margin-top: 10px;
+  }
+}
+
+.article-container {
+  overflow-x: hidden;
+}
+.article-container .contentElementor img {
+  max-width: 100%;
+  height: auto;
+}
+@media (max-width: 767px) {
+  .contentElementor #title-article{
+    min-height: 22vh;
+  }
 }

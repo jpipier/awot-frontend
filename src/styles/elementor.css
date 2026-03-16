@@ -994,8 +994,8 @@ html{
     }
   }
   .not-built-with-elementor #awot-section-content .elementor-col-100, .not-built-with-elementor #awot-section-content {
-      width: 70% !important;
-      margin-left: 30% !important;
+      width: 72% !important;
+      margin-left: 28% !important;
       padding: 0px 15px 30px 15px !important;
   }
   .not-built-with-elementor div#sticky1 {
@@ -2472,6 +2472,23 @@ html{
     body.built-with-elementor .elementor-element.elementor-element-2b150233 > .elementor-widget-container {
       margin: 0;
       padding: 0;
+    }
+    .not-built-with-elementor #awot-section-content p img,
+    .not-built-with-elementor #awot-section-content p picture {
+      max-width: 100% !important;
+      width: 100% !important;
+      margin-left: 0 !important;
+    }
+    .old-post .main-content p {
+      margin: 30px 15px !important;
+    }
+    .old-post .main-content p img:not(.emoji) {
+      max-width: 100% !important;
+      margin: 30px 0 !important;
+    }
+    .not-built-with-elementor .gallery-columns-2,
+    .gallery-columns-2 {
+      flex-wrap: wrap !important;
     }
   }
   /* Smartphones (portrait) ----------- */

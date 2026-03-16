@@ -44,7 +44,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(article.elementorContent) : []
 
   return (
-    <div className="article-container font-brandon_grotesquelight">
+    <div className="article-container font-brandon_grotesquelight overflow-x-hidden">
       <ElementorStylesLoader cssBundle={cssBundle} bodyClasses={isElementor && fallbackBodyClasses.length ? fallbackBodyClasses : undefined} isBuiltWithElementor={isElementor} />
       <ElementorScriptsLoader assets={elementorAssets} />
       <ElementorHeadingAnimator />
