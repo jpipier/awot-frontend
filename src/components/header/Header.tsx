@@ -14,6 +14,7 @@ export default function Header() {
   const [shouldRenderMenu, setShouldRenderMenu] = useState(false)
   const [shouldRenderSearch, setShouldRenderSearch] = useState(false)
   const [shouldShowHeader, setShouldShowHeader] = useState(true)
+  const [isOverDark, setIsOverDark] = useState(false)
   const pathname = usePathname()
   const OVERLAY_ANIMATION_MS = 320
 
@@ -103,6 +104,58 @@ export default function Header() {
     }
   }, [pathname])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const mql = window.matchMedia('(max-width: 767px)')
+
+    const setup = () => {
+      if (!mql.matches) {
+        setIsOverDark(false)
+        return null
+      }
+
+      const targets = document.querySelectorAll('[data-header-dark]')
+      if (!targets.length) {
+        setIsOverDark(false)
+        return null
+      }
+
+      const headerHeight = 60
+      const bottomMargin = window.innerHeight - headerHeight
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const anyIntersecting = entries.some((e) => e.isIntersecting)
+          setIsOverDark(anyIntersecting)
+        },
+        { rootMargin: `0px 0px -${bottomMargin}px 0px`, threshold: 0.01 }
+      )
+
+      targets.forEach((el) => observer.observe(el))
+      return observer
+    }
+
+    let observer = setup()
+
+    const onMediaChange = () => {
+      observer?.disconnect()
+      observer = setup()
+    }
+
+    mql.addEventListener('change', onMediaChange)
+
+    return () => {
+      observer?.disconnect()
+      mql.removeEventListener('change', onMediaChange)
+    }
+  }, [pathname])
+
+  const overlayOpen = isMenuOpen || isSearchOpen
+  const headerColorClass = isOverDark && !overlayOpen ? 'text-white' : 'text-black'
+  const burgerBgClass = isOverDark && !overlayOpen ? 'bg-white' : 'bg-black'
+
   const controlsVisibilityClass = clsx(
     'transition-opacity duration-300',
     shouldShowHeader ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -112,7 +165,8 @@ export default function Header() {
     <>
       <span
         className={clsx(
-          'fixed left-6 md:left-[2rem] top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt]',
+          'fixed left-6 md:left-[2rem] top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt] transition-colors duration-300',
+          headerColorClass,
           controlsVisibilityClass
         )}
       >
@@ -133,7 +187,7 @@ export default function Header() {
           viewBox="0 0 24 24"
           strokeWidth="1.5"
           stroke="currentColor"
-          className="h-6 w-6 text-black"
+          className={clsx('h-6 w-6 transition-colors duration-300', headerColorClass)}
         >
           <path
             strokeLinecap="round"
@@ -154,20 +208,23 @@ export default function Header() {
       >
         <span
           className={clsx(
-            'block h-0.5 w-6 bg-black transition duration-300',
-            (isMenuOpen || isSearchOpen) && 'translate-y-1.5 rotate-45'
+            'block h-0.5 w-6 transition duration-300',
+            burgerBgClass,
+            overlayOpen && 'translate-y-1.5 rotate-45'
           )}
         />
         <span
           className={clsx(
-            'my-1 block h-0.5 w-6 bg-black transition-opacity duration-300',
-            (isMenuOpen || isSearchOpen) ? 'opacity-0' : 'opacity-100'
+            'my-1 block h-0.5 w-6 transition-opacity duration-300',
+            burgerBgClass,
+            overlayOpen ? 'opacity-0' : 'opacity-100'
           )}
         />
         <span
           className={clsx(
-            'block h-0.5 w-6 bg-black transition duration-300',
-            (isMenuOpen || isSearchOpen) && '-translate-y-1.5 -rotate-45'
+            'block h-0.5 w-6 transition duration-300',
+            burgerBgClass,
+            overlayOpen && '-translate-y-1.5 -rotate-45'
           )}
         />
       </button>

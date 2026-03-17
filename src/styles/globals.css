@@ -283,4 +283,8 @@ body.not-built-with-elementor .elementor-section-height-default{
   body.built-with-elementor .elementor-widget-wrap div[data-widget_type="text-editor.default"] p{
     padding-bottom: 0px !important;
   }
+  body.built-with-elementor .removeSticky h2,
+  body.not-built-with-elementor .removeSticky h2{
+    margin-top: 0;
+  }
 }
