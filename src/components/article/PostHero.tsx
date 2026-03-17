@@ -37,7 +37,7 @@ export default function PostHero({ article }: PostHeroProps) {
       {/* Image — pinned par StickyWatcher via #sticky1 */}
       <div
         id="sticky1"
-        className="w-full md:w-1/2 h-1/2 md:h-screen p-[2.05rem]"
+        className="w-full md:w-1/2 h-1/2 md:h-screen md:p-[2.05rem]"
       >
         {imageBlock}
       </div>
