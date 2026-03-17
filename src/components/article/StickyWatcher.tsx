@@ -42,6 +42,7 @@ export default function StickyWatcher() {
           const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize || '16')
           return rem * (Number.isNaN(rootFontSize) ? 16 : rootFontSize)
         }
+        const releaseOffsetRem = 4
         const gap = 3 - remToPx(isById ? 18 : 16)
 
         const computeDistanceUntilRelease = () => {
@@ -62,7 +63,7 @@ export default function StickyWatcher() {
           trigger: stickyAnchor,
           start: 'top top',
           endTrigger: removeSticky,
-          end: () => `top bottom-=${remToPx(2)}`,
+          end: () => `top bottom+=${remToPx(releaseOffsetRem)}`,
           pin: stickyEl,
           pinSpacing: false,
           invalidateOnRefresh: true,

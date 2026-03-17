@@ -42,29 +42,48 @@ const clampText = (value: string, maxLength: number) => {
 
 const getPostLink = (post: Article) => (post.slug ? `/articles/${post.slug}` : '#')
 
+const getFirstNonEmptyString = (...values: Array<string | null | undefined>) => {
+  for (const value of values) {
+    if (typeof value !== 'string') {
+      continue
+    }
+
+    const trimmed = value.trim()
+    if (trimmed) {
+      return trimmed
+    }
+  }
+
+  return ''
+}
+
 const getPortraitImage = (post: Article) =>
-  post.optionsArticles?.imagePortait?.node?.sourceUrl ??
-  post.optionsArticles?.imagePortait?.node?.guid ??
-  post.featuredImage?.node?.sourceUrl ??
-  post.featuredImage?.node?.guid ??
-  post.optionsArticles?.imagePaysage?.node?.sourceUrl ??
-  post.optionsArticles?.imagePaysage?.node?.guid ??
-  ''
+  getFirstNonEmptyString(
+    post.optionsArticles?.imagePortait?.node?.sourceUrl,
+    post.optionsArticles?.imagePortait?.node?.guid,
+    post.featuredImage?.node?.sourceUrl,
+    post.featuredImage?.node?.guid,
+    post.optionsArticles?.imagePaysage?.node?.sourceUrl,
+    post.optionsArticles?.imagePaysage?.node?.guid
+  )
 
 const getLandscapeImage = (post: Article) =>
-  post.optionsArticles?.imagePaysage?.node?.sourceUrl ??
-  post.optionsArticles?.imagePaysage?.node?.guid ??
-  post.featuredImage?.node?.sourceUrl ??
-  post.featuredImage?.node?.guid ??
-  post.optionsArticles?.imagePortait?.node?.sourceUrl ??
-  post.optionsArticles?.imagePortait?.node?.guid ??
-  ''
+  getFirstNonEmptyString(
+    post.optionsArticles?.imagePaysage?.node?.sourceUrl,
+    post.optionsArticles?.imagePaysage?.node?.guid,
+    post.featuredImage?.node?.sourceUrl,
+    post.featuredImage?.node?.guid,
+    post.optionsArticles?.imagePortait?.node?.sourceUrl,
+    post.optionsArticles?.imagePortait?.node?.guid
+  )
 
 const getPostAlt = (post: Article) =>
-  post.optionsArticles?.imagePaysage?.node?.altText ??
-  post.optionsArticles?.imagePortait?.node?.altText ??
-  post.featuredImage?.node?.altText ??
-  post.title
+  getFirstNonEmptyString(
+    post.optionsArticles?.imagePaysage?.node?.altText,
+    post.optionsArticles?.imagePortait?.node?.altText,
+    post.featuredImage?.node?.altText,
+    post.title
+  )
 
 const getLocationLabel = (post: Article) =>
   post.optionsArticles?.champsLibrePageAccueil ?? post.categories?.edges?.[0]?.node?.name ?? 'Awot'

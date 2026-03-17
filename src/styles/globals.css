@@ -77,6 +77,10 @@ a {
     top: 0;
     padding-right: 30px;
   }
+
+  body.not-built-with-elementor #sticky1 {
+    padding-left: 2rem;
+  }
 }
 
 .removeSticky {
@@ -257,4 +261,12 @@ a {
     justify-items: center;
     margin-top: 20px;
     margin-bottom: 20px;
+}
+
+@media (max-width: 767px) {
+  body.built-with-elementor .article-container #awot-section-content {
+    box-sizing: border-box;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
 }
