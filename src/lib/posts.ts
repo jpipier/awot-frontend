@@ -113,11 +113,26 @@ interface RecentPostsResponse {
       featuredImage?: {
         node?: {
           sourceUrl?: string
+          guid?: string
           altText?: string
         }
       }
       optionsArticles?: {
         champsLibrePageAccueil?: string | null
+        imagePortait?: {
+          node?: {
+            guid?: string
+            sourceUrl?: string
+            altText?: string
+          }
+        }
+        imagePaysage?: {
+          node?: {
+            guid?: string
+            sourceUrl?: string
+            altText?: string
+          }
+        }
       }
     }>
   }
@@ -133,11 +148,26 @@ const RECENT_POSTS_QUERY = /* GraphQL */ `
         featuredImage {
           node {
             sourceUrl
+            guid
             altText
           }
         }
         optionsArticles {
           champsLibrePageAccueil
+          imagePortait {
+            node {
+              guid
+              sourceUrl
+              altText
+            }
+          }
+          imagePaysage {
+            node {
+              guid
+              sourceUrl
+              altText
+            }
+          }
         }
       }
     }

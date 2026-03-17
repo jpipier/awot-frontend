@@ -6,6 +6,7 @@ import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import StickyWatcher from '@/components/article/StickyWatcher'
 import ElementorHeadingAnimator from '@/components/article/ElementorHeadingAnimator'
 import { getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
+import PostHero from '@/components/article/PostHero'
 
 interface ArticlePageProps {
   params: {
@@ -49,6 +50,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <ElementorScriptsLoader assets={elementorAssets} />
       <ElementorHeadingAnimator />
       <StickyWatcher />
+      <PostHero article={article} />
       <section className="elementor-section elementor-section-height-default elementor-element-40717a53">
         <div
           className="contentElementor font-montserrat"

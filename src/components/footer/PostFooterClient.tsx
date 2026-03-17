@@ -13,11 +13,26 @@ interface PostSummary {
   featuredImage?: {
     node?: {
       sourceUrl?: string | null
+      guid?: string | null
       altText?: string | null
     }
   }
   optionsArticles?: {
     champsLibrePageAccueil?: string | null
+    imagePortait?: {
+      node?: {
+        sourceUrl?: string | null
+        guid?: string | null
+        altText?: string | null
+      }
+    }
+    imagePaysage?: {
+      node?: {
+        sourceUrl?: string | null
+        guid?: string | null
+        altText?: string | null
+      }
+    }
   }
 }
 
@@ -329,17 +344,26 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
                   }}
                   className="elementor-post__thumbnail footer-elementor-post__thumbnail relative aspect-[3/4] overflow-hidden"
                 >
-                  {post.featuredImage?.node?.sourceUrl ? (
-                    <Image
-                      className="object-cover transition-transform duration-300 hover:scale-110"
-                      src={post.featuredImage.node.sourceUrl}
-                      alt={post.featuredImage.node.altText ?? post.title}
-                      fill
-                      // style={{ top: 'calc(50% + 1px)', left: 'calc(50% + 1px)' }}
-                      sizes="(min-width: 1280px) 15vw, 50vw"
-                      unoptimized
-                    />
-                  ) : null}
+                  {(() => {
+                    const portraitNode = post.optionsArticles?.imagePortait?.node
+                    const paysageNode = post.optionsArticles?.imagePaysage?.node
+                    const featuredNode = post.featuredImage?.node
+                    const imgSrc =
+                      portraitNode?.sourceUrl ?? portraitNode?.guid ??
+                      paysageNode?.sourceUrl ?? paysageNode?.guid ??
+                      featuredNode?.sourceUrl ?? featuredNode?.guid ?? null
+                    const imgAlt = portraitNode?.altText ?? paysageNode?.altText ?? featuredNode?.altText ?? post.title
+                    return imgSrc ? (
+                      <Image
+                        className="object-cover transition-transform duration-300 hover:scale-110"
+                        src={imgSrc}
+                        alt={imgAlt}
+                        fill
+                        sizes="(min-width: 1280px) 15vw, 50vw"
+                        unoptimized
+                      />
+                    ) : null
+                  })()}
                 </div>
               </a>
               <div className="elementor-post__text font-montserrat mt-3">

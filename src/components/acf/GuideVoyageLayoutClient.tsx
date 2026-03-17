@@ -192,9 +192,12 @@ export default function GuideVoyageLayoutClient({
 
   const shouldAutoplay = sanitizedPosts.length > 1
   const currentBackgroundImage =
-    current?.optionsArticles?.imagePortait?.node?.guid ??
     current?.optionsArticles?.imagePortait?.node?.sourceUrl ??
+    current?.optionsArticles?.imagePortait?.node?.guid ??
+    current?.optionsArticles?.imagePaysage?.node?.sourceUrl ??
+    current?.optionsArticles?.imagePaysage?.node?.guid ??
     current?.featuredImage?.node?.sourceUrl ??
+    current?.featuredImage?.node?.guid ??
     null
   const paginationDisabled = sanitizedPosts.length <= 1
   const slideNumbersStyle: CSSProperties = {
@@ -911,9 +914,13 @@ export default function GuideVoyageLayoutClient({
           {sanitizedPosts.map((post, index) => {
             const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
             const portraitImage = post.optionsArticles?.imagePortait?.node
+            const paysageImage = post.optionsArticles?.imagePaysage?.node
             const fallbackImage = post.featuredImage?.node
-            const portraitSrc = portraitImage?.guid ?? portraitImage?.sourceUrl ?? fallbackImage?.sourceUrl
-            const portraitAlt = portraitImage?.altText ?? fallbackImage?.altText ?? post.title
+            const portraitSrc =
+              portraitImage?.sourceUrl ?? portraitImage?.guid ??
+              paysageImage?.sourceUrl ?? paysageImage?.guid ??
+              fallbackImage?.sourceUrl ?? fallbackImage?.guid ?? null
+            const portraitAlt = portraitImage?.altText ?? paysageImage?.altText ?? fallbackImage?.altText ?? post.title
             return (
               <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item guide-voyage-carousel__slide">
                 <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>

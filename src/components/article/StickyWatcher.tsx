@@ -62,7 +62,7 @@ export default function StickyWatcher() {
           trigger: stickyAnchor,
           start: 'top top',
           endTrigger: removeSticky,
-          end: () => `top ${stickyEl.offsetHeight + gap}`,
+          end: () => `top bottom-=${remToPx(2)}`,
           pin: stickyEl,
           pinSpacing: false,
           invalidateOnRefresh: true,

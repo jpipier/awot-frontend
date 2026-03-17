@@ -742,6 +742,14 @@ export default function CarouselLayoutClient({
               const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
               const useScrollReveal = index < scrollAnimatedCount
               const localisationLabel = buildLocalisationLabel(post)
+              const portraitNode = post.optionsArticles?.imagePortait?.node
+              const paysageNode = post.optionsArticles?.imagePaysage?.node
+              const featuredNode = post.featuredImage?.node
+              const imageSrc =
+                portraitNode?.sourceUrl ?? portraitNode?.guid ??
+                paysageNode?.sourceUrl ?? paysageNode?.guid ??
+                featuredNode?.sourceUrl ?? featuredNode?.guid ?? null
+              const imageAlt = portraitNode?.altText ?? paysageNode?.altText ?? featuredNode?.altText ?? post.title
               return (
                 <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
                   <AnimatedCarouselItem
@@ -768,7 +776,7 @@ export default function CarouselLayoutClient({
                         void prefetchArticle(post.slug)
                       }}
                     >
-                      {post.optionsArticles?.imagePortait?.node?.guid ? (
+                      {imageSrc ? (
                         <div
                           ref={(node) => {
                             if (!post.slug) {
@@ -783,8 +791,8 @@ export default function CarouselLayoutClient({
                           className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}
                         >
                           <Image
-                            src={post.optionsArticles.imagePortait.node.guid}
-                            alt={post.title}
+                            src={imageSrc}
+                            alt={imageAlt}
                             fill
                             className="object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                             sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"

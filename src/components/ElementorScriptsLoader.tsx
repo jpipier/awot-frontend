@@ -79,10 +79,8 @@ export default function ElementorScriptsLoader({ assets }: ElementorScriptsLoade
       return existing.some((el) => normalizeUrl(el.src) === normalized)
     }
 
-    const loadScriptsWithOverlap = () => {
+    const loadScriptsSequentially = async () => {
       injectInline(null, 'before')
-
-      const loadPromises: Promise<void>[] = []
 
       for (const script of scripts) {
         if (cancelled) {
@@ -92,46 +90,37 @@ export default function ElementorScriptsLoader({ assets }: ElementorScriptsLoade
         injectInline(script.handle, 'before')
 
         if (!scriptAlreadyPresent(script)) {
-          const tag = document.createElement('script')
-          tag.src = script.src
-          tag.async = script.strategy === 'async'
-          tag.defer = script.strategy === 'defer'
-          tag.type = script.type ?? 'text/javascript'
-          tag.dataset.awotHandle = script.handle
+          await new Promise<void>((resolve) => {
+            const tag = document.createElement('script')
+            tag.src = script.src
+            tag.type = script.type ?? 'text/javascript'
+            tag.dataset.awotHandle = script.handle
 
-          const loadPromise = new Promise<void>((resolve, reject) => {
-            tag.onload = () => resolve()
-            tag.onerror = () => reject(new Error(`Failed to load script ${script.handle}`))
-          })
-            .then(() => {
+            tag.onload = () => {
               if (!cancelled) {
                 injectInline(script.handle, 'after')
               }
-            })
-            .catch((error) => {
-              console.error('[ElementorScriptsLoader]', error)
-            })
+              resolve()
+            }
+            tag.onerror = () => {
+              console.error(`[ElementorScriptsLoader] Failed to load ${script.handle}`)
+              resolve()
+            }
 
-          host.appendChild(tag)
-          attachedScripts.push(tag)
-          loadPromises.push(loadPromise)
+            host.appendChild(tag)
+            attachedScripts.push(tag)
+          })
         } else {
           injectInline(script.handle, 'after')
         }
       }
 
-      if (loadPromises.length) {
-        void Promise.allSettled(loadPromises).then(() => {
-          if (!cancelled) {
-            injectInline(null, 'after')
-          }
-        })
-      } else {
+      if (!cancelled) {
         injectInline(null, 'after')
       }
     }
 
-    loadScriptsWithOverlap()
+    void loadScriptsSequentially()
 
     return () => {
       cancelled = true

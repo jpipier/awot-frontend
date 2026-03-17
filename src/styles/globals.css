@@ -75,6 +75,7 @@ a {
   #sticky1 {
     position: fixed;
     top: 0;
+    padding-right: 30px;
   }
 }
 
@@ -231,4 +232,29 @@ a {
   .contentElementor #title-article{
     min-height: 22vh;
   }
+}
+
+.article-container h1{
+    font-size: 80px;
+    font-weight: 500;
+    color: #000000;
+}
+
+.not-built-with-elementor .elementor-section-height-default{
+    width: 50% !important;
+    margin-left: 50% !important;
+    padding: 0px 30px 30px 15px !important;
+}
+.not-built-with-elementor .elementor-section-height-default .gallery-columns-2{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.not-built-with-elementor .elementor-section-height-default .gallery-columns-3{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-content: center;
+    justify-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }

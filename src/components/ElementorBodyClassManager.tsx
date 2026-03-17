@@ -21,6 +21,10 @@ export default function ElementorBodyClassManager({ bodyClasses, isBuiltWithElem
         added.push('not-built-with-elementor')
       }
     } else {
+      if (!document.body.classList.contains('built-with-elementor')) {
+        document.body.classList.add('built-with-elementor')
+        added.push('built-with-elementor')
+      }
       normalizedClasses.forEach((cls) => {
         if (!document.body.classList.contains(cls)) {
           document.body.classList.add(cls)

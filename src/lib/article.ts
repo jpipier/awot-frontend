@@ -51,6 +51,22 @@ const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
           altText
         }
       }
+      localisations {
+        edges {
+          node {
+            id
+            name
+            slug
+            parent {
+              node {
+                id
+                name
+                slug
+              }
+            }
+          }
+        }
+      }
       categories {
         edges {
           node {
