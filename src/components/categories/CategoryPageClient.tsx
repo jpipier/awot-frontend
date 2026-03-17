@@ -86,7 +86,10 @@ const getPostAlt = (post: Article) =>
   )
 
 const getLocationLabel = (post: Article) =>
-  post.optionsArticles?.champsLibrePageAccueil ?? post.categories?.edges?.[0]?.node?.name ?? 'Awot'
+  getFirstNonEmptyString(
+    post.optionsArticles?.champsLibrePageAccueil,
+    post.categories?.edges?.[0]?.node?.name
+  )
 
 export default function CategoryPageClient({
   slug,
@@ -280,9 +283,11 @@ export default function CategoryPageClient({
     return (
       <>
         <div className="mt-3">
-          <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
-            {locationLabel}
-          </p>
+          {locationLabel ? (
+            <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+              {locationLabel}
+            </p>
+          ) : null}
           <h2 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ">{post.title}</h2>
         </div>
       </>
