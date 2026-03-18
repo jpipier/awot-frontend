@@ -45,7 +45,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(article.elementorContent) : []
   const bodyClasses = [
     ...fallbackBodyClasses,
-    ...(article.hasVcShortcodes ? ['built-with-vc'] : [])
+    ...(article.hasVcShortcodes ? ['built-with-vc'] : []),
+    ...(article.hasClassicEditor ? ['built-with-classic'] : [])
   ]
 
   return (

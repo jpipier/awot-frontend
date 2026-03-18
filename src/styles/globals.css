@@ -360,7 +360,54 @@ body.not-built-with-elementor .elementor-section-height-default{
     margin-top: 0;
   }
 }
-.built-with-vc .article-container h1{
+.built-with-vc .article-container .vc-text h1, 
+body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor h1,
+body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor h2{
   font-size: 1.8rem;
   margin: 1.4rem 0;
+}
+.built-with-vc .contentElementor .vc-row{
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  margin: 0 0 20px;
+  flex-direction: row;
+}
+.built-with-vc.not-built-with-elementor .elementor-section.elementor-section-height-default.elementor-element-40717a53{
+  width: 48% !important;
+}
+
+.built-with-vc.not-built-with-elementor .vc-col .wp-shortcode-figure{
+  margin: 10px 0;
+}
+
+@media (min-width: 768px) {
+    .built-with-vc.not-built-with-elementor .contentElementor .vc-col[style*='--vc-col-width'] {
+        flex: 0 0 calc(var(--vc-col-width) - 10px);
+        max-width: calc(var(--vc-col-width) - 0px);
+    }
+}
+
+
+body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor p {
+  display: block;
+  line-height: 20px !important;
+  text-align: left !important;
+}
+
+body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor :is(p, h1, h2, h3, h4, h5, h6):has(img) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20px;
+  text-align: left !important;
+}
+
+body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor :is(p, h1, h2, h3, h4, h5, h6):has(img) img {
+  margin: 0;
+}
+
+body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor :is(p, h1, h2, h3, h4, h5, h6):has(img) br {
+  display: none;
 }

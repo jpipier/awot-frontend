@@ -147,6 +147,10 @@ export async function getArticleBySlug(slug: string) {
     contentHasVcShortcodes(article.rawContent) ||
     contentHasVcShortcodes(article.renderedContent) ||
     contentHasVcShortcodes(article.elementorContent)
+  const hasClassicEditor =
+    article.isBuiltWithElementor === false &&
+    !hasVcShortcodes &&
+    !contentHasGutenbergBlocks(article.rawContent)
   const enrichedArticle = await enrichArticleInlineImages(article)
 
   if (!enrichedArticle) {
@@ -155,7 +159,8 @@ export async function getArticleBySlug(slug: string) {
 
   return {
     ...enrichedArticle,
-    hasVcShortcodes
+    hasVcShortcodes,
+    hasClassicEditor
   }
 }
 
@@ -286,6 +291,10 @@ function extractVcSingleImageShortcodes(content?: string | null) {
 
 function contentHasVcShortcodes(content?: string | null) {
   return content?.toLowerCase().includes('[vc') ?? false
+}
+
+function contentHasGutenbergBlocks(content?: string | null) {
+  return content?.includes('<!-- wp:') ?? false
 }
 
 function rawContentHasOnlySupportedVcShortcodes(content: string) {

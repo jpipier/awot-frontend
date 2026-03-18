@@ -159,6 +159,7 @@ export interface Article {
   content?: string | null
   elementorContent?: string | null
   hasVcShortcodes?: boolean
+  hasClassicEditor?: boolean
   isBuiltWithElementor?: boolean | null
   localisations?: {
     edges: Array<{
