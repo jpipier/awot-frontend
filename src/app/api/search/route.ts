@@ -1,37 +1,27 @@
 import { NextResponse } from 'next/server'
-import { searchPosts } from '@/lib/search'
-
-const normalize = (value: string) =>
-  value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
+import { searchPostsByTerm } from '@/lib/search'
+import { getArticleAlt, getArticleLocationLabel, getArticlePortraitImage } from '@/lib/article-card'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const term = searchParams.get('term') ?? ''
+  const parsedLimit = Number(searchParams.get('limit') ?? '6')
+  const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 12) : 6
 
   if (term.length < 3) {
     return NextResponse.json([])
   }
 
-  const posts = await searchPosts(60)
-  const needle = normalize(term)
-
-  const filtered = posts.filter((post) => {
-    const title = normalize(post.title ?? '')
-    const keywords = post.optionsArticles?.keywordSearch?.edges ?? []
-
-    const keywordMatch = keywords.some((edge) => normalize(edge.node.name).includes(needle))
-
-    return title.includes(needle) || keywordMatch
-  })
+  const filtered = await searchPostsByTerm(term, 160)
 
   return NextResponse.json(
-    filtered.map((post) => ({
+    filtered.slice(0, limit).map((post) => ({
       id: post.id,
       title: post.title,
-      slug: post.slug
+      slug: post.slug,
+      image: getArticlePortraitImage(post) || null,
+      imageAlt: getArticleAlt(post),
+      location: getArticleLocationLabel(post) || null
     }))
   )
 }

@@ -11,6 +11,7 @@ interface FetchOptions {
   variables?: Record<string, unknown>
   cache?: RequestCache
   next?: NextCacheOptions
+  headers?: HeadersInit
 }
 
 export async function fetchWordPressGraphQL<T>(
@@ -18,14 +19,15 @@ export async function fetchWordPressGraphQL<T>(
   options: FetchOptions = {}
 ): Promise<T> {
   const { gqlEndpoint } = getWordPressConfig()
-  const { variables, cache, next } = options
+  const { variables, cache, next, headers } = options
 
   const resolvedCache: RequestCache | undefined = cache ?? (next ? undefined : 'force-cache')
 
   const fetchInit: RequestInit & { next?: NextCacheOptions } = {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      ...(headers ?? {})
     },
     body: JSON.stringify({ query, variables })
   }
