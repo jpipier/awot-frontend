@@ -4,12 +4,11 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, EffectCreative } from 'swiper/modules'
 import Search from '@/components/search/Search'
 
 import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
+import 'swiper/css/effect-creative'
 
 interface SlideItem {
   img?: {
@@ -108,12 +107,24 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
         </div>
       </div>
       <Swiper
-        modules={[Autoplay, Navigation, Pagination]}
+        modules={[Autoplay, EffectCreative]}
         slidesPerView={1}
-        spaceBetween={10}
+        spaceBetween={0}
         loop={loop}
-        navigation={false}
-        pagination={false}
+        effect="creative"
+        creativeEffect={{
+          limitProgress: 2,
+          prev: {
+            opacity: 0.45,
+            scale: 0.95,
+            translate: [0, 0, -200]
+          },
+          next: {
+            opacity: 0.45,
+            translate: ['100%', 0, 0]
+          }
+        }}
+        speed={1400}
         autoplay={{ delay: 3000, disableOnInteraction: false }}
         className="h-[85vh]"
       >

@@ -138,7 +138,7 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
             value={query}
             onChange={handleChange}
             placeholder={`Vous recherchez ${placeholder}`}
-            className="w-full rounded-l border border-gray-300 p-2 font-montserrat text-[6pt] uppercase tracking-widest text-black focus:border-black-500 focus:outline-none"
+            className="w-full rounded-l border border-gray-300 p-2 font-montserrat text-[16px] uppercase tracking-widest text-black focus:border-black-500 focus:outline-none sm:text-[6pt]"
           />
           <button
             type="submit"

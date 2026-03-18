@@ -21,9 +21,10 @@ const getFirstParamValue = (value?: string | string[]) => {
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const term =
     getFirstParamValue(searchParams?.term).trim() || getFirstParamValue(searchParams?.q).trim()
+  const resultCount = term.length >= 3 ? (await searchPostsByTerm(term, 180)).length : 0
 
   return {
-    title: term || 'Recherche'
+    title: term ? `${resultCount} résultat${resultCount > 1 ? 's' : ''} pour votre recherche` : 'Recherche'
   }
 }
 
@@ -32,7 +33,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     getFirstParamValue(searchParams?.term).trim() || getFirstParamValue(searchParams?.q).trim()
   const posts = term.length >= 3 ? await searchPostsByTerm(term, 180) : []
   const resultsLabel = term
-    ? `${posts.length} résultat${posts.length > 1 ? 's' : ''} pour ${term}`
+    ? `${posts.length} résultat${posts.length > 1 ? 's' : ''} pour votre recheche`
     : 'Trouvez une adresse, une idée ou une destination'
   const emptyMessage =
     term.length >= 3
@@ -44,7 +45,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="mx-auto max-w-[1120px] px-6 pb-24 pt-16 md:px-10 md:pb-32 md:pt-24">
         <header className="mb-14 text-center md:mb-20">
           <h1 className="font-schnyder_wide_xl_webdemi text-[14vw] leading-[0.95] md:text-[86px]">
-            Recherche
+            {term || 'Recherche'}
           </h1>
           <div className="mx-auto mt-4 h-px w-32 bg-black/40" />
           <p className="mt-4 font-montserrat text-[10px] uppercase tracking-[0.35em] text-black/70">
