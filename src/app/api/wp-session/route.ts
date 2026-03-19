@@ -1,5 +1,33 @@
 import { NextResponse } from 'next/server'
-import { getWordPressConfig } from '@/lib/config'
+import { fetchWordPressGraphQL } from '@/lib/wordpress'
+
+interface ViewerSessionResponse {
+  viewer: {
+    databaseId: number
+    name?: string | null
+    username?: string | null
+    roles?: {
+      nodes?: Array<{
+        name?: string | null
+      }>
+    } | null
+  } | null
+}
+
+const VIEWER_SESSION_QUERY = /* GraphQL */ `
+  query GetViewerSession {
+    viewer {
+      databaseId
+      name
+      username
+      roles {
+        nodes {
+          name
+        }
+      }
+    }
+  }
+`
 
 export async function GET(request: Request) {
   const cookie = request.headers.get('cookie')
@@ -8,30 +36,26 @@ export async function GET(request: Request) {
     return NextResponse.json({ loggedIn: false })
   }
 
-  const { restEndpoint } = getWordPressConfig()
-  const url = `${restEndpoint.replace(/\/$/, '')}/wp/v2/users/me`
-
   try {
-    const response = await fetch(url, {
+    const data = await fetchWordPressGraphQL<ViewerSessionResponse>(VIEWER_SESSION_QUERY, {
+      cache: 'no-store',
       headers: {
-        cookie,
-        Accept: 'application/json'
-      },
-      credentials: 'include'
+        cookie
+      }
     })
 
-    if (!response.ok) {
+    if (!data.viewer) {
       return NextResponse.json({ loggedIn: false })
     }
 
-    const data = await response.json()
+    const roles = data.viewer.roles?.nodes?.map((role) => role.name).filter(Boolean) ?? []
 
     return NextResponse.json({
       loggedIn: true,
       user: {
-        id: data.id,
-        name: data.name,
-        roles: data.roles
+        id: data.viewer.databaseId,
+        name: data.viewer.name ?? data.viewer.username ?? '',
+        roles
       }
     })
   } catch (error) {
