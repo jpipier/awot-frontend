@@ -1,5 +1,5 @@
 import { draftMode } from 'next/headers'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
 import PostFooter from '@/components/footer/PostFooter'
 import ElementorStylesLoader from '@/components/ElementorStylesLoader'
@@ -12,6 +12,9 @@ import PostHero from '@/components/article/PostHero'
 interface ArticlePageProps {
   params: {
     slug: string[]
+  }
+  searchParams?: {
+    [key: string]: string | string[] | undefined
   }
 }
 
@@ -32,15 +35,37 @@ function extractElementorBodyClasses(content?: string | null) {
     .filter((cls) => cls.length > 0)
 }
 
-export default async function ArticlePage({ params }: ArticlePageProps) {
+function getFirstSearchParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0] ?? null
+  }
+
+  return value ?? null
+}
+
+export default async function ArticlePage({ params, searchParams }: ArticlePageProps) {
   const slugSegments = Array.isArray(params.slug) ? params.slug : [params.slug]
   const previewId = slugSegments[0] === 'preview' ? Number.parseInt(slugSegments[1] ?? '', 10) : null
   const isPreviewRoute = Boolean(previewId && Number.isInteger(previewId) && previewId > 0)
   let article = null
 
   if (isPreviewRoute) {
-    if (!draftMode().isEnabled || !previewId) {
+    if (!previewId) {
       notFound()
+    }
+
+    if (!draftMode().isEnabled) {
+      const previewSearch = new URLSearchParams({
+        p: String(previewId),
+        preview: 'true'
+      })
+      const secret = getFirstSearchParam(searchParams?.secret) ?? getFirstSearchParam(searchParams?.preview_secret)
+
+      if (secret) {
+        previewSearch.set('secret', secret)
+      }
+
+      redirect(`/api/preview?${previewSearch.toString()}`)
     }
 
     article = await getArticleByDatabaseId(previewId, { asPreview: true })
