@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 const PREVIEW_ID_KEYS = ['p', 'post_id', 'preview_id', 'page_id', 'id'] as const
+const WORDPRESS_EDITOR_COOKIE_PREFIXES = ['wordpress_logged_in_', 'wordpress_sec_'] as const
 
 function parsePositiveInt(value: string | null): number | null {
   if (!value) {
@@ -28,8 +29,23 @@ function extractPreviewId(searchParams: URLSearchParams): number | null {
   return null
 }
 
+function hasWordPressEditorSession(request: NextRequest) {
+  return request.cookies
+    .getAll()
+    .some(({ name }) => WORDPRESS_EDITOR_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix)))
+}
+
+function applyNoCacheHeaders(response: NextResponse) {
+  response.headers.set('Cache-Control', 'private, no-store, no-cache, must-revalidate, max-age=0')
+  response.headers.set('CDN-Cache-Control', 'no-store')
+  response.headers.set('Vercel-CDN-Cache-Control', 'no-store')
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
+}
+
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
+  const shouldDisableCache = hasWordPressEditorSession(request)
 
   if (
     pathname.startsWith('/api/preview') ||
@@ -38,7 +54,11 @@ export function middleware(request: NextRequest) {
     pathname === '/robots.txt' ||
     pathname === '/sitemap.xml'
   ) {
-    return NextResponse.next()
+    const passthrough = NextResponse.next()
+    if (shouldDisableCache) {
+      applyNoCacheHeaders(passthrough)
+    }
+    return passthrough
   }
 
   const hasPreviewIntent =
@@ -47,19 +67,31 @@ export function middleware(request: NextRequest) {
     searchParams.has('preview_id')
 
   if (!hasPreviewIntent) {
-    return NextResponse.next()
+    const passthrough = NextResponse.next()
+    if (shouldDisableCache) {
+      applyNoCacheHeaders(passthrough)
+    }
+    return passthrough
   }
 
   const previewId = extractPreviewId(searchParams)
 
   if (!previewId) {
-    return NextResponse.next()
+    const passthrough = NextResponse.next()
+    if (shouldDisableCache) {
+      applyNoCacheHeaders(passthrough)
+    }
+    return passthrough
   }
 
   const previewUrl = request.nextUrl.clone()
   previewUrl.pathname = '/api/preview'
 
-  return NextResponse.redirect(previewUrl)
+  const redirect = NextResponse.redirect(previewUrl)
+  if (shouldDisableCache) {
+    applyNoCacheHeaders(redirect)
+  }
+  return redirect
 }
 
 export const config = {
