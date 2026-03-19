@@ -411,3 +411,23 @@ body.not-built-with-elementor:not(.built-with-vc) .article-container .contentEle
 body.not-built-with-elementor:not(.built-with-vc) .article-container .contentElementor :is(p, h1, h2, h3, h4, h5, h6):has(img) br {
   display: none;
 }
+
+body.built-with-classic.not-built-with-elementor .contentElementor{
+  padding-right: 30px;
+}
+
+body.built-with-classic.not-built-with-elementor .contentElementor p img{
+  padding: 10px 0;
+}
+
+img.wp-smiley, img.emoji {
+    display: inline !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 1em !important;
+    width: 1em !important;
+    margin: 0 0.07em !important;
+    vertical-align: -0.1em !important;
+    background: none !important;
+    padding: 0 !important;
+}
