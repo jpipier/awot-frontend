@@ -9,11 +9,6 @@ interface EditBannerProps {
 
 interface SessionResponse {
   loggedIn: boolean
-  user?: {
-    id: number
-    name: string
-    roles: string[]
-  }
 }
 
 export default function EditBanner({ postId }: EditBannerProps) {
@@ -27,7 +22,8 @@ export default function EditBanner({ postId }: EditBannerProps) {
         })
 
         if (!response.ok) {
-          throw new Error('Session fetch failed')
+          setSession({ loggedIn: false })
+          return
         }
 
         const data = (await response.json()) as SessionResponse
@@ -41,28 +37,25 @@ export default function EditBanner({ postId }: EditBannerProps) {
     fetchSession()
   }, [])
 
-  if (!session?.loggedIn || !session.user?.roles?.includes('administrator')) {
+  if (!postId) {
+    return null
+  }
+
+  if (!session?.loggedIn) {
     return null
   }
 
   const { siteUrl } = getWordPressConfig()
-  const editUrl = postId
-    ? `${siteUrl?.replace(/\/$/, '')}/wp-admin/post.php?post=${postId}&action=edit`
-    : siteUrl
+  const editUrl = `${siteUrl?.replace(/\/$/, '')}/wp-admin/post.php?post=${postId}&action=edit`
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-yellow-300 p-3 text-center text-sm text-black shadow">
-      ✏️ Vous êtes connecté à WordPress.
-      {postId ? (
-        <a
-          href={editUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="ml-2 underline transition hover:text-blue-700"
-        >
-          Modifier cet article
-        </a>
-      ) : null}
-    </div>
+    <a
+      href={editUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-black px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#1f1f1f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+    >
+      Modifier l&apos;article
+    </a>
   )
 }
