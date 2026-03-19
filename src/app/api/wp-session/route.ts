@@ -29,12 +29,18 @@ const VIEWER_SESSION_QUERY = /* GraphQL */ `
   }
 `
 
+function hasWordPressLoginCookie(cookieHeader: string) {
+  return /(?:^|;\s*)wordpress_logged_in_[^=]+=/.test(cookieHeader)
+}
+
 export async function GET(request: Request) {
   const cookie = request.headers.get('cookie')
 
   if (!cookie) {
     return NextResponse.json({ loggedIn: false })
   }
+
+  const hasWpCookie = hasWordPressLoginCookie(cookie)
 
   try {
     const data = await fetchWordPressGraphQL<ViewerSessionResponse>(VIEWER_SESSION_QUERY, {
@@ -60,6 +66,6 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Erreur WordPress session', error)
-    return NextResponse.json({ loggedIn: false })
+    return NextResponse.json({ loggedIn: hasWpCookie })
   }
 }
