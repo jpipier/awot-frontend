@@ -19,9 +19,20 @@ The project expects the following variables (see `.env` for concrete values):
 NEXT_PUBLIC_WORDPRESS_GQL=https://<your-site>/wp/graphql
 NEXT_PUBLIC_WORDPRESS_API=https://<your-site>/wp-json
 NEXT_PUBLIC_WORDPRESS_URL=https://<your-site>/
+WORDPRESS_PREVIEW_SECRET=<optional-shared-secret>
 ```
 
 Server-only fallbacks (`WORDPRESS_GQL`, `WORDPRESS_API`, `WORDPRESS_URL`) are also supported if you prefer not to expose the endpoints publicly.
+
+### WordPress preview (BO -> headless)
+
+The frontend now supports WordPress preview URLs and redirects them to headless preview mode:
+
+- Incoming links like `?preview=true&p=<id>` are intercepted by middleware.
+- `GET /api/preview` enables Next.js draft mode and redirects to `/articles/preview/<id>`.
+- The article route then fetches the preview revision via WPGraphQL (`asPreview: true`).
+
+If you set `WORDPRESS_PREVIEW_SECRET`, append `secret=<same-value>` to the preview URL generated in WordPress for extra protection.
 
 ### Instagram feed
 

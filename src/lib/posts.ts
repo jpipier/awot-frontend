@@ -177,7 +177,7 @@ const RECENT_POSTS_QUERY = /* GraphQL */ `
 export async function getRecentPosts(first = 20) {
   const data = await fetchWordPressGraphQL<RecentPostsResponse>(RECENT_POSTS_QUERY, {
     variables: { first },
-    next: { revalidate: 120 }
+    cache: 'no-store'
   })
 
   return data.posts?.nodes ?? []

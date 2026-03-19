@@ -7,19 +7,23 @@ type ArticleQueryData = Omit<Article, 'content'> & {
   rawContent?: string | null
 }
 
+type ArticleNode = ArticleQueryData & {
+  optionsArticles?: Article['optionsArticles'] & {
+    imagePortait?: {
+      node?: {
+        guid?: string | null
+        srcSet?: string | null
+      }
+    }
+  }
+}
+
 interface ArticleResponse {
-  postBy:
-    | (ArticleQueryData & {
-        optionsArticles?: Article['optionsArticles'] & {
-          imagePortait?: {
-            node?: {
-              guid?: string | null
-              srcSet?: string | null
-            }
-          }
-        }
-      })
-    | null
+  postBy: ArticleNode | null
+}
+
+interface ArticleByDatabaseIdResponse {
+  post: ArticleNode | null
 }
 
 interface WordPressMediaSizeResponse {
@@ -46,73 +50,85 @@ interface VcSingleImageShortcode {
   alignment?: string
 }
 
-const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
-  query GetPostBySlug($slug: String!) {
-    postBy(slug: $slug) {
-      databaseId
-      title
-      renderedContent: content
-      rawContent: content(format: RAW)
-      elementorContent
-      isBuiltWithElementor
-      uri
-      slug
-      optionsArticles {
-        champsLibre
-        champsLibrePageAccueil
-        imagePortait {
-          node {
-            guid
-            sourceUrl
-            srcSet
-            altText
-          }
-        }
-        imagePaysage {
-          node {
-            guid
-            srcSet
-          }
-        }
+const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
+  databaseId
+  title
+  renderedContent: content
+  rawContent: content(format: RAW)
+  elementorContent
+  isBuiltWithElementor
+  uri
+  slug
+  optionsArticles {
+    champsLibre
+    champsLibrePageAccueil
+    imagePortait {
+      node {
+        guid
+        sourceUrl
+        srcSet
+        altText
       }
-      featuredImage {
-        node {
-          guid
-          sourceUrl
-          srcSet
-          altText
-        }
+    }
+    imagePaysage {
+      node {
+        guid
+        srcSet
       }
-      localisations {
-        edges {
+    }
+  }
+  featuredImage {
+    node {
+      guid
+      sourceUrl
+      srcSet
+      altText
+    }
+  }
+  localisations {
+    edges {
+      node {
+        id
+        name
+        slug
+        parent {
           node {
             id
             name
             slug
-            parent {
-              node {
-                id
-                name
-                slug
-              }
-            }
           }
         }
       }
-      categories {
-        edges {
+    }
+  }
+  categories {
+    edges {
+      node {
+        name
+        slug
+        parent {
           node {
             name
             slug
-            parent {
-              node {
-                name
-                slug
-              }
-            }
           }
         }
       }
+    }
+  }
+`
+
+const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
+  query GetPostBySlug($slug: String!) {
+    postBy(slug: $slug) {
+      ${ARTICLE_QUERY_FIELDS}
+    }
+  }
+`
+
+const ARTICLE_BY_DATABASE_ID_QUERY = /* GraphQL */ `
+  query GetPostByDatabaseId($id: ID!, $asPreview: Boolean!) {
+    post(id: $id, idType: DATABASE_ID, asPreview: $asPreview) {
+      ${ARTICLE_QUERY_FIELDS}
     }
   }
 `
@@ -137,8 +153,27 @@ export async function getArticleBySlug(slug: string) {
     headers: getWordPressContentAuthHeaders()
   })
 
-  const article = data.postBy ?? null
+  return resolveArticle(data.postBy ?? null)
+}
 
+export async function getArticleByDatabaseId(databaseId: number, options?: { asPreview?: boolean }) {
+  if (!Number.isInteger(databaseId) || databaseId <= 0) {
+    return null
+  }
+
+  const data = await fetchWordPressGraphQL<ArticleByDatabaseIdResponse>(ARTICLE_BY_DATABASE_ID_QUERY, {
+    variables: {
+      id: String(databaseId),
+      asPreview: options?.asPreview ?? false
+    },
+    cache: 'no-store',
+    headers: getWordPressContentAuthHeaders()
+  })
+
+  return resolveArticle(data.post ?? null)
+}
+
+async function resolveArticle(article: ArticleNode | null) {
   if (!article) {
     return null
   }

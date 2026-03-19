@@ -134,7 +134,7 @@ export function filterSearchPosts(posts: SearchPost[], term: string) {
 export async function searchPosts(first = 120) {
   const data = await fetchWordPressGraphQL<SearchResponse>(SEARCH_POSTS_QUERY, {
     variables: { first },
-    next: { revalidate: 120 }
+    cache: 'no-store'
   })
 
   return data.posts?.nodes ?? []

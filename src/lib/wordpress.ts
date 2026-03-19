@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { cookies, draftMode } from 'next/headers'
 import { getWordPressConfig } from './config'
 
 type NextCacheOptions = {
@@ -14,14 +15,44 @@ interface FetchOptions {
   headers?: HeadersInit
 }
 
+const WORDPRESS_EDITOR_COOKIE_PREFIXES = ['wordpress_logged_in_', 'wordpress_sec_']
+
+function hasWordPressEditorSession() {
+  try {
+    const cookieStore = cookies()
+    const allCookies = cookieStore.getAll()
+    return allCookies.some(({ name }) =>
+      WORDPRESS_EDITOR_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix))
+    )
+  } catch {
+    return false
+  }
+}
+
+function isDraftModeEnabled() {
+  try {
+    return draftMode().isEnabled
+  } catch {
+    return false
+  }
+}
+
+function shouldBypassNextCache() {
+  return isDraftModeEnabled() || hasWordPressEditorSession()
+}
+
 export async function fetchWordPressGraphQL<T>(
   query: string,
   options: FetchOptions = {}
 ): Promise<T> {
   const { gqlEndpoint } = getWordPressConfig()
   const { variables, cache, next, headers } = options
+  const shouldBypassCache = shouldBypassNextCache()
 
-  const resolvedCache: RequestCache | undefined = cache ?? (next ? undefined : 'force-cache')
+  const resolvedCache: RequestCache | undefined = shouldBypassCache
+    ? 'no-store'
+    : cache ?? (next ? undefined : 'force-cache')
+  const resolvedNext = shouldBypassCache ? undefined : next
 
   const fetchInit: RequestInit & { next?: NextCacheOptions } = {
     method: 'POST',
@@ -35,8 +66,8 @@ export async function fetchWordPressGraphQL<T>(
   if (resolvedCache) {
     fetchInit.cache = resolvedCache
   }
-  if (next) {
-    fetchInit.next = next
+  if (resolvedNext) {
+    fetchInit.next = resolvedNext
   }
 
   const response = await fetch(gqlEndpoint, fetchInit)
@@ -57,9 +88,12 @@ export async function fetchWordPressGraphQL<T>(
 export async function fetchWordPressRest<T>(path: string, init?: RequestInit): Promise<T> {
   const { restEndpoint } = getWordPressConfig()
   const url = `${restEndpoint.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+  const shouldBypassCache = shouldBypassNextCache()
+  const resolvedCache: RequestCache | undefined = shouldBypassCache ? 'no-store' : init?.cache
 
   const response = await fetch(url, {
     ...init,
+    cache: resolvedCache,
     headers: {
       Accept: 'application/json',
       ...(init?.headers ?? {})

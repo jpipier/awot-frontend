@@ -1,3 +1,4 @@
+import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
 import PostFooter from '@/components/footer/PostFooter'
@@ -5,7 +6,7 @@ import ElementorStylesLoader from '@/components/ElementorStylesLoader'
 import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import StickyWatcher from '@/components/article/StickyWatcher'
 import ElementorHeadingAnimator from '@/components/article/ElementorHeadingAnimator'
-import { getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
+import { getArticleByDatabaseId, getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 import PostHero from '@/components/article/PostHero'
 
 interface ArticlePageProps {
@@ -32,8 +33,21 @@ function extractElementorBodyClasses(content?: string | null) {
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const slugSegment = Array.isArray(params.slug) ? params.slug[params.slug.length - 1] : params.slug
-  const article = await getArticleBySlug(slugSegment)
+  const slugSegments = Array.isArray(params.slug) ? params.slug : [params.slug]
+  const previewId = slugSegments[0] === 'preview' ? Number.parseInt(slugSegments[1] ?? '', 10) : null
+  const isPreviewRoute = Boolean(previewId && Number.isInteger(previewId) && previewId > 0)
+  let article = null
+
+  if (isPreviewRoute) {
+    if (!draftMode().isEnabled || !previewId) {
+      notFound()
+    }
+
+    article = await getArticleByDatabaseId(previewId, { asPreview: true })
+  } else {
+    const slugSegment = slugSegments[slugSegments.length - 1]
+    article = await getArticleBySlug(slugSegment)
+  }
 
   if (!article) {
     notFound()
