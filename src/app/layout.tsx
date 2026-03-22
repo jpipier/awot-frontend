@@ -18,6 +18,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const siteChrome = await getSiteChrome()
+  const faviconHref = siteChrome.faviconUrl ?? '/favicon.ico'
   const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID
   const facebookApiVersion = process.env.NEXT_PUBLIC_FACEBOOK_API_VERSION ?? 'v21.0'
   const shouldLoadFacebookSdk = Boolean(facebookAppId)
@@ -25,6 +26,8 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <head>
+        <link rel="icon" href={faviconHref} />
+        <link rel="apple-touch-icon" href={faviconHref} />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"

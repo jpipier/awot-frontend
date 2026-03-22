@@ -1,4 +1,4 @@
-import { fetchWordPressGraphQL } from './wordpress'
+import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
 import type { MenuItem, SiteSettings } from '@/types/wordpress'
 
 interface SiteChromeResponse {
@@ -13,6 +13,10 @@ interface SiteChromeResponse {
       nodes?: MenuItem[]
     }
   }
+}
+
+interface WordPressRestIndexResponse {
+  site_icon_url?: string | null
 }
 
 const SITE_CHROME_QUERY = /* GraphQL */ `
@@ -43,13 +47,21 @@ const SITE_CHROME_QUERY = /* GraphQL */ `
 `
 
 export async function getSiteChrome() {
-  const data = await fetchWordPressGraphQL<SiteChromeResponse>(SITE_CHROME_QUERY, {
-    next: { revalidate: 300 }
-  })
+  const [data, restIndex] = await Promise.all([
+    fetchWordPressGraphQL<SiteChromeResponse>(SITE_CHROME_QUERY, {
+      next: { revalidate: 300 }
+    }),
+    fetchWordPressRest<WordPressRestIndexResponse>('', {
+      next: { revalidate: 300 }
+    }).catch(() => null)
+  ])
+
+  const faviconUrl = restIndex?.site_icon_url ?? null
 
   return {
     settings: data.generalSettings,
     headerMenu: data.headerMenu?.menuItems?.nodes ?? [],
-    footerMenu: data.footerMenu?.menuItems?.nodes ?? []
+    footerMenu: data.footerMenu?.menuItems?.nodes ?? [],
+    faviconUrl
   }
 }
