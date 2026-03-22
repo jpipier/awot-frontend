@@ -818,7 +818,7 @@ export default function GuideVoyageLayoutClient({
     <>
       {backgroundPortal}
       <div className="guide-voyage-content mt-10 flex flex-col md:flex-row items-start gap-4 sm:gap-10">
-        <div ref={stickyRowRef} className="flex w-full min-w-0 flex-col gap-4 pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
+        <div ref={stickyRowRef} className="flex w-full min-w-0 flex-col gap-4 md:pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
         <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">

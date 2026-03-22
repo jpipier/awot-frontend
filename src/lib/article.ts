@@ -199,8 +199,26 @@ async function resolveArticle(article: ArticleNode | null) {
   }
 }
 
-export async function getElementorCssFiles() {
-  return fetchWordPressRest<string[]>('elementor/v1/css-files')
+interface ElementorCssRequestOptions {
+  postId?: number | null
+  preview?: boolean
+}
+
+export async function getElementorCssFiles(options: ElementorCssRequestOptions = {}) {
+  const params = new URLSearchParams()
+
+  if (Number.isInteger(options.postId) && Number(options.postId) > 0) {
+    params.set('post_id', String(options.postId))
+  }
+
+  if (options.preview) {
+    params.set('preview', 'true')
+  }
+
+  const query = params.toString()
+  const path = query ? `elementor/v1/css-files?${query}` : 'elementor/v1/css-files'
+
+  return fetchWordPressRest<string[]>(path)
 }
 
 export type ElementorCssAsset = {
@@ -208,8 +226,8 @@ export type ElementorCssAsset = {
   content: string
 }
 
-export async function getElementorCssBundle(): Promise<ElementorCssAsset[]> {
-  const files = await getElementorCssFiles()
+export async function getElementorCssBundle(options: ElementorCssRequestOptions = {}): Promise<ElementorCssAsset[]> {
+  const files = await getElementorCssFiles(options)
   if (!files.length) {
     return []
   }

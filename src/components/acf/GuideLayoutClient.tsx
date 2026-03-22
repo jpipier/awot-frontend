@@ -314,34 +314,43 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
             }}
             onHashSet={clearUrlHash}
           >
-            {posts.map((post) => (
-              <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
-                <div className="relative">
-                  <Link href={`/articles/${post.slug}`} className="block">
-                    {post.optionsArticles?.imagePaysage?.node?.guid ? (
-                      <div className="relative w-full h-[50vh] md:h-[450px] lg:h-[80vh]">
-                        <Image
-                          src={post.optionsArticles.imagePaysage.node.guid}
-                          alt={post.title}
-                          fill
-                          className="object-cover"
-                          sizes="(min-width: 1024px) 75vw, 100vw"
-                          unoptimized
-                        />
+            {posts.map((post) => {
+              const paysageNode = post.optionsArticles?.imagePaysage?.node
+              const thumbnailNode = post.featuredImage?.node
+              const slideImageSrc =
+                paysageNode?.sourceUrl ?? paysageNode?.guid ??
+                thumbnailNode?.sourceUrl ?? thumbnailNode?.guid ?? null
+              const slideImageAlt = paysageNode?.altText ?? thumbnailNode?.altText ?? post.title
+
+              return (
+                <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
+                  <div className="relative">
+                    <Link href={`/articles/${post.slug}`} className="block">
+                      {slideImageSrc ? (
+                        <div className="relative w-full h-[50vh] md:h-[450px] lg:h-[80vh]">
+                          <Image
+                            src={slideImageSrc}
+                            alt={slideImageAlt}
+                            fill
+                            className="object-cover"
+                            sizes="(min-width: 1024px) 75vw, 100vw"
+                            unoptimized
+                          />
+                        </div>
+                      ) : null}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
+                        <AnimatedGuideTitle className="font-schnyder_wide_xl_webdemi text-2xl md:text-4xl lg:text-6xl">
+                          {post.title}
+                        </AnimatedGuideTitle>
+                        <AnimatedGuideSubtitle className="mt-4 text-sm uppercase font-montserrat">
+                          {post.optionsArticles?.champsLibrePageAccueil}
+                        </AnimatedGuideSubtitle>
                       </div>
-                    ) : null}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
-                      <AnimatedGuideTitle className="font-schnyder_wide_xl_webdemi text-2xl md:text-4xl lg:text-6xl">
-                        {post.title}
-                      </AnimatedGuideTitle>
-                      <AnimatedGuideSubtitle className="mt-4 text-sm uppercase font-montserrat">
-                        {post.optionsArticles?.champsLibrePageAccueil}
-                      </AnimatedGuideSubtitle>
-                    </div>
-                  </Link>
-                </div>
-              </SwiperSlide>
-            ))}
+                    </Link>
+                  </div>
+                </SwiperSlide>
+              )
+            })}
           </Swiper>
           <div className="swiper-button-prev" />
           <div className="swiper-button-next" />

@@ -139,7 +139,7 @@ export default async function HomePage() {
         const sectionId = getBlocSectionId(bloc)
 
         return (
-          <section key={`${bloc.fieldGroupName}-${index}`} id={sectionId} className="home-block bg-white z-10">
+          <section key={`${bloc.fieldGroupName}-${index}`} id={sectionId} className="home-block bg-white z-99">
             {renderBloc(bloc)}
           </section>
         )

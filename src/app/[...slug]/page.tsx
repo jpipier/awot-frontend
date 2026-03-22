@@ -39,9 +39,10 @@ export default async function GenericPage({ params }: GenericPageProps) {
     notFound()
   }
 
-  const cssBundle = await getElementorCssBundle()
+  const cssBundle = await getElementorCssBundle({ postId: page.databaseId ?? undefined })
   const elementorAssets = await getElementorJsAssets(page.databaseId ?? undefined, page.uri ?? uri)
-  const isElementor = page.isBuiltWithElementor !== false
+  const hasElementorMarkup = Boolean(page.elementorContent?.trim())
+  const isElementor = page.isBuiltWithElementor !== false || hasElementorMarkup
   const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(page.elementorContent ?? page.content) : []
   const isHomePage = page.isFrontPage || page.uri === '/' || uri === '/'
   const shouldDisplayHeading = !(page.elementorContent && page.elementorContent.trim().length > 0)

@@ -78,9 +78,13 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
     notFound()
   }
 
-  const cssBundle = await getElementorCssBundle()
+  const cssBundle = await getElementorCssBundle({
+    postId: article.databaseId ?? previewId ?? undefined,
+    preview: isPreviewRoute
+  })
   const elementorAssets = await getElementorJsAssets(article.databaseId ?? undefined, article.uri ?? undefined)
-  const isElementor = article.isBuiltWithElementor !== false
+  const hasElementorMarkup = Boolean(article.elementorContent?.trim())
+  const isElementor = article.isBuiltWithElementor !== false || hasElementorMarkup
   const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(article.elementorContent) : []
   const bodyClasses = [
     ...fallbackBodyClasses,

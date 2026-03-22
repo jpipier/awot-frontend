@@ -311,9 +311,11 @@ a {
 }
 
 .article-container h1{
-    font-size: 80px;
     font-weight: 500;
     color: #000000;
+    @media (min-width: 767px) {
+      font-size: 80px;
+    }
 }
 
 body.not-built-with-elementor .elementor-section-height-default{
@@ -413,7 +415,10 @@ body.not-built-with-elementor:not(.built-with-vc) .article-container .contentEle
 }
 
 body.built-with-classic.not-built-with-elementor .contentElementor{
-  padding-right: 30px;
+  padding-right: 0;
+  @media (min-width: 768px) {
+    padding-right: 30px;
+  }
 }
 
 body.built-with-classic.not-built-with-elementor .contentElementor p img{
@@ -431,4 +436,13 @@ img.wp-smiley, img.emoji {
     background: none !important;
     padding: 0 !important;
 }
+b, strong {
+    font-weight: 800;
+}
 
+
+
+
+body.built-with-elementor footer h2 {
+  margin-top: 0;
+}

@@ -20,6 +20,7 @@ interface SearchProps {
 }
 
 const placeholders = ['un restaurant ?', 'un hotel ?', 'une idée de sortie ?']
+const SUGGESTIONS_LIMIT = 6
 
 export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
   const router = useRouter()
@@ -36,7 +37,9 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
         }
 
         try {
-          const response = await fetch(`/api/search?term=${encodeURIComponent(value)}&limit=6`)
+          const response = await fetch(
+            `/api/search?term=${encodeURIComponent(value)}&limit=${SUGGESTIONS_LIMIT}`
+          )
           if (!response.ok) {
             throw new Error('Erreur lors de la recherche')
           }
@@ -129,6 +132,17 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
     onNavigate?.()
   }
 
+  const navigateToSearchResults = () => {
+    const trimmedQuery = query.trim()
+    if (!trimmedQuery) {
+      return
+    }
+
+    router.push(`/recherche?term=${encodeURIComponent(trimmedQuery)}`)
+    setSuggestions([])
+    onNavigate?.()
+  }
+
   return (
     <div className="mx-auto w-full px-3">
       <div className="relative mx-auto flex w-full max-w-2xl flex-col">
@@ -138,7 +152,7 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
             value={query}
             onChange={handleChange}
             placeholder={`Vous recherchez ${placeholder}`}
-            className="w-full rounded-l border border-gray-300 p-2 font-montserrat text-[16px] uppercase tracking-widest text-black focus:border-black-500 focus:outline-none sm:text-[6pt]"
+            className="w-full rounded-l border border-gray-300 p-2 font-montserrat text-[10px] uppercase tracking-widest text-black focus:border-black-500 focus:outline-none sm:text-[6pt]"
           />
           <button
             type="submit"
@@ -184,6 +198,15 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
                 </button>
               </li>
             ))}
+            <li className="border-t border-black/10">
+              <button
+                type="button"
+                className="w-full px-4 py-3 text-center font-montserrat text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-gray-100"
+                onClick={navigateToSearchResults}
+              >
+                Voir tous les résultats
+              </button>
+            </li>
           </ul>
         ) : null}
       </div>
