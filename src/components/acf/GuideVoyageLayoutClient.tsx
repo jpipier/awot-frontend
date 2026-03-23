@@ -772,7 +772,7 @@ export default function GuideVoyageLayoutClient({
             const distanceBelowTarget =
               voyagesContainer.offsetHeight - (targetRect.top - containerRect.top) - targetRect.height
 
-            return Math.max((distanceBelowTarget - 100) * STICKY_END_DISTANCE_MULTIPLIER, 0)
+            return Math.max((distanceBelowTarget - 150) * STICKY_END_DISTANCE_MULTIPLIER, 0)
           }
 
           const trigger = ScrollTrigger.create({
