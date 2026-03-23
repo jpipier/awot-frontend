@@ -47,7 +47,7 @@ export default function Footer({ postId }: FooterProps) {
               rel="noopener noreferrer"
               className="absolute -left-[130px] md:-left-[80px] top-[70px] md:top-[70px] z-20 flex flex-col items-center gap-1"
             >
-              <svg className="w-10 h-10 md:w-12 md:h-12 rotate-[273deg] left-[56px] absolute top-[8px]" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-10 h-10 md:w-12 md:h-12 rotate-[273deg] left-[56px] absolute top-[20px]" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 40 Q10 10 40 10" stroke="white" strokeWidth="1.5" fill="none" />
               </svg>
               <span className="text-[8px] md:text-[10px] font-montserrat uppercase tracking-wider">www.julienpipier.fr</span>
