@@ -32,7 +32,7 @@ export default async function GuideVoyageLayout({
   }
 
   return (
-    <div className="w-full px-6 sm:px-10 lg:px-0 pt-20">
+    <div className="w-full px-6 sm:px-10 lg:px-0 pt-10 md:pt-20">
       <div className="flex flex-col items-start gap-6 md:flex-row md:items-end md:justify-between">
         {titreDeLaSection ? (
           <h2 className="font-custom text-[15vw] sm:text-[12vw] md:text-4xl leading-tight md:text-[9rem] md:leading-[1] lg:pl-[8rem] lg:-mr-[7rem]">

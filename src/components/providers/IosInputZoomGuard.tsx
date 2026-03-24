@@ -19,11 +19,17 @@ const TEXT_INPUT_TYPES = new Set([
   'week'
 ])
 
-const removeMaximumScale = (content: string) =>
+const removeZoomDirectives = (content: string) =>
   content
     .split(',')
     .map((chunk) => chunk.trim())
-    .filter((chunk) => chunk.length > 0 && !chunk.toLowerCase().startsWith('maximum-scale'))
+    .filter((chunk) => {
+      if (chunk.length === 0) {
+        return false
+      }
+      const normalized = chunk.toLowerCase()
+      return !normalized.startsWith('maximum-scale') && !normalized.startsWith('user-scalable')
+    })
     .join(', ')
 
 const isTextEntryElement = (target: EventTarget | null): target is HTMLInputElement | HTMLTextAreaElement => {
@@ -51,38 +57,49 @@ export default function IosInputZoomGuard() {
     }
 
     const initialViewport = viewportMeta.getAttribute('content') ?? ''
-    const viewportWithoutMaxScale = removeMaximumScale(initialViewport)
-    const noZoomViewport = viewportWithoutMaxScale
-      ? `${viewportWithoutMaxScale}, maximum-scale=1`
-      : 'width=device-width, initial-scale=1, maximum-scale=1'
+    const viewportWithoutZoomDirectives = removeZoomDirectives(initialViewport)
+    const noZoomViewport = viewportWithoutZoomDirectives
+      ? `${viewportWithoutZoomDirectives}, maximum-scale=1, user-scalable=no`
+      : 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
 
-    let activeTextEntryFocuses = 0
+    const applyNoZoom = () => viewportMeta.setAttribute('content', noZoomViewport)
+    const restoreZoom = () => viewportMeta.setAttribute('content', initialViewport)
+
+    const handleTouchStart = (event: TouchEvent) => {
+      if (!isTextEntryElement(event.target)) {
+        return
+      }
+      applyNoZoom()
+    }
 
     const handleFocusIn = (event: FocusEvent) => {
       if (!isTextEntryElement(event.target)) {
         return
       }
-      activeTextEntryFocuses += 1
-      viewportMeta.setAttribute('content', noZoomViewport)
+      applyNoZoom()
     }
 
     const handleFocusOut = (event: FocusEvent) => {
       if (!isTextEntryElement(event.target)) {
         return
       }
-      activeTextEntryFocuses = Math.max(activeTextEntryFocuses - 1, 0)
-      if (activeTextEntryFocuses === 0) {
-        viewportMeta.setAttribute('content', initialViewport)
-      }
+      requestAnimationFrame(() => {
+        if (isTextEntryElement(document.activeElement)) {
+          return
+        }
+        restoreZoom()
+      })
     }
 
-    document.addEventListener('focusin', handleFocusIn)
-    document.addEventListener('focusout', handleFocusOut)
+    document.addEventListener('touchstart', handleTouchStart, { capture: true, passive: true })
+    document.addEventListener('focusin', handleFocusIn, true)
+    document.addEventListener('focusout', handleFocusOut, true)
 
     return () => {
-      document.removeEventListener('focusin', handleFocusIn)
-      document.removeEventListener('focusout', handleFocusOut)
-      viewportMeta.setAttribute('content', initialViewport)
+      document.removeEventListener('touchstart', handleTouchStart, true)
+      document.removeEventListener('focusin', handleFocusIn, true)
+      document.removeEventListener('focusout', handleFocusOut, true)
+      restoreZoom()
     }
   }, [])
 

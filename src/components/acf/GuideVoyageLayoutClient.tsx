@@ -992,6 +992,9 @@ export default function GuideVoyageLayoutClient({
           position: relative;
           overflow: hidden;
           z-index: 0;
+          @media (max-width: 768px) {
+            margin-bottom: 4rem;
+          }
         }
         .guide-voyage-section:before{
           content: '';

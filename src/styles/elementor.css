@@ -2410,6 +2410,9 @@ html{
     body.built-with-elementor h2 {
       margin-top: 3rem;
     }
+    body.built-with-elementor .removeSticky h2{
+      margin-top: 0;
+    }
     body.built-with-elementor .elementor-widget-wrap {
       margin: 0 !important;
       padding: 0 !important;
@@ -2443,7 +2446,7 @@ html{
     }
     body.built-with-elementor #stickyTitle {
       margin-bottom: 2rem;
-      margin-top: 3rem;
+      margin-top: 0;
     }
     body.built-with-elementor #sticky-anchor img {
       height: 55vh;

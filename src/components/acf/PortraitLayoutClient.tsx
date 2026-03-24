@@ -430,7 +430,7 @@ export default function PortraitLayoutClient({
               >
                 <h3
                   className={clsx(
-                    'font-schnyder_xl_webdemi text-[16px] md:text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
+                    'font-schnyder_xl_webdemi text-[30px] md:text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
                   )}
                   dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(activePost?.title) }}
                 />
@@ -439,7 +439,7 @@ export default function PortraitLayoutClient({
                 ? excerptLines.map((line, idx) => (
                     <p
                       key={`${activePost?.slug ?? currentIndex}-line-${idx}`}
-                      className="font-brandonRegular text-sm opacity-80"
+                      className="font-montserrat text-sm opacity-80"
                     >
                       {line}
                     </p>

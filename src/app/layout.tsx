@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import '@/styles/globals.css'
 import Header from '@/components/header/Header'
@@ -11,6 +11,13 @@ import IosInputZoomGuard from '@/components/providers/IosInputZoomGuard'
 export const metadata: Metadata = {
   title: 'A Way of Travel',
   description: 'Guide Landes & Pays Basque - A Way of Travel'
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
 }
 
 export default async function RootLayout({

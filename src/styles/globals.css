@@ -46,7 +46,7 @@ a {
 }
 
 .home-block {
-  padding-bottom: 2rem;
+  padding-bottom: 6rem;
   @media (min-width: 768px) {
     padding-bottom: 5rem;
   }

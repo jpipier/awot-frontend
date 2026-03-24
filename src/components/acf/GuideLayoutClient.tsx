@@ -282,6 +282,9 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       ref={sectionRef}
       className="max-w-screen-full bg-white md:pt-[5rem]"
     >
+      
+      <h2 className="font-custom px-6 text-[12vw] sm:text-[12vw] md:text-4xl leading-tight md:text-[9rem] md:leading-[1] lg:pl-[8rem] lg:-mr-[7rem] pb-[1rem] md:hidden">Activités</h2>
+
       <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-auto md:h-[50vh] lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}
