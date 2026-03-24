@@ -283,12 +283,12 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
 
   return (
     <div className="removeSticky elementor-element-27be2e8c elementor-widget elementor-widget-posts">
-      <h2 className="cd-headline wordrotate mt-10 flex flex-col sm:flex-row px-6 font-custom text-3xl sm:text-4xl">
+      <h2 className="cd-headline wordrotate mt-30 md:mt-10 flex flex-col sm:flex-row px-6 font-custom text-3xl sm:text-4xl ">
         {isVoyage ? (
           <div className="flex-none font-schnyder_xl_webdemi">Découvrez d&apos;autres destinations</div>
         ) : (
           <>
-            <div className="flex-none pr-[10px]">{STATIC_TEXT}</div>
+            <div className="flex-none pr-[10px] leading-[12px] md:leading-[2.5rem]">{STATIC_TEXT}</div>
             <div className="cd-words-wrapper flex-grow font-schnyder_xl_webdemi">
               {WORDS.map((word, index) => (
                 <span key={word} className={index === currentIndex ? 'is-visible' : 'is-hidden'}>

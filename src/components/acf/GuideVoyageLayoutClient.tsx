@@ -16,8 +16,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { HashNavigation, Mousewheel, Navigation, Pagination } from 'swiper/modules'
-import he from 'he'
 import type { Article } from '@/types/wordpress'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 import type { Swiper as SwiperInstance } from 'swiper'
 import type { gsap as GSAP } from 'gsap'
@@ -181,10 +181,7 @@ export default function GuideVoyageLayoutClient({
     () =>
       displayedPosts.map((post) => ({
         ...post,
-        excerptPlain: he
-          .decode(post.excerpt ?? '')
-          .replace(/<[^>]*>/g, '')
-          .trim()
+        excerptPlain: sanitizeExcerptText(post.excerpt)
       })),
     [displayedPosts]
   )

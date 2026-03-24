@@ -11,6 +11,7 @@ import {
   getArticleLocationLabel,
   getArticlePortraitImage
 } from '@/lib/article-card'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 
 interface EditorialPostGridProps {
   posts: Article[]
@@ -21,17 +22,6 @@ interface EditorialPostGridProps {
 interface GroupedPosts {
   cards: Array<{ post: Article; index: number }>
   feature: { post: Article; index: number } | null
-}
-
-const stripHtml = (value?: string | null) => {
-  if (!value) {
-    return ''
-  }
-
-  return value
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
 }
 
 const clampText = (value: string, maxLength: number) => {
@@ -151,6 +141,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                 {group.cards.map(({ post, index }) => {
                   const imageSrc = getArticlePortraitImage(post)
                   const altText = getArticleAlt(post)
+                  const postLink = getPostLink(post)
 
                   return (
                     <article
@@ -162,7 +153,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                       className={revealClasses(index)}
                       style={{ transitionDelay: `${(index % 4) * 140}ms` }}
                     >
-                      <Link href={getPostLink(post)} className="group block">
+                      <Link href={postLink} className="group block">
                         {imageSrc ? (
                           <div className="relative aspect-[3/4] overflow-hidden bg-black/5">
                             <Image
@@ -176,6 +167,17 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                         ) : null}
                         {renderImageCaption(post)}
                       </Link>
+                      <div className="md:hidden mb-[48px] pt-1 md:pl-2">
+                        <p className="mt-5 max-w-[36ch] font-montserrat text-[13px] leading-relaxed text-black/80">
+                          {clampText(sanitizeExcerptText(post.excerpt), 300)}
+                        </p>
+                        <Link
+                          href={postLink}
+                          className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
+                        >
+                          Lire la suite
+                        </Link>
+                      </div>
                     </article>
                   )
                 })}
@@ -199,75 +201,82 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                 )}
                 style={{ transitionDelay: `${(group.feature.index % 4) * 140}ms` }}
               >
-                {featureOnLeft ? (
-                  <>
-                    <Link href={getPostLink(group.feature.post)} className="group block">
-                      <div className="relative aspect-[16/10] overflow-hidden bg-black/5">
-                        {getArticleLandscapeImage(group.feature.post) ? (
-                          <Image
-                            src={getArticleLandscapeImage(group.feature.post)}
-                            alt={getArticleAlt(group.feature.post)}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                            sizes="(min-width: 1024px) 66vw, 100vw"
-                          />
-                        ) : null}
+                {(() => {
+                  const isEighthFeature = group.feature?.index === 7
+
+                  return featureOnLeft ? (
+                    <>
+                      <Link href={getPostLink(group.feature.post)} className="group block">
+                        <div className="relative aspect-[3/4] md:aspect-[16/10] overflow-hidden bg-black/5">
+                          {getArticleLandscapeImage(group.feature.post) ? (
+                            <Image
+                              src={getArticleLandscapeImage(group.feature.post)}
+                              alt={getArticleAlt(group.feature.post)}
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              sizes="(min-width: 1024px) 66vw, 100vw"
+                            />
+                          ) : null}
+                        </div>
+                        {renderImageCaption(group.feature.post)}
+                      </Link>
+                      <div className="mb-[48px] pt-1 md:pl-2">
+                        <p className="font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70 hidden md:block">
+                          {group.feature.post.optionsArticles?.champsLibrePageAccueil ?? 'Bonnes adresses'}
+                        </p>
+                        <h2 className="mt-2 font-brandonRegular text-[24px] uppercase leading-tight hidden md:block">
+                          {group.feature.post.title}
+                        </h2>
+                        <p className="mt-0 md:mt-5 max-w-[36ch] font-montserrat text-[13px] leading-relaxed text-black/80">
+                          {clampText(sanitizeExcerptText(group.feature.post.excerpt), 300)}
+                        </p>
+                        <Link
+                          href={getPostLink(group.feature.post)}
+                          className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
+                        >
+                          Lire la suite
+                        </Link>
                       </div>
-                      {renderImageCaption(group.feature.post)}
-                    </Link>
-                    <div className="mb-[48px] pt-1 md:pl-2">
-                      <p className="font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70">
-                        {group.feature.post.optionsArticles?.champsLibrePageAccueil ?? 'Bonnes adresses'}
-                      </p>
-                      <h2 className="mt-2 font-brandonRegular text-[24px] uppercase leading-tight">
-                        {group.feature.post.title}
-                      </h2>
-                      <p className="mt-5 max-w-[36ch] font-montserrat text-[13px] leading-relaxed text-black/80">
-                        {clampText(stripHtml(group.feature.post.excerpt), 300)}
-                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className={clsx('mb-[48px] pt-1 md:pl-2', isEighthFeature ? 'order-2 md:order-1' : '')}>
+                        <p className="hidden md:block font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70">
+                          {group.feature.post.optionsArticles?.champsLibrePageAccueil ?? 'Bonnes adresses'}
+                        </p>
+                        <h2 className="hidden md:block mt-2 font-brandonRegular text-[24px] uppercase leading-tight">
+                          {group.feature.post.title}
+                        </h2>
+                        <p className=" md:mt-5 max-w-[36ch] font-montserrat text-[13px] leading-relaxed text-black/80">
+                          {clampText(sanitizeExcerptText(group.feature.post.excerpt), 300)}
+                        </p>
+                        <Link
+                          href={getPostLink(group.feature.post)}
+                          className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
+                        >
+                          Lire la suite
+                        </Link>
+                      </div>
                       <Link
                         href={getPostLink(group.feature.post)}
-                        className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
+                        className={clsx('group block', isEighthFeature ? 'order-1 md:order-2' : '')}
                       >
-                        Lire la suite
+                        <div className="relative aspect-[3/4] md:aspect-[16/10] overflow-hidden bg-black/5">
+                          {getArticleLandscapeImage(group.feature.post) ? (
+                            <Image
+                              src={getArticleLandscapeImage(group.feature.post)}
+                              alt={getArticleAlt(group.feature.post)}
+                              fill
+                              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              sizes="(min-width: 1024px) 66vw, 100vw"
+                            />
+                          ) : null}
+                        </div>
+                        {renderImageCaption(group.feature.post)}
                       </Link>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="mb-[48px] pt-1 md:pr-2">
-                      <p className="font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70">
-                        {group.feature.post.optionsArticles?.champsLibrePageAccueil ?? 'Bonnes adresses'}
-                      </p>
-                      <h2 className="mt-2 font-brandonRegular text-[24px] uppercase leading-tight">
-                        {group.feature.post.title}
-                      </h2>
-                      <p className="mt-5 max-w-[36ch] font-montserrat text-[13px] leading-relaxed text-black/80">
-                        {clampText(stripHtml(group.feature.post.excerpt), 300)}
-                      </p>
-                      <Link
-                        href={getPostLink(group.feature.post)}
-                        className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
-                      >
-                        Lire la suite
-                      </Link>
-                    </div>
-                    <Link href={getPostLink(group.feature.post)} className="group block">
-                      <div className="relative aspect-[16/10] overflow-hidden bg-black/5">
-                        {getArticleLandscapeImage(group.feature.post) ? (
-                          <Image
-                            src={getArticleLandscapeImage(group.feature.post)}
-                            alt={getArticleAlt(group.feature.post)}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                            sizes="(min-width: 1024px) 66vw, 100vw"
-                          />
-                        ) : null}
-                      </div>
-                      {renderImageCaption(group.feature.post)}
-                    </Link>
-                  </>
-                )}
+                    </>
+                  )
+                })()}
               </article>
             ) : null}
           </section>

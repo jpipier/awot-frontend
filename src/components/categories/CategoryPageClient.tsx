@@ -149,7 +149,7 @@ export default function CategoryPageClient({
 
   return (
     <div className="template-categories">
-      <div className="mx-auto max-w-[1120px] px-6 pb-24 pt-16 md:px-10 md:pb-32 md:pt-24">
+      <div className="mx-auto max-w-[1120px] px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-24">
         <header className="mb-14 text-center md:mb-20">
           <h1 className="font-schnyder_wide_xl_webdemi text-[14vw] leading-[0.95] md:text-[86px]">
             {categoryName}

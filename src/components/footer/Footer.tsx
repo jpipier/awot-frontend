@@ -12,9 +12,9 @@ interface FooterProps {
 export default function Footer({ postId }: FooterProps) {
   const { settings, footerMenu: menuItems } = useSiteChrome()
   return (
-    <footer className="relative mt-10 overflow-hidden bg-black py-5 text-white after:absolute after:top-0 after:z-0 after:h-[80px] after:w-full after:bg-white">
+    <footer className="relative mt-10 overflow-hidden bg-black py-5 text-white after:absolute after:top-0 after:z-0 after:h-[80px] after:w-full md:after:bg-white h-[250px] md:h-auto">
       <div className="container mx-auto flex flex-col items-center justify-between gap-10 px-6 lg:flex-row">
-        <div className="elementor-23971 flex flex-col space-y-2 pt-20 text-left text-sm uppercase">
+        <div className="elementor-23971 hidden md:flex flex-col space-y-2 pt-20 text-left text-sm uppercase">
           <ul>
             {menuItems.map((item) => (
               <li key={item.id} className="transition pb-1 hover:italic font-montserrat">
@@ -25,14 +25,14 @@ export default function Footer({ postId }: FooterProps) {
         </div>
 
         <div className="my-5 flex flex-col items-center text-center">
-          <h2 className="md:pt-10 text-[40pt] font-custom lg:pt-20 lg:text-[60pt]">
+          <h2 className="md:pt-10 text-[40pt] font-custom lg:pt-20 lg:text-[60pt] leading-[0.9]">
             {settings.title}
           </h2>
           <p className="mt-2 text-[8pt] uppercase font-montserrat">{settings.description}</p>
         </div>
 
         <div className="relative flex h-full flex-col items-center space-y-3 lg:items-end">
-          <div className="h-[200px] md:h-[300px] w-44 lg:w-56 absolute -top-[80px] md:-top-[130px] md:right-[4rem]">
+          <div className="h-[200px] md:h-[300px] w-44 lg:w-56 absolute -top-[30px] md:-top-[130px] md:right-[4rem]">
             <Image
               src="/images/image-30-1x-png@1x.png"
               alt="Nous"
@@ -45,22 +45,22 @@ export default function Footer({ postId }: FooterProps) {
               href="https://julienpipier.fr"
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute -left-[130px] md:-left-[80px] top-[70px] md:top-[70px] z-20 flex flex-col items-center gap-1"
+              className="absolute -left-[130px] md:-left-[80px] top-[70px] md:top-[100px] z-20 flex flex-col items-center gap-1"
             >
-              <svg className="w-10 h-10 md:w-12 md:h-12 rotate-[273deg] left-[56px] absolute top-[20px]" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-10 h-10 md:w-12 md:h-12 rotate-[273deg] left-[115px] md:left-[56px] absolute -top-[40px] md:top-[20px]" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 40 Q10 10 40 10" stroke="white" strokeWidth="1.5" fill="none" />
               </svg>
-              <span className="text-[8px] md:text-[10px] font-montserrat uppercase tracking-wider">www.julienpipier.fr</span>
+              <span className="text-[8px] md:text-[10px] font-montserrat uppercase tracking-wider -top-[54px] md:top-0 absolute md:relative left-[50px] md:-left-[20px]">www.julienpipier.fr</span>
             </a>
             {/* @EMILIEEYCHENNE - right side */}
             <a
               href="https://www.instagram.com/emilieeychenne"
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute -right-[140px] md:-right-[80px] bottom-[100px] md:bottom-[100px] z-20 flex flex-col items-center gap-1"
+              className="absolute -right-[140px] md:-right-[80px] bottom-[130px] md:bottom-[100px] z-20 flex flex-col items-center gap-1"
             >
-              <span className="text-[8px] md:text-[10px] font-montserrat uppercase tracking-wider">@emilieeychenne</span>
-              <svg className="w-10 h-10 md:w-12 md:h-12 rotate-[-271deg] absolute -left-[19px] -top-[52px]" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <span className="text-[8px] md:text-[10px] font-montserrat uppercase tracking-wider absolute md:static -left-[166px] -top-[15px]">@emilieeychenne</span>
+              <svg className="w-10 h-10 md:w-12 md:h-12 rotate-[-289deg] md:rotate-[-271deg] absolute -left-[190px] md:-left-[19px] -top-[52px] md:-top-[52px]" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 40 Q10 10 40 10" stroke="white" strokeWidth="1.5" fill="none" />
               </svg>
             </a>

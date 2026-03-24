@@ -7,6 +7,7 @@ import clsx from 'clsx'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Mousewheel, Navigation, Pagination, HashNavigation } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 
 import 'swiper/css'
@@ -227,18 +228,18 @@ export default function PortraitLayoutClient({
   const slides = useMemo(() => posts, [posts])
   const activePost = useMemo(() => slides[currentIndex] ?? slides[0], [slides, currentIndex])
   const localisationLabel = useMemo(() => buildLocalisationLabel(activePost) ?? '', [activePost])
-  const excerpt = activePost?.excerpt ?? activePost?.optionsArticles?.champsLibrePageAccueil ?? ''
+  const excerpt = useMemo(
+    () =>
+      sanitizeExcerptText(activePost?.excerpt ?? activePost?.optionsArticles?.champsLibrePageAccueil ?? '', {
+        preserveLineBreaks: true
+      }),
+    [activePost]
+  )
   const excerptLines = useMemo(() => {
     if (!excerpt) {
       return []
     }
-    return excerpt
-      .split('<br>')
-      .join('\n')
-      .split(/\r?\n/)
-      .flatMap((line) => (line.trim() ? line.trim().split(/<\/?p>/).filter(Boolean) : []))
-      .map((line) => line.replace(/<\/?[^>]+(>|$)/g, '').trim())
-      .filter(Boolean)
+    return excerpt.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
   }, [excerpt])
   useEffect(() => {
     const element = textAnimatedBlockRef.current
