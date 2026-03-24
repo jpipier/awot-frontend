@@ -7,7 +7,7 @@ const MAX_SUGGESTION_RESULTS = 6
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const term = searchParams.get('term') ?? ''
+  const term = (searchParams.get('term') ?? '').trim()
   const parsedLimit = Number(searchParams.get('limit') ?? String(MAX_SUGGESTION_RESULTS))
   const limit = Number.isFinite(parsedLimit)
     ? Math.min(Math.max(Math.floor(parsedLimit), 1), MAX_SUGGESTION_RESULTS)

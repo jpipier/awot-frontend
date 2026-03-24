@@ -31,14 +31,15 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
   const fetchSuggestions = useMemo(
     () =>
       debounce(async (value: string) => {
-        if (value.length < 3) {
+        const trimmedValue = value.trim()
+        if (trimmedValue.length < 3) {
           setSuggestions([])
           return
         }
 
         try {
           const response = await fetch(
-            `/api/search?term=${encodeURIComponent(value)}&limit=${SUGGESTIONS_LIMIT}`
+            `/api/search?term=${encodeURIComponent(trimmedValue)}&limit=${SUGGESTIONS_LIMIT}`
           )
           if (!response.ok) {
             throw new Error('Erreur lors de la recherche')
