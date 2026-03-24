@@ -27,14 +27,99 @@ function truncateCaption(caption?: string | null) {
   return `${trimmed.slice(0, CAPTION_PREVIEW_LENGTH).trimEnd()}…`
 }
 
-function getPostMediaUrl(post: InstagramPost) {
-  return (
-    post.media_url ??
-    post.thumbnail_url ??
-    post.children?.data?.[0]?.media_url ??
-    post.children?.data?.[0]?.thumbnail_url ??
-    null
-  )
+type FeedMediaAsset = {
+  url: string
+  kind: 'image' | 'video'
+  posterUrl?: string
+}
+
+function getPostMediaAsset(post: InstagramPost): FeedMediaAsset | null {
+  const isVideoUrl = (url?: string | null) => {
+    if (!url) {
+      return false
+    }
+
+    return /\.(mp4|mov|webm|m4v)(?:$|\?)/i.test(url)
+  }
+
+  const pickImage = ({
+    mediaUrl,
+    thumbnailUrl
+  }: {
+    mediaUrl?: string | null
+    thumbnailUrl?: string | null
+  }): FeedMediaAsset | null => {
+    if (thumbnailUrl && !isVideoUrl(thumbnailUrl)) {
+      return { url: thumbnailUrl, kind: 'image' }
+    }
+
+    if (mediaUrl && !isVideoUrl(mediaUrl)) {
+      return { url: mediaUrl, kind: 'image' }
+    }
+
+    return null
+  }
+
+  const pickVideo = ({
+    mediaUrl,
+    thumbnailUrl
+  }: {
+    mediaUrl?: string | null
+    thumbnailUrl?: string | null
+  }): FeedMediaAsset | null => {
+    if (!mediaUrl || !isVideoUrl(mediaUrl)) {
+      return null
+    }
+
+    return {
+      url: mediaUrl,
+      kind: 'video',
+      posterUrl: thumbnailUrl && !isVideoUrl(thumbnailUrl) ? thumbnailUrl : undefined
+    }
+  }
+
+  const directImage = pickImage({
+    mediaUrl: post.media_url,
+    thumbnailUrl: post.thumbnail_url
+  })
+
+  if (directImage) {
+    return directImage
+  }
+
+  const children = post.children?.data ?? []
+  for (const child of children) {
+    const childImage = pickImage({
+      mediaUrl: child.media_url,
+      thumbnailUrl: child.thumbnail_url
+    })
+
+    if (childImage) {
+      return childImage
+    }
+  }
+
+  const directVideo = pickVideo({
+    mediaUrl: post.media_url,
+    thumbnailUrl: post.thumbnail_url
+  })
+
+  if (directVideo) {
+    return directVideo
+  }
+
+  for (const child of children) {
+    const childVideo = pickVideo({
+      mediaUrl: child.media_url,
+      thumbnailUrl: child.thumbnail_url
+    })
+
+    if (childVideo) {
+      return childVideo
+    }
+  }
+
+  return null
 }
 
 type FeedItem = {
@@ -42,6 +127,8 @@ type FeedItem = {
   permalink?: string
   caption?: string | null
   mediaUrl: string
+  posterUrl?: string
+  mediaKind: 'image' | 'video'
   mediaType?: InstagramPost['media_type']
 }
 
@@ -60,7 +147,7 @@ export default async function InstagramFeed({
   let debugDetails: string | null = null
 
   try {
-    posts = await getInstagramPosts({ limit })
+    posts = await getInstagramPosts({ limit, revalidate: 0 })
   } catch (error) {
     console.error('InstagramFeed: impossible de charger le flux', error)
     errorMessage = 'Impossible de charger les publications Instagram pour le moment.'
@@ -88,16 +175,18 @@ export default async function InstagramFeed({
   }
 
   const feedItems = posts.reduce<FeedItem[]>((acc, post) => {
-    const mediaUrl = getPostMediaUrl(post)
+    const media = getPostMediaAsset(post)
 
-    if (!mediaUrl) {
+    if (!media) {
       return acc
     }
 
     acc.push({
       id: post.id,
       permalink: post.permalink,
-      mediaUrl,
+      mediaUrl: media.url,
+      posterUrl: media.posterUrl,
+      mediaKind: media.kind,
       mediaType: post.media_type,
       caption: truncateCaption(post.caption)
     })
@@ -125,14 +214,28 @@ export default async function InstagramFeed({
                   aria-label="Voir sur Instagram"
                 >
                   <div className="absolute inset-0 bg-neutral-900/0 transition duration-300 group-hover:bg-neutral-900/50" />
-                  <Image
-                    src={item.mediaUrl}
-                    alt={item.caption ?? 'Instagram'}
-                    fill
-                    sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 60vw"
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    priority={false}
-                  />
+                  {item.mediaKind === 'video' ? (
+                    <video
+                      src={item.mediaUrl}
+                      poster={item.posterUrl}
+                      muted
+                      loop
+                      autoPlay
+                      playsInline
+                      preload="metadata"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <Image
+                      src={item.mediaUrl}
+                      alt={item.caption ?? 'Instagram'}
+                      fill
+                      sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 60vw"
+                      className="object-cover transition duration-500 group-hover:scale-105"
+                      priority={false}
+                      unoptimized
+                    />
+                  )}
 
                   <div className="pointer-events-none inset-0 flex flex-col justify-between text-white opacity-0 transition duration-300 group-hover:opacity-100">
                     <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/80">
