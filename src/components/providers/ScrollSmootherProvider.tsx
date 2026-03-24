@@ -1,12 +1,20 @@
 'use client'
 
-import { type PropsWithChildren, useEffect, useRef } from 'react'
+import { type PropsWithChildren, Suspense, useEffect, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 type ScrollSmootherInstance = import('gsap/ScrollSmoother').ScrollSmoother | null
 type GSAPContext = { revert: (config?: object) => void } | undefined
 
 export default function ScrollSmootherProvider({ children }: PropsWithChildren) {
+  return (
+    <Suspense fallback={null}>
+      <ScrollSmootherInner>{children}</ScrollSmootherInner>
+    </Suspense>
+  )
+}
+
+function ScrollSmootherInner({ children }: PropsWithChildren) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const searchParamsKey = searchParams.toString()
