@@ -6,6 +6,7 @@ import CarouselHoverCursor from '@/components/layout/CarouselHoverCursor'
 import { getSiteChrome } from '@/lib/site'
 import { SiteChromeProvider } from '@/components/providers/SiteChromeProvider'
 import ScrollSmootherProvider from '@/components/providers/ScrollSmootherProvider'
+import IosInputZoomGuard from '@/components/providers/IosInputZoomGuard'
 
 export const metadata: Metadata = {
   title: 'A Way of Travel',
@@ -37,6 +38,7 @@ export default async function RootLayout({
         />
       </head>
       <body>
+        <IosInputZoomGuard />
         <SiteChromeProvider value={siteChrome}>
           <Header />
             <ScrollSmootherProvider>

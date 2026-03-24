@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import debounce from 'lodash.debounce'
@@ -21,11 +21,9 @@ interface SearchProps {
 
 const placeholders = ['un restaurant ?', 'un hotel ?', 'une idée de sortie ?']
 const SUGGESTIONS_LIMIT = 6
-const IOS_USER_AGENT_REGEX = /iP(ad|hone|od)|Macintosh.*Mobile/
 
 export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
   const router = useRouter()
-  const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState(initialQuery)
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [placeholder, setPlaceholder] = useState('')
@@ -62,37 +60,6 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
   }, [initialQuery])
 
   useEffect(() => () => fetchSuggestions.cancel(), [fetchSuggestions])
-
-  useEffect(() => {
-    const input = inputRef.current
-    const viewportMeta = document.querySelector('meta[name="viewport"]')
-    if (!input || !viewportMeta || !IOS_USER_AGENT_REGEX.test(window.navigator.userAgent)) {
-      return
-    }
-
-    const initialViewport = viewportMeta.getAttribute('content') ?? ''
-    const viewportWithoutMaxScale = initialViewport
-      .split(',')
-      .map((chunk) => chunk.trim())
-      .filter((chunk) => chunk.length > 0 && !chunk.toLowerCase().startsWith('maximum-scale'))
-      .join(', ')
-
-    const noZoomViewport = viewportWithoutMaxScale
-      ? `${viewportWithoutMaxScale}, maximum-scale=1`
-      : 'width=device-width, initial-scale=1, maximum-scale=1'
-
-    const handleFocus = () => viewportMeta.setAttribute('content', noZoomViewport)
-    const handleBlur = () => viewportMeta.setAttribute('content', initialViewport)
-
-    input.addEventListener('focus', handleFocus)
-    input.addEventListener('blur', handleBlur)
-
-    return () => {
-      input.removeEventListener('focus', handleFocus)
-      input.removeEventListener('blur', handleBlur)
-      viewportMeta.setAttribute('content', initialViewport)
-    }
-  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -181,7 +148,6 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
       <div className="relative mx-auto flex w-full max-w-2xl flex-col">
         <form onSubmit={handleSubmit} className="flex w-full flex-row">
           <input
-            ref={inputRef}
             type="text"
             value={query}
             onChange={handleChange}
