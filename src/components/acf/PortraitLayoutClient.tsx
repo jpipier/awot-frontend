@@ -438,7 +438,7 @@ export default function PortraitLayoutClient({
                 ? excerptLines.map((line, idx) => (
                     <p
                       key={`${activePost?.slug ?? currentIndex}-line-${idx}`}
-                      className="font-montserrat lato-montserrat text-sm opacity-80"
+                      className="font-brandonRegular text-sm opacity-80"
                     >
                       {line}
                     </p>
