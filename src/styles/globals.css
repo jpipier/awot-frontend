@@ -46,7 +46,10 @@ a {
 }
 
 .home-block {
-  padding-bottom: 5rem;
+  padding-bottom: 2rem;
+  @media (min-width: 768px) {
+    padding-bottom: 5rem;
+  }
 }
 
 .home-block:first-of-type {
@@ -104,8 +107,12 @@ a {
     cursor: ew-resize;
   }
 
-  .awot-carousel-cursor .swiper-slide[data-view-all='true'],
-  .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
+  .awot-carousel-cursor .swiper-slide h3,
+  .awot-carousel-cursor .swiper-slide h3 * {
+    cursor: pointer;
+  }
+  .awot-carousel-cursor .swiper-slide .mt-3,
+  .awot-carousel-cursor .swiper-slide .mt-3 * {
     cursor: pointer;
   }
 
@@ -114,8 +121,12 @@ a {
     cursor: none !important;
   }
 
-  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide[data-view-all='true'],
-  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
+  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide h3,
+  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide h3 * {
+    cursor: pointer !important;
+  }
+  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide .mt-3,
+  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide .mt-3 * {
     cursor: pointer !important;
   }
 }

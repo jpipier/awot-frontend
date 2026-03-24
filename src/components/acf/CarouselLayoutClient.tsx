@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Mousewheel, Navigation, Pagination, HashNavigation } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
+import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 import type { gsap as GSAP } from 'gsap'
 
 import 'swiper/css'
@@ -529,6 +530,9 @@ export default function CarouselLayoutClient({
   const imageWrapperHeightClass = useUniformHeights
     ? 'h-[420px] md:h-[520px] lg:h-[360px] xl:h-[480px] 3xl:h-[540px]'
     : 'h-[275px] md:h-[500px] lg:h-[360px] xl:h-[480px] 3xl:h-[590px]'
+  const viewAllWrapperHeightClass = useUniformHeights
+    ? 'h-full md:h-[520px] lg:h-[360px] xl:h-[480px] 3xl:h-[540px]'
+    : 'h-full md:h-[500px] lg:h-[360px] xl:h-[480px] 3xl:h-[590px]'
 
   useEffect(() => {
     if (!titleScrollEnabled) {
@@ -804,7 +808,10 @@ export default function CarouselLayoutClient({
                         <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
                           {localisationLabel}
                         </p>
-                        <h3 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]">{post.title}</h3>
+                        <h3
+                          className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]"
+                          dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(post.title) }}
+                        />
                       </div>
                     </Link>
                   </AnimatedCarouselItem>
@@ -812,8 +819,9 @@ export default function CarouselLayoutClient({
               )
             })}
             {viewAllHref ? (
-              <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} data-view-all="true" className="carousel-item">
+              <SwiperSlide key="view-all" data-hash={slugify(viewAllLabel)} data-view-all="true" className="carousel-item h-full">
                 <AnimatedCarouselItem
+                  className="h-full carousel-view-all-item"
                   delay={BASE_DELAY_MS + posts.length * STAGGER_DELAY_MS}
                   forceVisible={isCarouselVisible}
                   shouldForceSettled={shouldForceSettled}
@@ -822,9 +830,9 @@ export default function CarouselLayoutClient({
                     href={viewAllHref}
                     target={viewAllTarget}
                     rel={viewAllRel}
-                    className={`relative block h-full w-full overflow-hidden ${imageWrapperHeightClass}`}
+                    className={`relative flex h-full w-full overflow-hidden carousel-view-all-link ${viewAllWrapperHeightClass}`}
                   >
-                    <div className="flex h-full w-full items-center justify-center bg-white text-black transition-colors duration-300 hover:bg-white hover:text-black hover:italic hover:border-none">
+                    <div className="flex h-full w-full items-center justify-center text-center bg-black text-white md:bg-white md:text-black transition-colors duration-300 hover:bg-white hover:text-black hover:italic hover:border-none">
                       <span className="font-montserrat text-xs uppercase tracking-[0.3em]">
                         {viewAllLabel}
                       </span>
@@ -849,6 +857,18 @@ export default function CarouselLayoutClient({
         .carousel-animated-item--visible {
           opacity: 1;
           transform: translateX(0);
+        }
+        @media (max-width: 767px) {
+          .mySwiper.awot-carousel-cursor .swiper-wrapper {
+            align-items: stretch;
+          }
+          .mySwiper.awot-carousel-cursor .swiper-slide[data-view-all='true'] {
+            height: auto;
+          }
+          .mySwiper.awot-carousel-cursor .swiper-slide[data-view-all='true'] .carousel-view-all-item,
+          .mySwiper.awot-carousel-cursor .swiper-slide[data-view-all='true'] .carousel-view-all-link {
+            height: 100%;
+          }
         }
         .guide-voyage-transition-backdrop {
           position: fixed;

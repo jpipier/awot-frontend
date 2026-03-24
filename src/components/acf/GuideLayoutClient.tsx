@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination, Mousewheel, HashNavigation } from 'swiper/modules'
 import type { Swiper as SwiperClass } from 'swiper/types'
 import type { Article } from '@/types/wordpress'
+import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -281,7 +282,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       ref={sectionRef}
       className="max-w-screen-full bg-white md:pt-[5rem]"
     >
-      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-[50vh] lg:h-[80vh] lg:flex-row">
+      <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-auto md:h-[50vh] lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}
           className="relative w-full overflow-hidden md:lg:rounded-xxl lg:mx-auto"
@@ -327,7 +328,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                   <div className="relative">
                     <Link href={`/articles/${post.slug}`} className="block">
                       {slideImageSrc ? (
-                        <div className="relative w-full h-[50vh] md:h-[450px] lg:h-[80vh]">
+                        <div className="relative w-full overflow-hidden aspect-[3/2] md:aspect-auto md:h-[450px] lg:h-[80vh]">
                           <Image
                             src={slideImageSrc}
                             alt={slideImageAlt}
@@ -338,11 +339,11 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                           />
                         </div>
                       ) : null}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
-                        <AnimatedGuideTitle className="font-schnyder_wide_xl_webdemi text-2xl md:text-4xl lg:text-6xl">
-                          {post.title}
+                      <div className="absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center px-6 text-center text-white">
+                        <AnimatedGuideTitle className="font-schnyder_wide_xl_webdemi text-2xl leading-[0.95] md:text-4xl lg:text-6xl">
+                          <span dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(post.title) }} />
                         </AnimatedGuideTitle>
-                        <AnimatedGuideSubtitle className="mt-4 text-sm uppercase font-montserrat">
+                        <AnimatedGuideSubtitle className="mt-2 text-sm leading-tight uppercase font-montserrat md:mt-3">
                           {post.optionsArticles?.champsLibrePageAccueil}
                         </AnimatedGuideSubtitle>
                       </div>
@@ -352,9 +353,9 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               )
             })}
           </Swiper>
-          <div className="swiper-button-prev" />
+          {/* <div className="swiper-button-prev" />
           <div className="swiper-button-next" />
-          <div className="custom-pagination" style={paginationProgressStyle} />
+          <div className="custom-pagination" style={paginationProgressStyle} /> */}
         </div>
         {link?.url ? (
           <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black text-white h-auto md:h-full hover:bg-white hover:text-black transition-colors duration-300">

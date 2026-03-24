@@ -18,6 +18,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { HashNavigation, Mousewheel, Navigation, Pagination } from 'swiper/modules'
 import he from 'he'
 import type { Article } from '@/types/wordpress'
+import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 import type { Swiper as SwiperInstance } from 'swiper'
 import type { gsap as GSAP } from 'gsap'
 
@@ -818,8 +819,11 @@ export default function GuideVoyageLayoutClient({
     <>
       {backgroundPortal}
       <div className="guide-voyage-content mt-10 flex flex-col md:flex-row items-start gap-4 sm:gap-10">
-        <div ref={stickyRowRef} className="flex w-full min-w-0 flex-col gap-4 md:pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
-        <h2 className="text-2xl font-montserrat font-medium uppercase leading-tight">{current?.title}</h2>
+        <div ref={stickyRowRef} className="order-2 flex w-full min-w-0 flex-col gap-4 md:order-1 md:pb-[130px] text-left px-0 sm:px-8 md:flex-none md:w-5/12 md:px-10 md:pr-12 lg:w-2/5 lg:pl-[8rem] lg:pr-16 font-brandonRegular">
+        <h2
+          className="text-2xl font-montserrat font-medium uppercase leading-tight"
+          dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(current?.title) }}
+        />
         {current?.optionsArticles?.champsLibrePageAccueil ? (
           <h3 className="text-lg text-gray-600 italic font-montserrat italic">
             {current.optionsArticles.champsLibrePageAccueil}
@@ -840,7 +844,7 @@ export default function GuideVoyageLayoutClient({
       </div>
       <div
         ref={swiperContainerRef}
-        className="guide-voyage-carousel relative w-full min-w-0 overflow-hidden pl-0 pr-0 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
+        className="guide-voyage-carousel order-1 relative w-full min-w-0 overflow-hidden pl-0 pr-0 md:order-2 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
         aria-busy={isUpdatingCategory || isLoadingMorePosts}
       >
         {/* {!paginationDisabled ? (
@@ -947,7 +951,7 @@ export default function GuideVoyageLayoutClient({
                           delete slideImageRefs.current[post.slug]
                         }
                       }}
-                      className="relative w-full overflow-hidden h-[280px] md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
+                      className="relative w-full overflow-hidden aspect-[4/5] md:aspect-auto md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
                     >
                       <Image
                         src={portraitSrc}
@@ -959,9 +963,12 @@ export default function GuideVoyageLayoutClient({
                         />
                       </div>
                     ) : null}
-                    <div className="mt-3">
+                    <div className="mt-3 hidden md:block">
                       <p className="mb-1 text-[12px] uppercase font-montserrat italic" dangerouslySetInnerHTML={{ __html: post.optionsArticles?.champsLibrePageAccueil ?? '' }} />
-                      <h3 className="mt-2 text-left text-[15px] uppercase font-brandonRegular font-medium">{post.title}</h3>
+                      <h3
+                        className="mt-2 text-left text-[15px] uppercase font-brandonRegular font-medium"
+                        dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(post.title) }}
+                      />
                     </div>
                   </Link>
                 </AnimatedCarouselItem>
@@ -1127,8 +1134,11 @@ export default function GuideVoyageLayoutClient({
         .guide-voyage-carousel__swiper {
           position: relative;
           z-index: 10;
-          padding-bottom: 2.5rem;
-          padding-top: 0.5rem;
+          @media (min-width: 768px) {
+            padding-bottom: 2.5rem;
+            padding-top: 0.5rem;
+          }
+          
         }
         .guide-voyage-carousel__slide {
           position: relative;

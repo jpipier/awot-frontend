@@ -33,18 +33,18 @@ export default function PostHero({ article }: PostHeroProps) {
   )
 
   return (
-    <div id="sticky-anchor" className="relative h-screen w-full">
+    <div id="sticky-anchor" className="relative h-screen w-full mb-[4rem] md:mb-auto">
       {/* Image — pinned par StickyWatcher via #sticky1 */}
       <div
         id="sticky1"
         {...(imageSrc ? { 'data-header-dark': '' } : {})}
-        className="w-full md:w-1/2 h-1/2 md:h-screen md:p-[2.05rem]"
+        className="w-full md:w-1/2 h-2/3 md:h-screen md:p-[2.05rem]"
       >
         {imageBlock}
       </div>
 
       {/* Text — right side on desktop */}
-      <div id="stickyTitle" className="md:absolute md:right-0 md:top-0 md:w-1/2 h-1/2 md:h-full flex flex-col items-center justify-center px-8 md:px-12">
+      <div id="stickyTitle" className="md:absolute md:right-0 md:top-0 md:w-1/2 h-1/3 md:h-full flex flex-col items-center justify-center px-8 md:px-12">
         {childCategory?.name && (
           <span className="text-sm tracking-[0.2em] uppercase text-gray-500 mb-6">
             {childCategory.name}

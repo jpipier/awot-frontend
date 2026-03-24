@@ -1,13 +1,18 @@
 'use client'
 
 import { type PropsWithChildren, useEffect, useRef } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 type ScrollSmootherInstance = import('gsap/ScrollSmoother').ScrollSmoother | null
 type GSAPContext = { revert: (config?: object) => void } | undefined
 
 export default function ScrollSmootherProvider({ children }: PropsWithChildren) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const searchParamsKey = searchParams.toString()
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
+  const smootherRef = useRef<ScrollSmootherInstance>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -47,6 +52,7 @@ export default function ScrollSmootherProvider({ children }: PropsWithChildren) 
             smoothTouch: 0.1,
             effects: true
           })
+          smootherRef.current = smoother
         })
       } catch (error) {
         console.error('Failed to initialize ScrollSmoother', error)
@@ -61,6 +67,7 @@ export default function ScrollSmootherProvider({ children }: PropsWithChildren) 
         return
       }
       smoother.kill()
+      smootherRef.current = null
       ctx?.revert()
       document.documentElement.dataset.scrollSmoother = 'disabled'
     }
@@ -71,10 +78,26 @@ export default function ScrollSmootherProvider({ children }: PropsWithChildren) 
       cancelled = true
       motionQuery.removeEventListener?.('change', handleMotionChange)
       smoother?.kill()
+      smootherRef.current = null
       ctx?.revert()
       delete document.documentElement.dataset.scrollSmoother
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      smootherRef.current?.scrollTop(0)
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+    }
+  }, [pathname, searchParamsKey])
 
   return (
     <div ref={wrapperRef} className="scroll-smoother-wrapper">

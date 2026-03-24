@@ -5,7 +5,8 @@ import { useEffect, useRef } from 'react'
 const IMAGE_ACTIVE_CLASS = 'awot-carousel-cursor-image'
 const POINTER_ACTIVE_CLASS = 'awot-carousel-cursor-pointer'
 const CAROUSEL_SLIDE_SELECTOR = '.awot-carousel-cursor .swiper-slide'
-const VIEW_ALL_ATTR = 'data-view-all'
+const CAROUSEL_META_SELECTOR = '.awot-carousel-cursor .swiper-slide .mt-3'
+const CAROUSEL_TITLE_SELECTOR = '.awot-carousel-cursor .swiper-slide h3'
 const OFFSET_X = -64
 const OFFSET_Y = -15
 
@@ -53,11 +54,19 @@ export default function CarouselHoverCursor() {
       if (!(target instanceof Element)) {
         return 'inactive'
       }
+      const articleMeta = target.closest(CAROUSEL_META_SELECTOR)
+      if (articleMeta) {
+        return 'pointer'
+      }
+      const articleTitle = target.closest(CAROUSEL_TITLE_SELECTOR)
+      if (articleTitle) {
+        return 'pointer'
+      }
       const slideNode = target.closest(CAROUSEL_SLIDE_SELECTOR)
       if (!slideNode) {
         return 'inactive'
       }
-      return slideNode.getAttribute(VIEW_ALL_ATTR) === 'true' ? 'pointer' : 'image'
+      return 'image'
     }
 
     const handlePointerMove = (event: PointerEvent) => {

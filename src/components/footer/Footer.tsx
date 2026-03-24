@@ -42,7 +42,7 @@ export default function Footer({ postId }: FooterProps) {
             />
             {/* @JULIENPIPIER - left side */}
             <a
-              href="https://www.julienpipier.fr"
+              href="https://julienpipier.fr"
               target="_blank"
               rel="noopener noreferrer"
               className="absolute -left-[130px] md:-left-[80px] top-[70px] md:top-[70px] z-20 flex flex-col items-center gap-1"

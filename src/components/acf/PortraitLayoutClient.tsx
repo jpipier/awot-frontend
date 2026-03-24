@@ -7,6 +7,7 @@ import clsx from 'clsx'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Mousewheel, Navigation, Pagination, HashNavigation } from 'swiper/modules'
 import type { Article } from '@/types/wordpress'
+import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -92,7 +93,9 @@ export default function PortraitLayoutClient({
     })
     splitInstancesRef.current = null
 
-    const elements = Array.from(container.querySelectorAll('.portraits-split'))
+    const elements = Array.from(container.querySelectorAll<HTMLElement>('.portraits-split')).filter(
+      (element) => element.offsetParent !== null
+    )
     if (!elements.length) {
       return
     }
@@ -140,14 +143,16 @@ export default function PortraitLayoutClient({
       return
     }
 
+    const isMobileViewport = window.matchMedia('(max-width: 767px)').matches
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           setIsVisible(entry.isIntersecting)
           isTextVisibleRef.current = entry.isIntersecting
         })
-          },
-          { threshold: 0.5 }
+      },
+      { threshold: isMobileViewport ? 0.15 : 0.5 }
     )
 
     observer.observe(element)
@@ -241,6 +246,12 @@ export default function PortraitLayoutClient({
       return
     }
 
+    const isMobileViewport = window.matchMedia('(max-width: 767px)').matches
+    if (isMobileViewport) {
+      setIsTextBlockVisible(true)
+      return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsTextBlockVisible(entry.isIntersecting)
@@ -274,9 +285,14 @@ export default function PortraitLayoutClient({
         'md:mb-40 transition-colors duration-500 lg:mb-0 bg-white'
       )}
     >
-      <div className="mx-auto flex w-full flex-col gap-12 px-6 sm:px-10 lg:px-0 md:flex-row lg:items-start">
+      <div ref={textBlockRef} className="mx-auto flex w-full flex-col gap-12 px-6 sm:px-10 lg:px-0 md:flex-row lg:items-start">
+        <div className="order-1 w-full md:hidden">
+          <h2 className={clsx('portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95]', textVisibilityClass)}>
+            {titreDeLaSection}
+          </h2>
+        </div>
         <div
-          className="order-1 flex w-full flex-col justify-center md:w-1/2"
+          className="order-2 flex w-full flex-col justify-center md:order-1 md:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}
         >
           <div className={clsx('portrait-slider-wrapper relative transition-all duration-700', carouselVisibilityClass)}>
@@ -382,11 +398,10 @@ export default function PortraitLayoutClient({
         </div>
         <div
           id="portraits"
-          ref={textBlockRef}
-          className={clsx('order-2 flex w-full flex-col justify-center md:w-1/2 text-black')}
+          className={clsx('order-3 flex w-full flex-col justify-center md:order-2 md:w-1/2 text-black')}
         >
           <div className={clsx('flex flex-col gap-[4rem] overflow-hidden transition-all duration-700', textVisibilityClass)}>
-            <h2 className={clsx('portraits-split text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] lg:text-[4.5vw] lg:mb-3rem', textVisibilityClass)}>
+            <h2 className={clsx('portraits-split hidden text-[3rem] font-schnyder_wide_xl_webdemi leading-[0.95] md:block lg:text-[4.5vw] lg:mb-3rem', textVisibilityClass)}>
               {titreDeLaSection}
             </h2>
             <div
@@ -402,7 +417,7 @@ export default function PortraitLayoutClient({
               {localisationLabel ? (
                 <span
                   key={`category-${activePost?.slug ?? currentIndex}`}
-                  className="font-brandon_grotesquelight_italic uppercase tracking-[0.2em] -mb-4 opacity-70"
+                  className="font-brandon_grotesquelight_italic uppercase tracking-[0.2em] -mb-4 opacity-70 md:text-[16px] text-[2.5vw]"
                 >
                   {localisationLabel}
                 </span>
@@ -414,11 +429,10 @@ export default function PortraitLayoutClient({
               >
                 <h3
                   className={clsx(
-                    'font-schnyder_xl_webdemi text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
+                    'font-schnyder_xl_webdemi text-[16px] md:text-[2.5vw] leading-tight transition duration-300 group-hover:opacity-70'
                   )}
-                >
-                  {activePost?.title}
-                </h3>
+                  dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(activePost?.title) }}
+                />
               </Link>
               {excerptLines.length
                 ? excerptLines.map((line, idx) => (
@@ -474,6 +488,12 @@ export default function PortraitLayoutClient({
         .portraits-text-animated-block {
           will-change: transform, opacity;
         }
+        @media (max-width: 767px) {
+          #portraits .portraits-text-animated-block {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+          }
+        }
         .portrait-line-mask {
           display: block;
           overflow: hidden;
@@ -487,6 +507,13 @@ export default function PortraitLayoutClient({
           opacity: 1;
           visibility: visible;
           transform: translateY(0);
+        }
+        @media (max-width: 767px) {
+          .portraits-text-hidden {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+          }
         }
         .portraits-carousel-hidden {
           opacity: 0;
