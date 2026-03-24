@@ -16,6 +16,9 @@ body {
 html p{
   line-height: 20px !important;
 }
+html #ca-c-est-nous p{
+  line-height: normal !important;
+}
 body.overflow-hidden {
   overflow: hidden;
 }

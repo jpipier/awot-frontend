@@ -127,7 +127,10 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
           </h2>
         ) : null}
         {contenu ? (
-          <div className="contentElementor font-montserrat" dangerouslySetInnerHTML={{ __html: contenu }} />
+          <div
+            className="contentElementor font-montserrat"
+            dangerouslySetInnerHTML={{ __html: contenu }}
+          />
         ) : null}
         {bouton?.url && bouton?.title ? (
           <Link
@@ -160,6 +163,16 @@ export default function WorkWithUsLayout({ image, titre, contenu, bouton }: Work
           opacity: 1 !important;
           transform: none !important;
           transition-delay: 0ms !important;
+        }
+        :global(.work-with-us-text .contentElementor p) {
+          margin: 0 0 1rem;
+          line-height: 1.6;
+        }
+        :global(.work-with-us-text .contentElementor p:last-child) {
+          margin-bottom: 0;
+        }
+        :global(.work-with-us-text .contentElementor br) {
+          display: inline !important;
         }
       `}</style>
     </div>
