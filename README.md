@@ -62,6 +62,36 @@ Set `INSTAGRAM_DEBUG=true` to surface API error details in the UI when the feed 
 
 The UI itself is powered by Meta’s oEmbed Read API, so also provide `INSTAGRAM_OEMBED_TOKEN` (app-id|client-token pair) if you prefer not to reuse the long-lived Instagram token.
 
+#### Automated long-lived token refresh
+
+For IG long-lived tokens (`INSTAGRAM_ACCESS_TOKEN` starting with `IG...`), you can refresh automatically with:
+
+```bash
+npm run instagram:refresh-token
+```
+
+Dry-run mode (no `.env` write):
+
+```bash
+npm run instagram:refresh-token:dry
+```
+
+The script updates:
+- `INSTAGRAM_ACCESS_TOKEN`
+- `INSTAGRAM_TOKEN_LAST_REFRESHED_AT`
+- `INSTAGRAM_TOKEN_EXPIRES_AT`
+
+Example monthly cron (1st day of month at 04:00):
+
+```cron
+0 4 1 * * cd /absolute/path/to/frontend && npm run instagram:refresh-token >> /var/log/instagram-token-refresh.log 2>&1
+```
+
+Important:
+- First token generation still requires a manual OAuth consent step.
+- This script does not refresh Facebook business tokens (`EAA...`), only IG long-lived tokens (`IG...`).
+- Restart the app process after refresh so Next.js reloads environment variables.
+
 #### Instagram oEmbed helper
 
 `GET /api/oembed/instagram?url=<instagram_post_url>` proxies the official oEmbed endpoint (v17.0) so the access token remains on the server. Configure `INSTAGRAM_OEMBED_TOKEN` (or reuse `INSTAGRAM_ACCESS_TOKEN`) and, if needed, tweak parameters:

@@ -6,7 +6,9 @@
     "build": "next build",
     "start": "node server.mjs",
     "lint": "next lint",
-    "start:next": "next start"
+    "start:next": "next start",
+    "instagram:refresh-token": "node scripts/refresh-instagram-token.mjs",
+    "instagram:refresh-token:dry": "node scripts/refresh-instagram-token.mjs --dry-run"
   },
   "dependencies": {
     "clsx": "^2.1.1",
