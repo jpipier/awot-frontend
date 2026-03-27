@@ -101,12 +101,12 @@ export default async function NotFound() {
             >
               Accueil
             </Link>
-            <Link
+            {/* <Link
               href="/recherche"
               className="inline-flex min-w-[124px] items-center justify-center border border-black px-4 py-[0.55rem] font-montserrat text-[10px] uppercase tracking-[0.24em] transition-colors duration-300 hover:bg-black hover:text-white"
             >
               Recherche
-            </Link>
+            </Link> */}
             <Link
               href="/contact"
               className="inline-flex min-w-[124px] items-center justify-center border border-black px-4 py-[0.55rem] font-montserrat text-[10px] uppercase tracking-[0.24em] transition-colors duration-300 hover:bg-black hover:text-white"
