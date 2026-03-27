@@ -109,6 +109,7 @@ interface RecentPostsResponse {
     nodes: Array<{
       id: string
       title: string
+      excerpt?: string | null
       slug: string
       featuredImage?: {
         node?: {
@@ -134,6 +135,34 @@ interface RecentPostsResponse {
           }
         }
       }
+      localisations?: {
+        edges: Array<{
+          node: {
+            name?: string
+            slug?: string
+            parent?: {
+              node?: {
+                name?: string
+                slug?: string
+              }
+            }
+          }
+        }>
+      }
+      categories?: {
+        edges: Array<{
+          node: {
+            name?: string
+            slug?: string
+            parent?: {
+              node?: {
+                name?: string
+                slug?: string
+              }
+            }
+          }
+        }>
+      }
     }>
   }
 }
@@ -144,6 +173,7 @@ const RECENT_POSTS_QUERY = /* GraphQL */ `
       nodes {
         id
         title
+        excerpt
         slug
         featuredImage {
           node {
@@ -166,6 +196,34 @@ const RECENT_POSTS_QUERY = /* GraphQL */ `
               guid
               sourceUrl
               altText
+            }
+          }
+        }
+        localisations {
+          edges {
+            node {
+              name
+              slug
+              parent {
+                node {
+                  name
+                  slug
+                }
+              }
+            }
+          }
+        }
+        categories {
+          edges {
+            node {
+              name
+              slug
+              parent {
+                node {
+                  name
+                  slug
+                }
+              }
             }
           }
         }
