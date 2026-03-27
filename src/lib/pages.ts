@@ -1,5 +1,7 @@
 import { fetchWordPressGraphQL } from './wordpress'
 
+const PAGE_REVALIDATE_SECONDS = 600
+
 interface PageResponse {
   page: {
     databaseId: number
@@ -29,7 +31,7 @@ const PAGE_BY_URI_QUERY = /* GraphQL */ `
 export async function getPageByUri(uri: string) {
   const data = await fetchWordPressGraphQL<PageResponse>(PAGE_BY_URI_QUERY, {
     variables: { uri },
-    cache: 'no-store'
+    next: { revalidate: PAGE_REVALIDATE_SECONDS }
   })
 
   return data.page

@@ -1,6 +1,8 @@
 import { fetchWordPressGraphQL } from './wordpress'
 import type { Article } from '@/types/wordpress'
 
+const SEARCH_REVALIDATE_SECONDS = 300
+
 interface SearchKeywordConnection {
   edges: Array<{
     node: {
@@ -147,7 +149,7 @@ export function filterSearchPosts(posts: SearchPost[], term: string) {
 export async function searchPosts(first = 120) {
   const data = await fetchWordPressGraphQL<SearchResponse>(SEARCH_POSTS_QUERY, {
     variables: { first },
-    cache: 'no-store'
+    next: { revalidate: SEARCH_REVALIDATE_SECONDS }
   })
 
   return data.posts?.nodes ?? []

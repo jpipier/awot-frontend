@@ -105,52 +105,29 @@ a {
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .awot-carousel-cursor,
+  .awot-carousel-cursor .swiper-wrapper {
+    cursor: grab;
+  }
+
   .awot-carousel-cursor .swiper-slide,
   .awot-carousel-cursor .swiper-slide * {
-    cursor: ew-resize;
+    cursor: inherit;
   }
 
-  .awot-carousel-cursor .swiper-slide h3,
-  .awot-carousel-cursor .swiper-slide h3 * {
+  .awot-carousel-cursor .awot-carousel-nav-button,
+  .awot-carousel-cursor .awot-carousel-nav-button * {
     cursor: pointer;
-  }
-  .awot-carousel-cursor .swiper-slide .mt-3,
-  .awot-carousel-cursor .swiper-slide .mt-3 * {
-    cursor: pointer;
-  }
-
-  .awot-carousel-cursor .swiper-slide[data-view-all='true'],
-  .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
-    cursor: pointer;
-  }
-
-  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide,
-  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide * {
-    cursor: none !important;
-  }
-
-  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide[data-view-all='true'],
-  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
-    cursor: pointer !important;
-  }
-
-  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide h3,
-  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide h3 * {
-    cursor: pointer !important;
-  }
-  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide .mt-3,
-  html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide .mt-3 * {
-    cursor: pointer !important;
   }
 }
 
 .awot-carousel-faux-cursor {
-  position: fixed;
+  /* position: fixed;
   left: 0;
   top: 0;
   width: 128px;
   height: 30px;
-  pointer-events: none;
+  pointer-events: none; 
   z-index: 2147483647;
   opacity: 0;
   transform: translate3d(-9999px, -9999px, 0);
@@ -159,7 +136,141 @@ a {
   background-position: center;
   background-size: contain;
   will-change: transform, opacity;
-  transition: opacity 120ms linear;
+  transition: opacity 120ms linear;*/
+}
+
+.awot-carousel-nav-host {
+  position: relative;
+}
+
+.awot-carousel-nav {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 220ms ease;
+}
+
+.awot-carousel-nav-button {
+  position: relative;
+  width: clamp(2.3rem, 3.2vw, 3.35rem);
+  height: 100%;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  overflow: hidden;
+  transition: opacity 180ms ease;
+}
+
+.awot-carousel-nav-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transition: opacity 180ms ease;
+}
+
+.awot-carousel-nav-button:first-child::before {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.2) 58%, rgba(0, 0, 0, 0) 100%);
+  height: calc(100% - 3rem);
+}
+
+.awot-carousel-nav-button:last-child::before {
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.2) 58%, rgba(0, 0, 0, 0) 100%);
+  height: calc(100% - 3rem);
+}
+
+.awot-carousel-nav-button::after {
+  display: none !important;
+}
+
+.awot-carousel-nav-button:hover::before {
+  opacity: 0.82;
+}
+
+.awot-carousel-nav-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline-offset: -2px;
+}
+
+.awot-carousel-nav-button.swiper-button-disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.awot-carousel-nav-icon {
+  position: relative;
+  display: block;
+  width: clamp(0.9rem, 1.1vw, 1.1rem);
+  height: clamp(0.9rem, 1.1vw, 1.1rem);
+  font-size: 0;
+  line-height: 0;
+  z-index: 1;
+}
+
+.awot-carousel-nav-icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 68%;
+  height: 68%;
+  border-top: 2px solid rgba(255, 255, 255, 0.96);
+  border-right: 2px solid rgba(255, 255, 255, 0.96);
+  transform-origin: center;
+}
+
+.awot-carousel-nav-button:first-child .awot-carousel-nav-icon::before {
+  transform: translate(-45%, -50%) rotate(-135deg);
+}
+
+.awot-carousel-nav-button:last-child .awot-carousel-nav-icon::before {
+  transform: translate(-58%, -50%) rotate(45deg);
+}
+
+.bloc-portrait .swiper-button-prev-portrait .awot-carousel-nav-icon::before {
+  transform: translate(-58%, -50%) rotate(45deg);
+}
+
+.bloc-portrait .swiper-button-next-portrait .awot-carousel-nav-icon::before {
+  transform: translate(-45%, -50%) rotate(-135deg);
+}
+
+.bloc-portrait .awot-carousel-nav-button:first-child::before {
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.2) 58%, rgba(0, 0, 0, 0) 100%);
+  height: 100%;
+}
+
+.bloc-portrait .awot-carousel-nav-button:last-child::before {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.2) 58%, rgba(0, 0, 0, 0) 100%);
+  height: calc(100% - 20px);
+  top: 10px;
+}
+.guide-voyage-carousel__swiper .swiper-button-next-guide-voyage{
+  right: 40px;
+}
+.guide-voyage-carousel__swiper .swiper-button-next-guide-voyage:before, .guide-voyage-carousel__swiper .swiper-button-prev-guide-voyage::before {
+  height: calc(100% - 7rem);
+  top: 10px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .awot-carousel-nav {
+    opacity: 0;
+  }
+  .awot-carousel-nav-host:hover .awot-carousel-nav,
+  .awot-carousel-nav-host:focus-within .awot-carousel-nav {
+    opacity: 1;
+  }
 }
 
 

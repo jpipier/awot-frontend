@@ -1,6 +1,9 @@
 import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
 import type { Article, CategoryNode, CategoryPageData } from '@/types/wordpress'
 
+const CATEGORY_REVALIDATE_SECONDS = 300
+const CATEGORY_FEED_REVALIDATE_SECONDS = 180
+
 interface CategoryPageResponse {
   category: CategoryPageData['category']
 }
@@ -70,7 +73,7 @@ const CATEGORY_PAGE_QUERY = /* GraphQL */ `
 export async function getCategoryPage(slug: string, limit: number) {
   const data = await fetchWordPressGraphQL<CategoryPageResponse>(CATEGORY_PAGE_QUERY, {
     variables: { slug, limit },
-    cache: 'no-store'
+    next: { revalidate: CATEGORY_REVALIDATE_SECONDS }
   })
 
   return data.category ?? null
@@ -127,7 +130,7 @@ export async function getCategoryPunchlineBySlug(slug: string): Promise<string |
     try {
       const data = await fetchWordPressGraphQL<Record<string, unknown>>(candidate.query, {
         variables: { slug },
-        cache: 'no-store'
+        next: { revalidate: CATEGORY_REVALIDATE_SECONDS }
       })
       const value = asNonEmptyString(candidate.extract(data))
       if (value) {
@@ -141,7 +144,7 @@ export async function getCategoryPunchlineBySlug(slug: string): Promise<string |
   try {
     const categories = await fetchWordPressRest<CategoryRestNode[]>(
       `wp/v2/categories?slug=${encodeURIComponent(slug)}&per_page=1`,
-      { cache: 'no-store' }
+      { cache: 'force-cache' }
     )
 
     const category = categories?.[0]
@@ -279,7 +282,7 @@ const CATEGORY_POSTS_QUERY = /* GraphQL */ `
 export async function getCategoryPosts(slug: string, limit: number, after?: string | null) {
   const data = await fetchWordPressGraphQL<CategoryPostsResponse>(CATEGORY_POSTS_QUERY, {
     variables: { slug, limit, after: after ?? null },
-    cache: 'no-store'
+    next: { revalidate: CATEGORY_FEED_REVALIDATE_SECONDS }
   })
 
   return data.category?.posts
@@ -356,7 +359,7 @@ export async function getCategoryPostsByLocalisation(
       limit,
       after: after ?? null
     },
-    cache: 'no-store'
+    next: { revalidate: CATEGORY_FEED_REVALIDATE_SECONDS }
   })
 
   return data.posts ?? { nodes: [], pageInfo: { hasNextPage: false } }

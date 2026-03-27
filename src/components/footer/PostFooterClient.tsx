@@ -190,7 +190,6 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
 
   const handleCardClick = (event: MouseEvent<HTMLAnchorElement>, post: PostSummary) => {
     if (
-      event.defaultPrevented ||
       event.button !== 0 ||
       event.metaKey ||
       event.ctrlKey ||

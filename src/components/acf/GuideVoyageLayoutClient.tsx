@@ -410,7 +410,6 @@ export default function GuideVoyageLayoutClient({
 
   const handleSlideClick = (event: MouseEvent<HTMLAnchorElement>, post: Article) => {
     if (
-      event.defaultPrevented ||
       event.button !== 0 ||
       event.metaKey ||
       event.ctrlKey ||
@@ -421,6 +420,11 @@ export default function GuideVoyageLayoutClient({
     }
 
     if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
+    if (allowClick === false) {
       return
     }
 
@@ -841,7 +845,7 @@ export default function GuideVoyageLayoutClient({
       </div>
       <div
         ref={swiperContainerRef}
-        className="guide-voyage-carousel order-1 relative w-full min-w-0 overflow-hidden pl-0 pr-0 md:order-2 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
+        className="guide-voyage-carousel awot-carousel-nav-host order-1 relative w-full min-w-0 overflow-hidden pl-0 pr-0 md:order-2 md:flex-none md:w-7/12 lg:w-3/5 mr-[-1.5rem] sm:mr-[-2.5rem] lg:mr-0"
         aria-busy={isUpdatingCategory || isLoadingMorePosts}
       >
         {/* {!paginationDisabled ? (
@@ -869,9 +873,14 @@ export default function GuideVoyageLayoutClient({
           modules={[Navigation, Pagination, HashNavigation, Mousewheel]}
           key={activeCategorySlug ?? 'guide-voyage-default'}
           className="mySwiper guide-voyage-carousel__swiper awot-carousel-cursor"
+          grabCursor={true}
           slidesPerView={1.1}
           spaceBetween={18}
           loop={false}
+          navigation={{
+            prevEl: '.swiper-button-prev-guide-voyage',
+            nextEl: '.swiper-button-next-guide-voyage'
+          }}
           hashNavigation={{
             watchState: false,
             replaceState: true
@@ -898,6 +907,8 @@ export default function GuideVoyageLayoutClient({
             thresholdTime: 420,
             sensitivity: 0.6
           }}
+          preventClicks={false}
+          preventClicksPropagation={false}
           onHashSet={clearUrlHash}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
@@ -972,6 +983,22 @@ export default function GuideVoyageLayoutClient({
               </SwiperSlide>
             )
           })}
+          <div className="awot-carousel-nav">
+            <button
+              type="button"
+              aria-label="Image précédente"
+              className="swiper-button-prev-guide-voyage awot-carousel-nav-button"
+            >
+              <span aria-hidden="true" className="awot-carousel-nav-icon">&lt;</span>
+            </button>
+            <button
+              type="button"
+              aria-label="Image suivante"
+              className="swiper-button-next-guide-voyage awot-carousel-nav-button"
+            >
+              <span aria-hidden="true" className="awot-carousel-nav-icon">&gt;</span>
+            </button>
+          </div>
         </Swiper>
       </div>
       <style jsx global>{`

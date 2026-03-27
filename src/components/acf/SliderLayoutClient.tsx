@@ -111,6 +111,8 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
         slidesPerView={1}
         spaceBetween={0}
         loop={loop}
+        preventClicks={false}
+        preventClicksPropagation={false}
         effect="fade"
         fadeEffect={{ crossFade: true }}
         speed={1200}

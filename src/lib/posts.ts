@@ -1,6 +1,8 @@
 import { fetchWordPressGraphQL } from './wordpress'
 import type { Article, CategoryNode } from '@/types/wordpress'
 
+const POSTS_REVALIDATE_SECONDS = 600
+
 interface PostsByCategoryResponse {
   posts: {
     edges: Array<{
@@ -98,7 +100,7 @@ export async function getPostsByCategory(slug: string, limit: number) {
 
   const data = await fetchWordPressGraphQL<PostsByCategoryResponse>(POSTS_BY_CATEGORY_QUERY, {
     variables: { categorySlug: slug, limit },
-    cache: 'no-store'
+    next: { revalidate: POSTS_REVALIDATE_SECONDS }
   })
 
   return data.posts?.edges?.map((edge) => edge.node) ?? []
@@ -235,7 +237,7 @@ const RECENT_POSTS_QUERY = /* GraphQL */ `
 export async function getRecentPosts(first = 20) {
   const data = await fetchWordPressGraphQL<RecentPostsResponse>(RECENT_POSTS_QUERY, {
     variables: { first },
-    cache: 'no-store'
+    next: { revalidate: POSTS_REVALIDATE_SECONDS }
   })
 
   return data.posts?.nodes ?? []

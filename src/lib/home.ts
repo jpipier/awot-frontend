@@ -1,6 +1,8 @@
 import { fetchWordPressGraphQL } from './wordpress'
 import type { HomePageData } from '@/types/wordpress'
 
+const HOME_REVALIDATE_SECONDS = 600
+
 interface HomePageIdResponse {
   allSettings: {
     readingSettingsPageOnFront: number
@@ -169,7 +171,7 @@ const HOME_PAGE_QUERY = /* GraphQL */ `
 
 export async function getHomePage(): Promise<HomePageData | null> {
   const { allSettings } = await fetchWordPressGraphQL<HomePageIdResponse>(HOME_ID_QUERY, {
-    cache: 'no-store'
+    next: { revalidate: HOME_REVALIDATE_SECONDS }
   })
 
   const pageId = allSettings?.readingSettingsPageOnFront
@@ -180,7 +182,7 @@ export async function getHomePage(): Promise<HomePageData | null> {
 
   const { page } = await fetchWordPressGraphQL<HomePageResponse>(HOME_PAGE_QUERY, {
     variables: { id: pageId },
-    cache: 'no-store'
+    next: { revalidate: HOME_REVALIDATE_SECONDS }
   })
 
   return page ?? null

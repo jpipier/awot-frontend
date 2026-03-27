@@ -288,16 +288,17 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-auto md:h-[50vh] lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}
-          className="relative w-full overflow-hidden md:lg:rounded-xxl lg:mx-auto"
+          className="awot-carousel-nav-host relative w-full overflow-hidden md:lg:rounded-xxl lg:mx-auto"
         >
           <Swiper
             modules={[Navigation, Autoplay, Mousewheel, HashNavigation]}
             className="mySwiper awot-carousel-cursor"
+            grabCursor={true}
             slidesPerView={1}
             spaceBetween={20}
             loop={true}
             //pagination={{ clickable: true, el: '.custom-pagination' }}
-            navigation={{ nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}
+            navigation={{ nextEl: '.swiper-button-next-guide-layout', prevEl: '.swiper-button-prev-guide-layout' }}
             autoplay={{ delay: AUTOPLAY_DELAY_MS, disableOnInteraction: false }}
             onSwiper={(swiperInstance) => {
               swiperInstanceRef.current = swiperInstance
@@ -316,6 +317,8 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               thresholdTime: 420,
               sensitivity: 0.6
             }}
+            preventClicks={false}
+            preventClicksPropagation={false}
             onHashSet={clearUrlHash}
           >
             {posts.map((post) => {
@@ -355,6 +358,22 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                 </SwiperSlide>
               )
             })}
+            <div className="awot-carousel-nav">
+              <button
+                type="button"
+                aria-label="Image précédente"
+                className="swiper-button-prev-guide-layout awot-carousel-nav-button"
+              >
+                <span aria-hidden="true" className="awot-carousel-nav-icon">&lt;</span>
+              </button>
+              <button
+                type="button"
+                aria-label="Image suivante"
+                className="swiper-button-next-guide-layout awot-carousel-nav-button"
+              >
+                <span aria-hidden="true" className="awot-carousel-nav-icon">&gt;</span>
+              </button>
+            </div>
           </Swiper>
         </div>
         {link?.url ? (
@@ -371,22 +390,6 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
         ) : null}
       </div>
       <style jsx>{`
-        .swiper-button-next,
-        .swiper-button-prev {
-          background-color: rgba(0, 0, 0, 0.5);
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .swiper-button-next::after,
-        .swiper-button-prev::after {
-          font-size: 20px;
-          font-weight: bold;
-        }
         .custom-pagination {
           position: absolute;
           z-index: 10;

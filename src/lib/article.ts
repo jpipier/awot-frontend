@@ -2,6 +2,8 @@ import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
 import { getWordPressConfig } from './config'
 import type { Article, ElementorInlineScript, ElementorJsPayload, ElementorScriptAsset } from '@/types/wordpress'
 
+const ARTICLE_REVALIDATE_SECONDS = 300
+
 type ArticleQueryData = Omit<Article, 'content'> & {
   renderedContent?: string | null
   rawContent?: string | null
@@ -149,7 +151,7 @@ const SUPPORTED_VC_SHORTCODES = new Set([
 export async function getArticleBySlug(slug: string) {
   const data = await fetchWordPressGraphQL<ArticleResponse>(ARTICLE_BY_SLUG_QUERY, {
     variables: { slug },
-    cache: 'no-store',
+    next: { revalidate: ARTICLE_REVALIDATE_SECONDS },
     headers: getWordPressContentAuthHeaders()
   })
 
@@ -161,12 +163,14 @@ export async function getArticleByDatabaseId(databaseId: number, options?: { asP
     return null
   }
 
+  const asPreview = options?.asPreview ?? false
+
   const data = await fetchWordPressGraphQL<ArticleByDatabaseIdResponse>(ARTICLE_BY_DATABASE_ID_QUERY, {
     variables: {
       id: String(databaseId),
-      asPreview: options?.asPreview ?? false
+      asPreview
     },
-    cache: 'no-store',
+    ...(asPreview ? { cache: 'no-store' as const } : { next: { revalidate: ARTICLE_REVALIDATE_SECONDS } }),
     headers: getWordPressContentAuthHeaders()
   })
 
@@ -238,7 +242,7 @@ export async function getElementorCssBundle(options: ElementorCssRequestOptions 
         return null
       }
       try {
-        const response = await fetch(href, { cache: 'no-store' })
+        const response = await fetch(href, { cache: 'force-cache' })
         if (!response.ok) {
           throw new Error(`Failed to fetch Elementor CSS: ${response.status}`)
         }
@@ -415,7 +419,7 @@ function getWordPressContentAuthHeaders() {
 async function fetchWordPressMediaById(imageId: number) {
   try {
     return await fetchWordPressRest<WordPressMediaResponse>(`wp/v2/media/${imageId}`, {
-      cache: 'no-store'
+      cache: 'force-cache'
     })
   } catch (error) {
     console.warn(`Failed to load WordPress media ${imageId}`, error)
@@ -637,7 +641,7 @@ async function requestElementorAssetsFromApi(postId?: number | null) {
   const path = query ? `elementor/v1/js-files?${query}` : 'elementor/v1/js-files'
 
   try {
-    return await fetchWordPressRest<ElementorJsPayload>(path, { cache: 'no-store' })
+    return await fetchWordPressRest<ElementorJsPayload>(path, { cache: 'force-cache' })
   } catch (error) {
     console.warn('Failed to load Elementor JS assets from REST API', error)
     return null
@@ -666,7 +670,7 @@ async function scrapeElementorAssetsFromPage(uri?: string | null) {
   }
 
   try {
-    const response = await fetch(pageUrl, { cache: 'no-store' })
+    const response = await fetch(pageUrl, { cache: 'force-cache' })
 
     if (!response.ok) {
       throw new Error(`Failed to load Elementor page HTML: ${response.status}`)

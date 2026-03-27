@@ -296,10 +296,11 @@ export default function PortraitLayoutClient({
           className="order-2 flex w-full flex-col justify-center md:order-1 md:w-1/2"
           style={{ marginLeft: 'calc((100vw - 100%) / -2)' }}
         >
-          <div className={clsx('portrait-slider-wrapper relative transition-all duration-700', carouselVisibilityClass)}>
+          <div className={clsx('portrait-slider-wrapper awot-carousel-nav-host relative transition-all duration-700', carouselVisibilityClass)}>
             <Swiper
               dir="rtl"
               modules={[Navigation, Pagination, Mousewheel, HashNavigation]}
+              grabCursor={true}
               slidesPerView={1.2}
               spaceBetween={16}
               loop={true}
@@ -316,6 +317,8 @@ export default function PortraitLayoutClient({
                 thresholdTime: 420,
                 sensitivity: 0.6
               }}
+              preventClicks={false}
+              preventClicksPropagation={false}
               onSlideChange={(swiper) => {
                 const nextIndex = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex
                 setCurrentIndex(nextIndex ?? 0)
@@ -386,16 +389,24 @@ export default function PortraitLayoutClient({
                   </Link>
                 </SwiperSlide>
               ) : null}
+              <div className="awot-carousel-nav">
+                <button
+                  type="button"
+                  aria-label="Image précédente"
+                  className="swiper-button-prev-portrait awot-carousel-nav-button"
+                >
+                  <span aria-hidden="true" className="awot-carousel-nav-icon">&lt;</span>
+                </button>
+                <button
+                  type="button"
+                  aria-label="Image suivante"
+                  className="swiper-button-next-portrait awot-carousel-nav-button"
+                >
+                  <span aria-hidden="true" className="awot-carousel-nav-icon">&gt;</span>
+                </button>
+              </div>
             </Swiper>
           </div>
-          {/* <div className="mt-6 flex items-center justify-between text-xs uppercase tracking-[0.2em]">
-            <button type="button" className="swiper-button-prev-portrait flex items-center gap-2">
-              ← Précédent
-            </button>
-            <button type="button" className="swiper-button-next-portrait flex items-center gap-2">
-              Suivant →
-            </button>
-          </div> */}
         </div>
         <div
           id="portraits"
@@ -457,23 +468,6 @@ export default function PortraitLayoutClient({
         </div>
       </div>
       <style jsx>{`
-        .swiper-button-next-portrait,
-        .swiper-button-prev-portrait {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          background: transparent;
-          border: none;
-          color: inherit;
-          cursor: pointer;
-          font-family: inherit;
-          font-weight: 600;
-          letter-spacing: 0.2em;
-        }
-        .swiper-button-next-portrait:after,
-        .swiper-button-prev-portrait:after {
-          display: none;
-        }
         .portrait-slider .swiper-wrapper {
           display: flex;
           flex-direction: row;

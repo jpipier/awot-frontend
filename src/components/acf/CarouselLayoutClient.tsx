@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Mousewheel, Navigation, Pagination, HashNavigation } from 'swiper/modules'
+import type { Swiper as SwiperInstance } from 'swiper'
 import type { Article } from '@/types/wordpress'
 import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 import type { gsap as GSAP } from 'gsap'
@@ -161,6 +162,7 @@ export default function CarouselLayoutClient({
   const titleTransition: CSSProperties = { transitionDelay: isTitleVisible ? '120ms' : '0ms' }
   const contentTransition: CSSProperties = { transitionDelay: isContentVisible ? '480ms' : '0ms' }
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const swiperInstanceRef = useRef<SwiperInstance | null>(null)
   const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const transitionElementsRef = useRef<{
     overlay?: HTMLDivElement
@@ -314,7 +316,6 @@ export default function CarouselLayoutClient({
 
   const handleSlideClick = (event: MouseEvent<HTMLAnchorElement>, post: Article) => {
     if (
-      event.defaultPrevented ||
       event.button !== 0 ||
       event.metaKey ||
       event.ctrlKey ||
@@ -325,6 +326,11 @@ export default function CarouselLayoutClient({
     }
 
     if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
+    if (allowClick === false) {
       return
     }
 
@@ -708,13 +714,18 @@ export default function CarouselLayoutClient({
             />
           ) : null}
         </div>
-        <div className={`w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
+        <div className={`awot-carousel-nav-host w-full overflow-hidden lg:pl-0 ${postParPage > 2 ? 'lg:w-3/5' : 'lg:w-2/5'}`}>
           <Swiper
             modules={[Navigation, Pagination, Mousewheel, HashNavigation]}
             className="mySwiper awot-carousel-cursor"
+            grabCursor={true}
             slidesPerView={1.2}
             spaceBetween={20}
             loop={true}
+            navigation={{
+              prevEl: '.swiper-button-prev-carousel-layout',
+              nextEl: '.swiper-button-next-carousel-layout'
+            }}
             breakpoints={{
               640: { slidesPerView: 1.5, spaceBetween: 20 },
               768: { slidesPerView: 2, spaceBetween: 30 },
@@ -733,6 +744,11 @@ export default function CarouselLayoutClient({
               thresholdDelta: 24,
               thresholdTime: 420,
               sensitivity: 0.6
+            }}
+            preventClicks={false}
+            preventClicksPropagation={false}
+            onSwiper={(instance) => {
+              swiperInstanceRef.current = instance
             }}
             onHashSet={clearUrlHash}
             onSliderMove={handleSlideMotionStart}
@@ -841,6 +857,22 @@ export default function CarouselLayoutClient({
                 </AnimatedCarouselItem>
               </SwiperSlide>
             ) : null}
+            <div className="awot-carousel-nav">
+              <button
+                type="button"
+                aria-label="Image précédente"
+                className="swiper-button-prev-carousel-layout awot-carousel-nav-button"
+              >
+                <span aria-hidden="true" className="awot-carousel-nav-icon">&lt;</span>
+              </button>
+              <button
+                type="button"
+                aria-label="Image suivante"
+                className="swiper-button-next-carousel-layout awot-carousel-nav-button"
+              >
+                <span aria-hidden="true" className="awot-carousel-nav-icon">&gt;</span>
+              </button>
+            </div>
           </Swiper>
         </div>
       </div>
