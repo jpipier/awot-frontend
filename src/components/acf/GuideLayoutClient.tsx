@@ -356,16 +356,13 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               )
             })}
           </Swiper>
-          {/* <div className="swiper-button-prev" />
-          <div className="swiper-button-next" />
-          <div className="custom-pagination" style={paginationProgressStyle} /> */}
         </div>
         {link?.url ? (
           <div className="my-6 flex w-full items-center justify-center lg:my-0 lg:w-2/12 bg-black text-white h-auto md:h-full hover:bg-white hover:text-black transition-colors duration-300">
             <a
               href={link.url}
               className="transform px-4 py-2 text-sm uppercase font-montserrat lg:-rotate-90"
-              target="_blank"
+              target=""
               rel="noreferrer"
             >
               {link.title ?? 'En savoir plus'}
