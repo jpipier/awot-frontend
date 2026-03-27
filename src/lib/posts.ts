@@ -139,11 +139,11 @@ interface RecentPostsResponse {
         edges: Array<{
           node: {
             name?: string
-            slug?: string
+            slug: string
             parent?: {
               node?: {
                 name?: string
-                slug?: string
+                slug: string
               }
             }
           }
@@ -153,11 +153,11 @@ interface RecentPostsResponse {
         edges: Array<{
           node: {
             name?: string
-            slug?: string
+            slug: string
             parent?: {
               node?: {
                 name?: string
-                slug?: string
+                slug: string
               }
             }
           }
