@@ -111,6 +111,20 @@ const tokenizeSearchTerm = (term: string) =>
     .split(/[^a-z0-9]+/g)
     .filter(Boolean)
 
+const filterSearchPostsByTokens = (posts: SearchPost[], tokens: string[]) => {
+  if (!tokens.length) {
+    return []
+  }
+
+  return posts.filter((post) => {
+    const normalizedHaystack = getSearchableHaystacks(post)
+      .map((value) => normalizeSearchValue(value))
+      .join(' ')
+
+    return tokens.every((token) => normalizedHaystack.includes(token))
+  })
+}
+
 const getSearchableHaystacks = (post: SearchPost) => {
   const keywords = post.optionsArticles?.keywordSearch?.edges?.map((edge) => edge.node.name ?? '') ?? []
   const localisations = post.localisations?.edges?.map((edge) => edge.node?.name ?? '') ?? []
@@ -127,17 +141,7 @@ const getSearchableHaystacks = (post: SearchPost) => {
 
 export function filterSearchPosts(posts: SearchPost[], term: string) {
   const tokens = tokenizeSearchTerm(term)
-  if (!tokens.length) {
-    return []
-  }
-
-  return posts.filter((post) => {
-    const normalizedHaystack = getSearchableHaystacks(post)
-      .map((value) => normalizeSearchValue(value))
-      .join(' ')
-
-    return tokens.every((token) => normalizedHaystack.includes(token))
-  })
+  return filterSearchPostsByTokens(posts, tokens)
 }
 
 export async function searchPosts(first = 120) {
@@ -150,6 +154,16 @@ export async function searchPosts(first = 120) {
 }
 
 export async function searchPostsByTerm(term: string, first = 120) {
+  const trimmedTerm = term.trim()
+  if (trimmedTerm.length < 3) {
+    return []
+  }
+
+  const posts = await searchPosts(first)
+  return filterSearchPosts(posts, trimmedTerm)
+}
+
+export async function searchSuggestionPostsByTerm(term: string, first = 120) {
   const trimmedTerm = term.trim()
   if (trimmedTerm.length < 3) {
     return []

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import debounce from 'lodash.debounce'
@@ -21,46 +21,89 @@ interface SearchProps {
 
 const placeholders = ['un restaurant ?', 'un hotel ?', 'une idée de sortie ?']
 const SUGGESTIONS_LIMIT = 6
+const SUGGESTIONS_DEBOUNCE_MS = 150
 
 export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [placeholder, setPlaceholder] = useState('')
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+  const [hasSearchedSuggestions, setHasSearchedSuggestions] = useState(false)
+  const activeRequestControllerRef = useRef<AbortController | null>(null)
+  const suggestionsRequestIndexRef = useRef(0)
 
   const fetchSuggestions = useMemo(
     () =>
       debounce(async (value: string) => {
         const trimmedValue = value.trim()
         if (trimmedValue.length < 3) {
+          suggestionsRequestIndexRef.current += 1
+          activeRequestControllerRef.current?.abort()
           setSuggestions([])
+          setIsLoadingSuggestions(false)
+          setHasSearchedSuggestions(false)
           return
         }
 
+        activeRequestControllerRef.current?.abort()
+        const controller = new AbortController()
+        activeRequestControllerRef.current = controller
+        const requestIndex = suggestionsRequestIndexRef.current + 1
+        suggestionsRequestIndexRef.current = requestIndex
+        setIsLoadingSuggestions(true)
+        setHasSearchedSuggestions(false)
+
         try {
           const response = await fetch(
-            `/api/search?term=${encodeURIComponent(trimmedValue)}&limit=${SUGGESTIONS_LIMIT}`
+            `/api/search?term=${encodeURIComponent(trimmedValue)}&limit=${SUGGESTIONS_LIMIT}`,
+            {
+              signal: controller.signal
+            }
           )
           if (!response.ok) {
             throw new Error('Erreur lors de la recherche')
           }
 
           const data = (await response.json()) as SearchSuggestion[]
-          setSuggestions(data)
+          if (requestIndex === suggestionsRequestIndexRef.current) {
+            setSuggestions(data)
+            setIsLoadingSuggestions(false)
+            setHasSearchedSuggestions(true)
+          }
         } catch (error) {
+          if (error instanceof Error && error.name === 'AbortError') {
+            return
+          }
+
           console.error(error)
-          setSuggestions([])
+          if (requestIndex === suggestionsRequestIndexRef.current) {
+            setSuggestions([])
+            setIsLoadingSuggestions(false)
+            setHasSearchedSuggestions(true)
+          }
         }
-      }, 300),
+      }, SUGGESTIONS_DEBOUNCE_MS),
     []
   )
 
   useEffect(() => {
+    fetchSuggestions.cancel()
+    activeRequestControllerRef.current?.abort()
+    suggestionsRequestIndexRef.current += 1
     setQuery(initialQuery)
     setSuggestions([])
-  }, [initialQuery])
+    setIsLoadingSuggestions(false)
+    setHasSearchedSuggestions(false)
+  }, [fetchSuggestions, initialQuery])
 
-  useEffect(() => () => fetchSuggestions.cancel(), [fetchSuggestions])
+  useEffect(
+    () => () => {
+      fetchSuggestions.cancel()
+      activeRequestControllerRef.current?.abort()
+    },
+    [fetchSuggestions]
+  )
 
   useEffect(() => {
     let mounted = true
@@ -110,7 +153,18 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
+    const trimmedValue = value.trim()
+
     setQuery(value)
+
+    if (trimmedValue.length >= 3) {
+      setIsLoadingSuggestions(true)
+      setHasSearchedSuggestions(false)
+    } else {
+      setIsLoadingSuggestions(false)
+      setHasSearchedSuggestions(false)
+    }
+
     fetchSuggestions(value)
   }
 
@@ -122,14 +176,24 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
       return
     }
 
+    fetchSuggestions.cancel()
+    activeRequestControllerRef.current?.abort()
+    suggestionsRequestIndexRef.current += 1
     setSuggestions([])
+    setIsLoadingSuggestions(false)
+    setHasSearchedSuggestions(false)
     router.push(`/recherche?term=${encodeURIComponent(trimmedQuery)}`)
     onNavigate?.()
   }
 
   const navigateTo = (post: SearchSuggestion) => {
+    fetchSuggestions.cancel()
+    activeRequestControllerRef.current?.abort()
+    suggestionsRequestIndexRef.current += 1
     router.push(`/articles/${post.slug}`)
     setSuggestions([])
+    setIsLoadingSuggestions(false)
+    setHasSearchedSuggestions(false)
     onNavigate?.()
   }
 
@@ -139,10 +203,19 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
       return
     }
 
+    fetchSuggestions.cancel()
+    activeRequestControllerRef.current?.abort()
+    suggestionsRequestIndexRef.current += 1
     router.push(`/recherche?term=${encodeURIComponent(trimmedQuery)}`)
     setSuggestions([])
+    setIsLoadingSuggestions(false)
+    setHasSearchedSuggestions(false)
     onNavigate?.()
   }
+
+  const shouldShowSuggestionsDropdown =
+    query.trim().length >= 3 &&
+    (isLoadingSuggestions || suggestions.length > 0 || hasSearchedSuggestions)
 
   return (
     <div className="mx-auto w-full px-3">
@@ -164,50 +237,69 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
           </button>
         </form>
 
-        {suggestions.length > 0 ? (
+        {shouldShowSuggestionsDropdown ? (
           <ul className="absolute left-0 right-0 top-full z-10 mt-2 max-h-[70vh] w-full overflow-y-auto overflow-x-hidden border border-black/10 bg-white text-left shadow-lg">
-            {suggestions.map((post) => (
-              <li key={post.id} className="border-t border-black/5 first:border-t-0">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-4 p-3 text-left transition-colors hover:bg-gray-100"
-                  onClick={() => navigateTo(post)}
-                >
-                  <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden bg-black/5 sm:h-[110px] sm:w-[110px]">
-                    {post.image ? (
-                      <Image
-                        src={post.image}
-                        alt={post.imageAlt ?? post.title}
-                        fill
-                        className="object-cover"
-                        sizes="150px"
-                      />
-                    ) : null}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                      <p className="min-w-0 flex-1 font-brandonRegular text-xs uppercase leading-tight text-black sm:text-sm">
-                        {post.title}
-                      </p>
-                      {post.location ? (
-                        <p className="font-montserrat text-[9px] uppercase tracking-[0.24em] text-black/60 sm:max-w-[18ch] sm:text-right">
-                          {post.location}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </button>
+            {isLoadingSuggestions ? (
+              <li className="border-t border-black/5 first:border-t-0">
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black" />
+                  <p className="font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/70">
+                    Recherche en cours...
+                  </p>
+                </div>
               </li>
-            ))}
-            <li className="border-t border-black/10">
-              <button
-                type="button"
-                className="w-full px-4 py-3 text-center font-montserrat text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-gray-100"
-                onClick={navigateToSearchResults}
-              >
-                Voir tous les résultats
-              </button>
-            </li>
+            ) : suggestions.length > 0 ? (
+              <>
+                {suggestions.map((post) => (
+                  <li key={post.id} className="border-t border-black/5 first:border-t-0">
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-4 p-3 text-left transition-colors hover:bg-gray-100"
+                      onClick={() => navigateTo(post)}
+                    >
+                      <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden bg-black/5 sm:h-[110px] sm:w-[110px]">
+                        {post.image ? (
+                          <Image
+                            src={post.image}
+                            alt={post.imageAlt ?? post.title}
+                            fill
+                            className="object-cover"
+                            sizes="150px"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                          <p className="min-w-0 flex-1 font-brandonRegular text-xs uppercase leading-tight text-black sm:text-sm">
+                            {post.title}
+                          </p>
+                          {post.location ? (
+                            <p className="font-montserrat text-[9px] uppercase tracking-[0.24em] text-black/60 sm:max-w-[18ch] sm:text-right">
+                              {post.location}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                ))}
+                <li className="border-t border-black/10">
+                  <button
+                    type="button"
+                    className="w-full px-4 py-3 text-center font-montserrat text-[10px] uppercase tracking-[0.28em] text-black transition-colors hover:bg-gray-100"
+                    onClick={navigateToSearchResults}
+                  >
+                    Voir tous les résultats
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li className="border-t border-black/5 first:border-t-0">
+                <p className="px-4 py-4 font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/60">
+                  Aucun résultat.
+                </p>
+              </li>
+            )}
           </ul>
         ) : null}
       </div>

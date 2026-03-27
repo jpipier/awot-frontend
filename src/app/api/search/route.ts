@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { searchPostsByTerm } from '@/lib/search'
+import { searchSuggestionPostsByTerm } from '@/lib/search'
 import { getArticleAlt, getArticleLocationLabel, getArticlePortraitImage } from '@/lib/article-card'
 
 const SEARCH_POOL_SIZE = 160
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     return NextResponse.json([])
   }
 
-  const filtered = await searchPostsByTerm(term, SEARCH_POOL_SIZE)
+  const filtered = await searchSuggestionPostsByTerm(term, SEARCH_POOL_SIZE)
 
   return NextResponse.json(
     filtered.slice(0, limit).map((post) => ({
