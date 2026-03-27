@@ -119,9 +119,19 @@ a {
     cursor: pointer;
   }
 
+  .awot-carousel-cursor .swiper-slide[data-view-all='true'],
+  .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
+    cursor: pointer;
+  }
+
   html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide,
   html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide * {
     cursor: none !important;
+  }
+
+  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide[data-view-all='true'],
+  html.awot-carousel-cursor-image .awot-carousel-cursor .swiper-slide[data-view-all='true'] * {
+    cursor: pointer !important;
   }
 
   html.awot-carousel-cursor-pointer .awot-carousel-cursor .swiper-slide h3,
