@@ -902,7 +902,6 @@ html{
       font-size: 2vw;
       font-weight: 300;
       line-height: auto;
-      letter-spacing: 2px;
     }
     .content-category {
       display: flex;
@@ -1090,7 +1089,6 @@ html{
     section h2 {
       font-size: 2vw;
       font-weight: 300;
-      letter-spacing: 2px;
       /* margin-left: 106px; */
     }
   }
@@ -1142,7 +1140,6 @@ html{
     }
     section h2 {
       font-weight: 300;
-      letter-spacing: 2px;
       /* margin-left: 106px; */
     }
     .bloc-shop {
