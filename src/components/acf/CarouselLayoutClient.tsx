@@ -42,6 +42,15 @@ const toAccessibleLabel = (value?: string | null) => {
   return cleaned || 'article'
 }
 
+const shouldUseAnimatedLinkTransition = () => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  const finePointerQuery = window.matchMedia?.('(hover: hover) and (pointer: fine)')
+  return Boolean(finePointerQuery?.matches) && window.innerWidth >= 768
+}
+
 function buildLocalisationLabel(post?: Article) {
   const edges = post?.localisations?.edges ?? []
 
@@ -372,10 +381,18 @@ export default function CarouselLayoutClient({
       return
     }
 
+    const shouldAnimateTransition = shouldUseAnimatedLinkTransition()
+
     const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
     if (allowClick === false) {
-      event.preventDefault()
-      event.stopPropagation()
+      if (shouldAnimateTransition) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      return
+    }
+
+    if (!shouldAnimateTransition) {
       return
     }
 
@@ -790,8 +807,8 @@ export default function CarouselLayoutClient({
               thresholdTime: 420,
               sensitivity: 0.6
             }}
-            preventClicks={true}
-            preventClicksPropagation={true}
+            preventClicks={false}
+            preventClicksPropagation={false}
             onSwiper={(instance) => {
               swiperInstanceRef.current = instance
             }}

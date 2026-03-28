@@ -54,6 +54,15 @@ const toAccessibleLabel = (value?: string | null) => {
   return cleaned || 'article'
 }
 
+const shouldUseAnimatedLinkTransition = () => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  const finePointerQuery = window.matchMedia?.('(hover: hover) and (pointer: fine)')
+  return Boolean(finePointerQuery?.matches) && window.innerWidth >= 768
+}
+
 function buildLocalisationLabel(post?: Article) {
   const edges = post?.localisations?.edges ?? []
 
@@ -278,6 +287,11 @@ export default function PortraitLayoutClient({
       return
     }
 
+    const shouldAnimateTransition = shouldUseAnimatedLinkTransition()
+    if (!shouldAnimateTransition) {
+      return
+    }
+
     const imageWrapper = slideImageRefs.current[post.slug] ?? null
     const imageElement = imageWrapper?.querySelector('img') ?? null
     if (!imageWrapper || !(imageElement instanceof HTMLImageElement)) {
@@ -299,10 +313,13 @@ export default function PortraitLayoutClient({
   }
 
   const handleSlideClick = (event: MouseEvent<HTMLAnchorElement>, post: Article) => {
+    const shouldAnimateTransition = shouldUseAnimatedLinkTransition()
     const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
     if (allowClick === false) {
-      event.preventDefault()
-      event.stopPropagation()
+      if (shouldAnimateTransition) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
       return
     }
 
@@ -562,8 +579,8 @@ export default function PortraitLayoutClient({
                 thresholdTime: 420,
                 sensitivity: 0.6
               }}
-              preventClicks={true}
-              preventClicksPropagation={true}
+              preventClicks={false}
+              preventClicksPropagation={false}
               onSwiper={(instance) => {
                 swiperInstanceRef.current = instance
               }}

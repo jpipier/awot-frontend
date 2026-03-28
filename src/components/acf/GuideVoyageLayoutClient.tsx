@@ -75,6 +75,15 @@ const toAccessibleLabel = (value?: string | null) => {
   return cleaned || 'article'
 }
 
+const shouldUseAnimatedLinkTransition = () => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  const finePointerQuery = window.matchMedia?.('(hover: hover) and (pointer: fine)')
+  return Boolean(finePointerQuery?.matches) && window.innerWidth >= 768
+}
+
 const getGuideVoyageBackgroundWidth = (targetWidth: number) =>
   GUIDE_VOYAGE_BACKGROUND_WIDTHS.find((width) => width >= targetWidth) ??
   GUIDE_VOYAGE_BACKGROUND_WIDTHS[GUIDE_VOYAGE_BACKGROUND_WIDTHS.length - 1]
@@ -541,10 +550,18 @@ export default function GuideVoyageLayoutClient({
       return
     }
 
+    const shouldAnimateTransition = shouldUseAnimatedLinkTransition()
+
     const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
     if (allowClick === false) {
-      event.preventDefault()
-      event.stopPropagation()
+      if (shouldAnimateTransition) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      return
+    }
+
+    if (!shouldAnimateTransition) {
       return
     }
 
@@ -1030,8 +1047,8 @@ export default function GuideVoyageLayoutClient({
             thresholdTime: 420,
             sensitivity: 0.6
           }}
-          preventClicks={true}
-          preventClicksPropagation={true}
+          preventClicks={false}
+          preventClicksPropagation={false}
           onHashSet={clearUrlHash}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
