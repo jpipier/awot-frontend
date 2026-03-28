@@ -5,16 +5,24 @@ import { getWordPressConfig } from '@/lib/config'
 
 interface EditBannerProps {
   postId?: string | number
+  canEdit?: boolean
 }
 
 interface SessionResponse {
   loggedIn: boolean
 }
 
-export default function EditBanner({ postId }: EditBannerProps) {
-  const [session, setSession] = useState<SessionResponse | null>(null)
+export default function EditBanner({ postId, canEdit }: EditBannerProps) {
+  const [session, setSession] = useState<SessionResponse | null>(
+    typeof canEdit === 'boolean' ? { loggedIn: canEdit } : null
+  )
 
   useEffect(() => {
+    if (typeof canEdit === 'boolean') {
+      setSession({ loggedIn: canEdit })
+      return
+    }
+
     const fetchSession = async () => {
       try {
         const response = await fetch('/api/wp-session', {
@@ -36,7 +44,7 @@ export default function EditBanner({ postId }: EditBannerProps) {
     }
 
     fetchSession()
-  }, [])
+  }, [canEdit])
 
   if (!postId) {
     return null

@@ -48,6 +48,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
   const slugSegments = Array.isArray(params.slug) ? params.slug : [params.slug]
   const previewId = slugSegments[0] === 'preview' ? Number.parseInt(slugSegments[1] ?? '', 10) : null
   const isPreviewRoute = Boolean(previewId && Number.isInteger(previewId) && previewId > 0)
+  const canEdit = hasWordPressEditorSessionCookie()
   let article = null
 
   if (isPreviewRoute) {
@@ -55,7 +56,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
       notFound()
     }
 
-    if (!hasWordPressEditorSessionCookie()) {
+    if (!canEdit) {
       notFound()
     }
 
@@ -116,7 +117,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
         categories={article.categories?.edges?.map((e) => e.node)}
         excludeSlug={article.slug}
       />
-      <Footer postId={article.databaseId ?? previewId ?? undefined} />
+      <Footer postId={article.databaseId ?? previewId ?? undefined} canEdit={canEdit} />
     </div>
   )
 }
