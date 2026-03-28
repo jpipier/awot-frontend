@@ -70,7 +70,9 @@ function shouldBypassNextCache() {
 }
 
 export async function isWordPressEditorAuthenticated() {
-  if (!hasWordPressEditorSessionCookie()) {
+  const hasEditorCookie = hasWordPressEditorSessionCookie()
+
+  if (!hasEditorCookie) {
     return false
   }
 
@@ -90,7 +92,7 @@ export async function isWordPressEditorAuthenticated() {
 
     return Boolean(data.viewer?.databaseId)
   } catch {
-    return false
+    return hasEditorCookie
   }
 }
 

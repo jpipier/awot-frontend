@@ -536,6 +536,12 @@ body.built-with-classic.not-built-with-elementor .contentElementor{
     padding-right: 30px;
   }
 }
+ @media (max-width: 768px) {
+  section h2{
+    font-size: 8vw;
+    margin-left: 10px;
+  }
+}
 
 body.built-with-classic.not-built-with-elementor .contentElementor p img{
   padding: 10px 0;
