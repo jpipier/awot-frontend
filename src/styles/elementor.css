@@ -899,10 +899,9 @@ html{
       display: none;
     }
     section h2 {
-      font-family: "vultura";
-      font-size: 11vw;
+      font-size: 2vw;
       font-weight: 300;
-      line-height: 0;
+      line-height: auto;
       letter-spacing: 2px;
     }
     .content-category {
@@ -1089,10 +1088,8 @@ html{
       overflow: hidden;
     }
     section h2 {
-      font-family: "vultura";
-      font-size: 11vw;
+      font-size: 2vw;
       font-weight: 300;
-      line-height: 0;
       letter-spacing: 2px;
       /* margin-left: 106px; */
     }
@@ -1144,10 +1141,7 @@ html{
       width: 8.6%;
     }
     section h2 {
-      font-family: "vultura";
-      font-size: 233px;
       font-weight: 300;
-      line-height: 28px;
       letter-spacing: 2px;
       /* margin-left: 106px; */
     }
