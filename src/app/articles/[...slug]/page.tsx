@@ -7,6 +7,7 @@ import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import StickyWatcher from '@/components/article/StickyWatcher'
 import ElementorHeadingAnimator from '@/components/article/ElementorHeadingAnimator'
 import { getArticleByDatabaseId, getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
+import { isWordPressEditorAuthenticated } from '@/lib/wordpress'
 import PostHero from '@/components/article/PostHero'
 
 interface ArticlePageProps {
@@ -51,6 +52,10 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
 
   if (isPreviewRoute) {
     if (!previewId) {
+      notFound()
+    }
+
+    if (!(await isWordPressEditorAuthenticated())) {
       notFound()
     }
 

@@ -16,8 +16,21 @@ interface FetchOptions {
 }
 
 const WORDPRESS_EDITOR_COOKIE_PREFIXES = ['wordpress_logged_in_', 'wordpress_sec_']
+const VIEWER_SESSION_QUERY = /* GraphQL */ `
+  query CheckWordPressEditorSession {
+    viewer {
+      databaseId
+    }
+  }
+`
 
-function hasWordPressEditorSession() {
+interface ViewerSessionResponse {
+  viewer: {
+    databaseId: number
+  } | null
+}
+
+function hasWordPressEditorSessionCookie() {
   try {
     const cookieStore = cookies()
     const allCookies = cookieStore.getAll()
@@ -26,6 +39,21 @@ function hasWordPressEditorSession() {
     )
   } catch {
     return false
+  }
+}
+
+function getWordPressCookieHeader() {
+  try {
+    const cookieStore = cookies()
+    const allCookies = cookieStore.getAll()
+
+    if (!allCookies.length) {
+      return null
+    }
+
+    return allCookies.map(({ name, value }) => `${name}=${value}`).join('; ')
+  } catch {
+    return null
   }
 }
 
@@ -38,7 +66,32 @@ function isDraftModeEnabled() {
 }
 
 function shouldBypassNextCache() {
-  return isDraftModeEnabled() || hasWordPressEditorSession()
+  return isDraftModeEnabled() || hasWordPressEditorSessionCookie()
+}
+
+export async function isWordPressEditorAuthenticated() {
+  if (!hasWordPressEditorSessionCookie()) {
+    return false
+  }
+
+  const cookieHeader = getWordPressCookieHeader()
+
+  if (!cookieHeader) {
+    return false
+  }
+
+  try {
+    const data = await fetchWordPressGraphQL<ViewerSessionResponse>(VIEWER_SESSION_QUERY, {
+      cache: 'no-store',
+      headers: {
+        cookie: cookieHeader
+      }
+    })
+
+    return Boolean(data.viewer?.databaseId)
+  } catch {
+    return false
+  }
 }
 
 export async function fetchWordPressGraphQL<T>(

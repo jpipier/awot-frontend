@@ -1,6 +1,6 @@
 import { draftMode } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchWordPressGraphQL } from '@/lib/wordpress'
+import { fetchWordPressGraphQL, isWordPressEditorAuthenticated } from '@/lib/wordpress'
 
 interface PreviewPostResponse {
   post: {
@@ -64,6 +64,12 @@ export async function GET(request: NextRequest) {
 
   if (configuredSecret && secret !== configuredSecret) {
     return NextResponse.json({ message: 'Invalid preview secret' }, { status: 401 })
+  }
+
+  const isEditorAuthenticated = await isWordPressEditorAuthenticated()
+
+  if (!isEditorAuthenticated) {
+    return NextResponse.json({ message: 'WordPress editor session required' }, { status: 401 })
   }
 
   const previewId = extractPreviewId(request.nextUrl.searchParams)
