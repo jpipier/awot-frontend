@@ -59,17 +59,22 @@ function getWordPressContentAuthHeaders() {
 }
 
 export async function GET(request: NextRequest) {
-  const configuredSecret = process.env.WORDPRESS_PREVIEW_SECRET
-  const secret = request.nextUrl.searchParams.get('secret') ?? request.nextUrl.searchParams.get('preview_secret')
+  const configuredSecret = process.env.WORDPRESS_PREVIEW_SECRET?.trim() || null
+  const providedSecret =
+    request.nextUrl.searchParams.get('secret') ?? request.nextUrl.searchParams.get('preview_secret')
 
-  if (configuredSecret && secret !== configuredSecret) {
-    return NextResponse.json({ message: 'Invalid preview secret' }, { status: 401 })
-  }
+  // In multi-domain headless setups, WordPress auth cookies often do not reach the frontend domain.
+  // If a preview secret is configured, rely on it exclusively.
+  if (configuredSecret) {
+    if (providedSecret !== configuredSecret) {
+      return NextResponse.json({ message: 'Invalid preview secret' }, { status: 401 })
+    }
+  } else {
+    const isEditorAuthenticated = await isWordPressEditorAuthenticated()
 
-  const isEditorAuthenticated = await isWordPressEditorAuthenticated()
-
-  if (!isEditorAuthenticated) {
-    return NextResponse.json({ message: 'WordPress editor session required' }, { status: 401 })
+    if (!isEditorAuthenticated) {
+      return NextResponse.json({ message: 'WordPress editor session required' }, { status: 401 })
+    }
   }
 
   const previewId = extractPreviewId(request.nextUrl.searchParams)
