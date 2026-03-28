@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -32,11 +32,43 @@ interface SliderLayoutClientProps {
   siteDescription: string
 }
 
+const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
+const DESKTOP_HERO_QUALITY = 55
+const MOBILE_HERO_QUALITY = 40
+
 export default function SliderLayoutClient({ slides, siteTitle, siteDescription }: SliderLayoutClientProps) {
-  const loop = slides.length > 1
   const containerRef = useRef<HTMLDivElement | null>(null)
   const initialProgress = useRef<number | null>(null)
   const [parallaxProgress, setParallaxProgress] = useState(0)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
+  const [loadedSlideIndexes, setLoadedSlideIndexes] = useState<Set<number>>(() => new Set([0]))
+  const loop = slides.length > 1 && !isMobileViewport
+  const shouldAutoplay = slides.length > 1 && !isMobileViewport
+  const heroQuality = isMobileViewport ? MOBILE_HERO_QUALITY : DESKTOP_HERO_QUALITY
+
+  const markSlideAsLoaded = useCallback((index: number) => {
+    setLoadedSlideIndexes((prev) => {
+      if (prev.has(index)) {
+        return prev
+      }
+      const next = new Set(prev)
+      next.add(index)
+      return next
+    })
+  }, [])
+
+  const markSlideAndNeighborAsLoaded = useCallback(
+    (index: number) => {
+      if (!slides.length) {
+        return
+      }
+      const normalizedIndex = ((index % slides.length) + slides.length) % slides.length
+      const nextIndex = (normalizedIndex + 1) % slides.length
+      markSlideAsLoaded(normalizedIndex)
+      markSlideAsLoaded(nextIndex)
+    },
+    [markSlideAsLoaded, slides.length]
+  )
 
   useEffect(() => {
     const updateProgress = () => {
@@ -87,6 +119,27 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
     }
   }, [])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY)
+    const updateViewportMode = () => {
+      setIsMobileViewport(mediaQuery.matches)
+    }
+
+    updateViewportMode()
+    mediaQuery.addEventListener('change', updateViewportMode)
+    return () => {
+      mediaQuery.removeEventListener('change', updateViewportMode)
+    }
+  }, [])
+
+  useEffect(() => {
+    setLoadedSlideIndexes(new Set([0]))
+  }, [slides.length])
+
   const clampedProgress = Math.min(Math.max(parallaxProgress, 0), 1)
   const parallaxImageOffset = clampedProgress * -200
   const parallaxImageScale = 1 + clampedProgress * 0.02
@@ -116,7 +169,15 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
         effect="fade"
         fadeEffect={{ crossFade: true }}
         speed={1200}
-        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        autoplay={shouldAutoplay ? { delay: 3000, disableOnInteraction: false } : false}
+        onSwiper={(instance) => {
+          const initialIndex = typeof instance.realIndex === 'number' ? instance.realIndex : instance.activeIndex
+          markSlideAndNeighborAsLoaded(initialIndex ?? 0)
+        }}
+        onSlideChange={(instance) => {
+          const nextIndex = typeof instance.realIndex === 'number' ? instance.realIndex : instance.activeIndex
+          markSlideAndNeighborAsLoaded(nextIndex ?? 0)
+        }}
         className="h-[85vh]"
       >
         {slides.map((slide, index) => {
@@ -124,21 +185,26 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
           if (!imageSrc) {
             return null
           }
+          const shouldLoadImage = index === 0 || loadedSlideIndexes.has(index)
           const content = (
             <div className="relative h-screen overflow-hidden">
               <div className="absolute inset-0">
-                <Image
-                  src={imageSrc}
-                  alt={slide.titre ?? `Slide ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="(min-width: 1280px) 1280px, 100vw"
-                  priority={index === 0}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={index === 0 ? 'high' : 'auto'}
-                  quality={55}
-                  style={parallaxImageStyle}
-                />
+                {shouldLoadImage ? (
+                  <Image
+                    src={imageSrc}
+                    alt={slide.titre ?? `Slide ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 1280px) 1280px, 100vw"
+                    priority={index === 0}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'low'}
+                    quality={heroQuality}
+                    style={parallaxImageStyle}
+                  />
+                ) : (
+                  <div className="h-full w-full bg-neutral-200" aria-hidden="true" />
+                )}
               </div>
               {slide.afficherDuTexte ? (
                 <div className="absolute inset-0 -top-[15vw] flex flex-col items-center justify-center text-center text-white">

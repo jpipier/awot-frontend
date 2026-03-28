@@ -575,7 +575,7 @@ p b, p strong {
     font-weight: 800;
 }
 
-.elementor img{
+#sticky1 img{
   height: 100% !important;
   object-fit: cover;
 }
