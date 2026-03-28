@@ -7,19 +7,24 @@ interface EditBannerProps {
 }
 
 export default function EditBanner({ postId }: EditBannerProps) {
-  if (!postId) {
-    return null
-  }
-
   const { siteUrl } = getWordPressConfig()
-  const editUrl = `${siteUrl?.replace(/\/$/, '')}/wp/wp-admin/post.php?post=${postId}&action=edit`
+  const baseUrl = siteUrl?.replace(/\/$/, '') ?? ''
+  const editUrl = postId
+    ? `${baseUrl}/wp/wp-admin/post.php?post=${postId}&action=elementor`
+    : `${baseUrl}/wp/wp-admin/`
 
   return (
     <a
       href={editUrl}
       target="_blank"
       rel="noreferrer"
-      className="fixed bottom-4 right-4 z-[9999] inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#1f1f1f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 md:bottom-6 md:right-6 md:px-6 md:text-sm"
+      className="inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#1f1f1f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 md:px-6 md:text-sm"
+      style={{
+        position: 'fixed',
+        right: 'max(16px, env(safe-area-inset-right))',
+        bottom: 'max(16px, env(safe-area-inset-bottom))',
+        zIndex: 2147483647
+      }}
     >
       <svg
         aria-hidden="true"
