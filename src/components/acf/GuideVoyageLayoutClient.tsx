@@ -28,6 +28,12 @@ import 'swiper/css/pagination'
 
 type GSAPTimeline = ReturnType<GSAP['timeline']>
 type Tween = ReturnType<GSAP['to']>
+type CategoryPostsCacheEntry = {
+  posts: Article[]
+  endCursor: string | null
+  hasNextPage: boolean
+  cachedAt: number
+}
 
 interface GuideVoyageLayoutClientProps {
   posts: Article[]
@@ -45,6 +51,7 @@ const VOYAGES_SECTION_SELECTOR = '#voyages'
 const CAROUSEL_AUTOPLAY_DELAY_MS = 5200
 const CAROUSEL_EASE = 'sine.inOut'
 const POSTS_BATCH_SIZE = 6
+const CATEGORY_CLIENT_CACHE_TTL_MS = 5 * 60 * 1000
 const TRANSITION_PUSH_OFFSET_S = 0.58
 const TRANSITION_MAX_WAIT_MS = 45000
 const GUIDE_VOYAGE_BACKGROUND_QUALITY = 60
@@ -167,6 +174,7 @@ export default function GuideVoyageLayoutClient({
   const transitionCleanupTimeoutRef = useRef<number | null>(null)
   const prefetchedSlugsRef = useRef<Set<string>>(new Set())
   const prefetchInFlightRef = useRef<Map<string, Promise<void>>>(new Map())
+  const categoryPostsCacheRef = useRef<Map<string, CategoryPostsCacheEntry>>(new Map())
   const isFetchingCategoryRef = useRef(false)
   const isFetchingMorePostsRef = useRef(false)
   const clearTransitionElements = () => {
@@ -212,6 +220,15 @@ export default function GuideVoyageLayoutClient({
     prefetchedSlugsRef.current = new Set()
     prefetchInFlightRef.current = new Map()
     slideImageRefs.current = {}
+
+    if (categorySlug) {
+      categoryPostsCacheRef.current.set(categorySlug, {
+        posts,
+        endCursor: initialCursor ?? null,
+        hasNextPage: Boolean(initialHasNextPage),
+        cachedAt: Date.now()
+      })
+    }
   }, [categorySlug, initialCursor, initialHasNextPage, posts])
 
   const sanitizedPosts = useMemo(
@@ -278,6 +295,24 @@ export default function GuideVoyageLayoutClient({
         return
       }
 
+      const cachedEntry = categoryPostsCacheRef.current.get(slug)
+      if (cachedEntry) {
+        const isFresh = Date.now() - cachedEntry.cachedAt <= CATEGORY_CLIENT_CACHE_TTL_MS
+        if (isFresh) {
+          prefetchedSlugsRef.current = new Set()
+          prefetchInFlightRef.current = new Map()
+          slideImageRefs.current = {}
+          setActiveIndex(0)
+          setActiveCategorySlug(slug)
+          setDisplayedPosts(cachedEntry.posts)
+          setPaginationCursor(cachedEntry.endCursor)
+          setCanLoadMorePosts(cachedEntry.hasNextPage)
+          return
+        }
+
+        categoryPostsCacheRef.current.delete(slug)
+      }
+
       isFetchingCategoryRef.current = true
       isFetchingMorePostsRef.current = false
       setIsUpdatingCategory(true)
@@ -302,6 +337,12 @@ export default function GuideVoyageLayoutClient({
         setDisplayedPosts(nextPosts)
         setPaginationCursor(nextPageInfo?.endCursor ?? null)
         setCanLoadMorePosts(Boolean(nextPageInfo?.hasNextPage))
+        categoryPostsCacheRef.current.set(slug, {
+          posts: nextPosts,
+          endCursor: nextPageInfo?.endCursor ?? null,
+          hasNextPage: Boolean(nextPageInfo?.hasNextPage),
+          cachedAt: Date.now()
+        })
       } catch (error) {
         console.error('Unable to load category posts', error)
       } finally {
@@ -339,6 +380,7 @@ export default function GuideVoyageLayoutClient({
       const data = await response.json()
       const incomingPosts = data?.nodes ?? []
       const nextPageInfo = data?.pageInfo ?? {}
+      let mergedPostsForCache: Article[] | null = null
 
       setDisplayedPosts((prev) => {
         if (!incomingPosts.length) {
@@ -354,10 +396,22 @@ export default function GuideVoyageLayoutClient({
           return prev
         }
 
-        return [...prev, ...uniqueIncomingPosts]
+        const mergedPosts = [...prev, ...uniqueIncomingPosts]
+        mergedPostsForCache = mergedPosts
+        return mergedPosts
       })
       setPaginationCursor(nextPageInfo?.endCursor ?? null)
       setCanLoadMorePosts(Boolean(nextPageInfo?.hasNextPage))
+
+      if (activeCategorySlug) {
+        const previousCache = categoryPostsCacheRef.current.get(activeCategorySlug)
+        categoryPostsCacheRef.current.set(activeCategorySlug, {
+          posts: mergedPostsForCache ?? previousCache?.posts ?? [],
+          endCursor: nextPageInfo?.endCursor ?? null,
+          hasNextPage: Boolean(nextPageInfo?.hasNextPage),
+          cachedAt: Date.now()
+        })
+      }
     } catch (error) {
       console.error('Unable to load more category posts', error)
     } finally {

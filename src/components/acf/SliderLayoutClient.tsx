@@ -132,11 +132,11 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
                   alt={slide.titre ?? `Slide ${index + 1}`}
                   fill
                   className="object-cover"
-                  sizes="(min-width: 1536px) 1536px, 100vw"
+                  sizes="(min-width: 1280px) 1280px, 100vw"
                   priority={index === 0}
                   loading={index === 0 ? 'eager' : 'lazy'}
                   fetchPriority={index === 0 ? 'high' : 'auto'}
-                  quality={60}
+                  quality={55}
                   style={parallaxImageStyle}
                 />
               </div>

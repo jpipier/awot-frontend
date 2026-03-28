@@ -7,6 +7,18 @@ interface Params {
   }
 }
 
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const PROD_CACHE_CONTROL = 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+const DEV_CACHE_CONTROL = 'no-store'
+
+function jsonWithCache<T>(payload: T) {
+  return NextResponse.json(payload, {
+    headers: {
+      'Cache-Control': IS_PRODUCTION ? PROD_CACHE_CONTROL : DEV_CACHE_CONTROL
+    }
+  })
+}
+
 export async function GET(request: Request, { params }: Params) {
   const { slug } = params
   const { searchParams } = new URL(request.url)
@@ -15,15 +27,15 @@ export async function GET(request: Request, { params }: Params) {
   const localisation = searchParams.get('localisation')
 
   if (!slug) {
-    return NextResponse.json({ posts: [], pageInfo: { hasNextPage: false } })
+    return jsonWithCache({ posts: [], pageInfo: { hasNextPage: false } })
   }
 
   if (localisation) {
     const result = await getCategoryPostsByLocalisation(slug, localisation, limit, cursor)
-    return NextResponse.json(result)
+    return jsonWithCache(result)
   }
 
   const posts = await getCategoryPosts(slug, limit, cursor)
 
-  return NextResponse.json(posts ?? { posts: [], pageInfo: { hasNextPage: false } })
+  return jsonWithCache(posts ?? { posts: [], pageInfo: { hasNextPage: false } })
 }

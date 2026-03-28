@@ -20,8 +20,8 @@ const config: Config = {
         montserrat: ['brandon_grotesquelight', 'sans-serif'],
         brandonLight: ['brandon_grotesquelight', 'sans-serif'],
         brandonRegular: ['brandon_grotesqueregular', 'sans-serif'],
-        brandonMedium: ['Montserrat', 'sans-serif'],
-        lato: ['Lato', 'sans-serif']
+        brandonMedium: ['brandon_grotesquemedium', 'sans-serif'],
+        lato: ['var(--font-lato)', 'sans-serif']
       }
     }
   },

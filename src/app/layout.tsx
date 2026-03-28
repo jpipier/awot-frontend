@@ -1,11 +1,20 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
+import { Lato } from 'next/font/google'
 import '@/styles/globals.css'
 import Header from '@/components/header/Header'
 import { getSiteChrome } from '@/lib/site'
 import { SiteChromeProvider } from '@/components/providers/SiteChromeProvider'
 import ScrollSmootherProvider from '@/components/providers/ScrollSmootherProvider'
 import IosInputZoomGuard from '@/components/providers/IosInputZoomGuard'
+
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['100', '300', '400', '700', '900'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-google-lato'
+})
 
 export const metadata: Metadata = {
   title: 'A Way of Travel',
@@ -29,7 +38,7 @@ export default async function RootLayout({
   const shouldLoadFacebookSdk = Boolean(facebookAppId)
 
   return (
-    <html lang="fr">
+    <html lang="fr" className={lato.variable}>
       <head>
         <link rel="icon" href={faviconHref} />
         <link rel="apple-touch-icon" href={faviconHref} />
