@@ -3,6 +3,19 @@ import { getWordPressConfig } from './config'
 import type { Article, ElementorInlineScript, ElementorJsPayload, ElementorScriptAsset } from '@/types/wordpress'
 
 const ARTICLE_REVALIDATE_SECONDS = 300
+const ELEMENTOR_FETCH_TIMEOUT_MS = 4000
+
+function createTimeoutController(timeoutMs: number) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => {
+    controller.abort()
+  }, timeoutMs)
+
+  return {
+    signal: controller.signal,
+    clear: () => clearTimeout(timeoutId)
+  }
+}
 
 type ArticleQueryData = Omit<Article, 'content'> & {
   renderedContent?: string | null
@@ -242,7 +255,10 @@ export async function getElementorCssBundle(options: ElementorCssRequestOptions 
         return null
       }
       try {
-        const response = await fetch(href, { cache: 'force-cache' })
+        const { signal, clear } = createTimeoutController(ELEMENTOR_FETCH_TIMEOUT_MS)
+        const response = await fetch(href, { cache: 'force-cache', signal }).finally(() => {
+          clear()
+        })
         if (!response.ok) {
           throw new Error(`Failed to fetch Elementor CSS: ${response.status}`)
         }
@@ -641,7 +657,10 @@ async function requestElementorAssetsFromApi(postId?: number | null) {
   const path = query ? `elementor/v1/js-files?${query}` : 'elementor/v1/js-files'
 
   try {
-    return await fetchWordPressRest<ElementorJsPayload>(path, { cache: 'force-cache' })
+    const { signal, clear } = createTimeoutController(ELEMENTOR_FETCH_TIMEOUT_MS)
+    return await fetchWordPressRest<ElementorJsPayload>(path, { cache: 'force-cache', signal }).finally(() => {
+      clear()
+    })
   } catch (error) {
     console.warn('Failed to load Elementor JS assets from REST API', error)
     return null
@@ -670,7 +689,10 @@ async function scrapeElementorAssetsFromPage(uri?: string | null) {
   }
 
   try {
-    const response = await fetch(pageUrl, { cache: 'force-cache' })
+    const { signal, clear } = createTimeoutController(ELEMENTOR_FETCH_TIMEOUT_MS)
+    const response = await fetch(pageUrl, { cache: 'force-cache', signal }).finally(() => {
+      clear()
+    })
 
     if (!response.ok) {
       throw new Error(`Failed to load Elementor page HTML: ${response.status}`)

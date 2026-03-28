@@ -33,7 +33,15 @@ const slugify = (str: string) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 
-    
+const toAccessibleLabel = (value?: string | null) => {
+  if (!value) {
+    return 'article'
+  }
+
+  const cleaned = value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return cleaned || 'article'
+}
+
 function AnimatedGuideTitle({
   className,
   delay = 120,
@@ -317,8 +325,8 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               thresholdTime: 420,
               sensitivity: 0.6
             }}
-            preventClicks={false}
-            preventClicksPropagation={false}
+            preventClicks={true}
+            preventClicksPropagation={true}
             onHashSet={clearUrlHash}
           >
             {posts.map((post) => {
@@ -332,7 +340,11 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               return (
                 <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
                   <div className="relative">
-                    <Link href={`/articles/${post.slug}`} className="block">
+                    <Link
+                      href={`/articles/${post.slug}`}
+                      className="block"
+                      aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
+                    >
                       {slideImageSrc ? (
                         <div className="relative w-full overflow-hidden aspect-[3/2] md:aspect-auto md:h-[450px] lg:h-[80vh]">
                           <Image
@@ -341,7 +353,6 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                             fill
                             className="object-cover"
                             sizes="(min-width: 1024px) 75vw, 100vw"
-                            unoptimized
                           />
                         </div>
                       ) : null}

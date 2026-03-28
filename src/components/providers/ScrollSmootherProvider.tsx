@@ -28,12 +28,21 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
     }
 
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const coarsePointerQuery = window.matchMedia('(hover: none), (pointer: coarse)')
+    const mobileViewportQuery = window.matchMedia('(max-width: 1023px)')
     let smoother: ScrollSmootherInstance = null
     let ctx: GSAPContext
     let cancelled = false
 
     const init = async () => {
-      if (motionQuery.matches || cancelled || !wrapperRef.current || !contentRef.current) {
+      if (
+        motionQuery.matches ||
+        coarsePointerQuery.matches ||
+        mobileViewportQuery.matches ||
+        cancelled ||
+        !wrapperRef.current ||
+        !contentRef.current
+      ) {
         document.documentElement.dataset.scrollSmoother = 'disabled'
         return
       }
@@ -71,7 +80,10 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
     init()
 
     const handleMotionChange = () => {
-      if (!motionQuery.matches || !smoother) {
+      if (
+        (!motionQuery.matches && !coarsePointerQuery.matches && !mobileViewportQuery.matches) ||
+        !smoother
+      ) {
         return
       }
       smoother.kill()
@@ -81,10 +93,14 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
     }
 
     motionQuery.addEventListener?.('change', handleMotionChange)
+    coarsePointerQuery.addEventListener?.('change', handleMotionChange)
+    mobileViewportQuery.addEventListener?.('change', handleMotionChange)
 
     return () => {
       cancelled = true
       motionQuery.removeEventListener?.('change', handleMotionChange)
+      coarsePointerQuery.removeEventListener?.('change', handleMotionChange)
+      mobileViewportQuery.removeEventListener?.('change', handleMotionChange)
       smoother?.kill()
       smootherRef.current = null
       ctx?.revert()

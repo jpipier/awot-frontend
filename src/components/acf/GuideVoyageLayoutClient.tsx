@@ -45,6 +45,8 @@ const VOYAGES_SECTION_SELECTOR = '#voyages'
 const CAROUSEL_AUTOPLAY_DELAY_MS = 5200
 const CAROUSEL_EASE = 'sine.inOut'
 const POSTS_BATCH_SIZE = 6
+const TRANSITION_PUSH_OFFSET_S = 0.58
+const TRANSITION_MAX_WAIT_MS = 45000
 
 const slugify = (str: string) =>
   str
@@ -54,6 +56,15 @@ const slugify = (str: string) =>
     .trim()
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
+
+const toAccessibleLabel = (value?: string | null) => {
+  if (!value) {
+    return 'article'
+  }
+
+  const cleaned = value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return cleaned || 'article'
+}
 
 function AnimatedCarouselItem({
   children,
@@ -136,6 +147,7 @@ export default function GuideVoyageLayoutClient({
   const isTransitioningRef = useRef(false)
   const transitionCleanupTimeoutRef = useRef<number | null>(null)
   const prefetchedSlugsRef = useRef<Set<string>>(new Set())
+  const prefetchInFlightRef = useRef<Map<string, Promise<void>>>(new Map())
   const isFetchingCategoryRef = useRef(false)
   const isFetchingMorePostsRef = useRef(false)
   const clearTransitionElements = () => {
@@ -174,6 +186,7 @@ export default function GuideVoyageLayoutClient({
     setIsLoadingMorePosts(false)
     setActiveIndex(0)
     prefetchedSlugsRef.current = new Set()
+    prefetchInFlightRef.current = new Map()
     slideImageRefs.current = {}
   }, [categorySlug, initialCursor, initialHasNextPage, posts])
 
@@ -202,21 +215,35 @@ export default function GuideVoyageLayoutClient({
     transform: `translateY(-${activeIndex * 100}%)`
   }
   const prefetchArticle = useCallback(
-    async (slug?: string) => {
-      if (!slug || prefetchedSlugsRef.current.has(slug) || typeof router.prefetch !== 'function') {
-        return
+    (slug?: string) => {
+      if (!slug || typeof router.prefetch !== 'function') {
+        return Promise.resolve()
       }
 
-      prefetchedSlugsRef.current.add(slug)
-
-      try {
-        const href = `/articles/${slug}`
-        const maybePromise = router.prefetch(href)
-        await Promise.resolve(maybePromise)
-      } catch (error) {
-        prefetchedSlugsRef.current.delete(slug)
-        console.error('Unable to prefetch article page', error)
+      if (prefetchedSlugsRef.current.has(slug)) {
+        return Promise.resolve()
       }
+
+      const inFlightPrefetch = prefetchInFlightRef.current.get(slug)
+      if (inFlightPrefetch) {
+        return inFlightPrefetch
+      }
+
+      const href = `/articles/${slug}`
+      const prefetchPromise = Promise.resolve(router.prefetch(href))
+        .then(() => {
+          prefetchedSlugsRef.current.add(slug)
+        })
+        .catch((error) => {
+          console.error('Unable to prefetch article page', error)
+          throw error
+        })
+        .finally(() => {
+          prefetchInFlightRef.current.delete(slug)
+        })
+
+      prefetchInFlightRef.current.set(slug, prefetchPromise)
+      return prefetchPromise
     },
     [router]
   )
@@ -244,6 +271,7 @@ export default function GuideVoyageLayoutClient({
         const nextPageInfo = data?.pageInfo ?? {}
 
         prefetchedSlugsRef.current = new Set()
+        prefetchInFlightRef.current = new Map()
         slideImageRefs.current = {}
         setActiveIndex(0)
         setActiveCategorySlug(slug)
@@ -325,6 +353,15 @@ export default function GuideVoyageLayoutClient({
     }
 
     void prefetchArticle(slug)
+    let hasNavigated = false
+    const navigateToTarget = () => {
+      if (hasNavigated) {
+        return
+      }
+      hasNavigated = true
+      router.push(href)
+    }
+
     isTransitioningRef.current = true
     document.documentElement.classList.add('is-guide-transitioning')
 
@@ -363,10 +400,10 @@ export default function GuideVoyageLayoutClient({
       const timeline = gsap.timeline({
         defaults: { ease: 'power3.out' },
         onComplete: () => {
-          router.push(href)
+          navigateToTarget()
           transitionCleanupTimeoutRef.current = window.setTimeout(() => {
             clearTransitionElements()
-          }, 700)
+          }, TRANSITION_MAX_WAIT_MS)
         },
         onInterrupt: clearTransitionElements
       })
@@ -397,6 +434,9 @@ export default function GuideVoyageLayoutClient({
         },
         0
       )
+      timeline.call(() => {
+        navigateToTarget()
+      }, [], TRANSITION_PUSH_OFFSET_S)
 
       if (transitionElementsRef.current) {
         transitionElementsRef.current.timeline = timeline
@@ -425,6 +465,8 @@ export default function GuideVoyageLayoutClient({
 
     const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
     if (allowClick === false) {
+      event.preventDefault()
+      event.stopPropagation()
       return
     }
 
@@ -907,8 +949,8 @@ export default function GuideVoyageLayoutClient({
             thresholdTime: 420,
             sensitivity: 0.6
           }}
-          preventClicks={false}
-          preventClicksPropagation={false}
+          preventClicks={true}
+          preventClicksPropagation={true}
           onHashSet={clearUrlHash}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
@@ -939,6 +981,7 @@ export default function GuideVoyageLayoutClient({
                   <Link
                     href={`/articles/${post.slug}`}
                     className="block"
+                    aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
                     onClick={(event) => handleSlideClick(event, post)}
                     onPointerEnter={() => {
                       void prefetchArticle(post.slug)

@@ -21,6 +21,8 @@ const STAGGER_DELAY_MS = 150
 const SCROLL_ANIMATED_ITEM_COUNT = 3
 const SCROLL_ANIMATION_END = 0.5
 const DESKTOP_MEDIA_QUERY = '(min-width: 1024px)'
+const TRANSITION_PUSH_OFFSET_S = 0.58
+const TRANSITION_MAX_WAIT_MS = 45000
 
 const slugify = (str: string) =>
   str
@@ -30,6 +32,15 @@ const slugify = (str: string) =>
     .trim()
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
+
+const toAccessibleLabel = (value?: string | null) => {
+  if (!value) {
+    return 'article'
+  }
+
+  const cleaned = value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return cleaned || 'article'
+}
 
 function buildLocalisationLabel(post?: Article) {
   const edges = post?.localisations?.edges ?? []
@@ -172,6 +183,7 @@ export default function CarouselLayoutClient({
   const isTransitioningRef = useRef(false)
   const transitionCleanupTimeoutRef = useRef<number | null>(null)
   const prefetchedSlugsRef = useRef<Set<string>>(new Set())
+  const prefetchInFlightRef = useRef<Map<string, Promise<void>>>(new Map())
 
   const clearTransitionElements = useCallback(() => {
     if (transitionCleanupTimeoutRef.current) {
@@ -201,21 +213,35 @@ export default function CarouselLayoutClient({
   }, [clearUrlHash])
 
   const prefetchArticle = useCallback(
-    async (slug?: string) => {
-      if (!slug || prefetchedSlugsRef.current.has(slug) || typeof router.prefetch !== 'function') {
-        return
+    (slug?: string) => {
+      if (!slug || typeof router.prefetch !== 'function') {
+        return Promise.resolve()
       }
 
-      prefetchedSlugsRef.current.add(slug)
-
-      try {
-        const href = `/articles/${slug}`
-        const maybePromise = router.prefetch(href)
-        await Promise.resolve(maybePromise)
-      } catch (error) {
-        prefetchedSlugsRef.current.delete(slug)
-        console.error('Unable to prefetch article page', error)
+      if (prefetchedSlugsRef.current.has(slug)) {
+        return Promise.resolve()
       }
+
+      const inFlightPrefetch = prefetchInFlightRef.current.get(slug)
+      if (inFlightPrefetch) {
+        return inFlightPrefetch
+      }
+
+      const href = `/articles/${slug}`
+      const prefetchPromise = Promise.resolve(router.prefetch(href))
+        .then(() => {
+          prefetchedSlugsRef.current.add(slug)
+        })
+        .catch((error) => {
+          console.error('Unable to prefetch article page', error)
+          throw error
+        })
+        .finally(() => {
+          prefetchInFlightRef.current.delete(slug)
+        })
+
+      prefetchInFlightRef.current.set(slug, prefetchPromise)
+      return prefetchPromise
     },
     [router]
   )
@@ -231,6 +257,15 @@ export default function CarouselLayoutClient({
     }
 
     void prefetchArticle(slug)
+    let hasNavigated = false
+    const navigateToTarget = () => {
+      if (hasNavigated) {
+        return
+      }
+      hasNavigated = true
+      router.push(href)
+    }
+
     isTransitioningRef.current = true
     document.documentElement.classList.add('is-guide-transitioning')
 
@@ -269,10 +304,10 @@ export default function CarouselLayoutClient({
       const timeline = gsap.timeline({
         defaults: { ease: 'power3.out' },
         onComplete: () => {
-          router.push(href)
+          navigateToTarget()
           transitionCleanupTimeoutRef.current = window.setTimeout(() => {
             clearTransitionElements()
-          }, 700)
+          }, TRANSITION_MAX_WAIT_MS)
         },
         onInterrupt: clearTransitionElements
       })
@@ -303,6 +338,9 @@ export default function CarouselLayoutClient({
         },
         0
       )
+      timeline.call(() => {
+        navigateToTarget()
+      }, [], TRANSITION_PUSH_OFFSET_S)
 
       if (transitionElementsRef.current) {
         transitionElementsRef.current.timeline = timeline
@@ -331,6 +369,8 @@ export default function CarouselLayoutClient({
 
     const allowClick = (swiperInstanceRef.current as (SwiperInstance & { allowClick?: boolean }) | null)?.allowClick
     if (allowClick === false) {
+      event.preventDefault()
+      event.stopPropagation()
       return
     }
 
@@ -745,8 +785,8 @@ export default function CarouselLayoutClient({
               thresholdTime: 420,
               sensitivity: 0.6
             }}
-            preventClicks={false}
-            preventClicksPropagation={false}
+            preventClicks={true}
+            preventClicksPropagation={true}
             onSwiper={(instance) => {
               swiperInstanceRef.current = instance
             }}
@@ -788,6 +828,7 @@ export default function CarouselLayoutClient({
                     <Link
                       href={`/articles/${post.slug}`}
                       className="block"
+                      aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
                       onClick={(event) => handleSlideClick(event, post)}
                       onPointerEnter={() => {
                         void prefetchArticle(post.slug)

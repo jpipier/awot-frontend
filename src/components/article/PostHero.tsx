@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import type { Article } from '@/types/wordpress'
 
 interface PostHeroProps {
@@ -9,6 +8,8 @@ export default function PostHero({ article }: PostHeroProps) {
   const portraitImage = article.optionsArticles?.imagePortait?.node
   const heroImage = portraitImage ?? article.featuredImage?.node
   const imageSrc = heroImage?.sourceUrl ?? heroImage?.guid
+  const imageSrcSet = heroImage?.srcSet?.trim() ? heroImage.srcSet : undefined
+  const imageAlt = heroImage?.altText ?? article.title ?? ''
 
   const childCategory = article.categories?.edges
     ?.map((e) => e.node)
@@ -18,14 +19,17 @@ export default function PostHero({ article }: PostHeroProps) {
 
   const imageBlock = imageSrc ? (
     <div className="relative w-full h-full overflow-hidden">
-      <Image
+      {/* Use native img + WP srcSet to bypass next/image remote optimization cold-start on hero. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={imageSrc}
-        alt={heroImage?.altText ?? article.title ?? ''}
-        fill
-        className="object-cover"
+        srcSet={imageSrcSet}
         sizes="(min-width: 768px) 50vw, 100vw"
-        priority
-        unoptimized
+        alt={imageAlt}
+        className="h-full w-full object-cover"
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
       />
     </div>
   ) : (

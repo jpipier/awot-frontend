@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { getInstagramPosts } from '@/lib/instagram'
 import type { InstagramPost } from '@/types/instagram'
 
@@ -147,7 +146,7 @@ export default async function InstagramFeed({
   let debugDetails: string | null = null
 
   try {
-    posts = await getInstagramPosts({ limit, revalidate: 0 })
+    posts = await getInstagramPosts({ limit })
   } catch (error) {
     console.error('InstagramFeed: impossible de charger le flux', error)
     errorMessage = 'Impossible de charger les publications Instagram pour le moment.'
@@ -233,7 +232,6 @@ export default async function InstagramFeed({
                       sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 60vw"
                       className="object-cover transition duration-500 group-hover:scale-105"
                       priority={false}
-                      unoptimized
                     />
                   )}
 

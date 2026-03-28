@@ -39,6 +39,15 @@ const slugify = (str: string) =>
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 
+const toAccessibleLabel = (value?: string | null) => {
+  if (!value) {
+    return 'article'
+  }
+
+  const cleaned = value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return cleaned || 'article'
+}
+
 function buildLocalisationLabel(post?: Article) {
   const edges = post?.localisations?.edges ?? []
 
@@ -317,8 +326,8 @@ export default function PortraitLayoutClient({
                 thresholdTime: 420,
                 sensitivity: 0.6
               }}
-              preventClicks={false}
-              preventClicksPropagation={false}
+              preventClicks={true}
+              preventClicksPropagation={true}
               onSlideChange={(swiper) => {
                 const nextIndex = typeof swiper.realIndex === 'number' ? swiper.realIndex : swiper.activeIndex
                 setCurrentIndex(nextIndex ?? 0)
@@ -338,7 +347,11 @@ export default function PortraitLayoutClient({
 
                 return (
                   <SwiperSlide key={post.slug ?? index} className="relative">
-                    <Link href={postHref} className="block">
+                    <Link
+                      href={postHref}
+                      className="block"
+                      aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
+                    >
                       {imageSrc ? (
                         <div
                           ref={(node) => {
@@ -365,7 +378,6 @@ export default function PortraitLayoutClient({
                             fill
                             className="object-cover"
                             sizes="(min-width: 1280px) 45vw, (min-width: 768px) 60vw, 100vw"
-                            unoptimized
                           />
                         </div>
                       ) : null}

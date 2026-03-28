@@ -133,7 +133,6 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
                   fill
                   className="object-cover"
                   sizes="100vw"
-                  unoptimized
                   priority={index === 0}
                   style={parallaxImageStyle}
                 />
