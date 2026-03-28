@@ -1,0 +1,47 @@
+@keyframes articleLoadingFade {
+  0% {
+    opacity: 0.28;
+    transform: translateY(5px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.28;
+    transform: translateY(5px);
+  }
+}
+
+.fade {
+  animation: articleLoadingFade 1.8s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+.d1 {
+  animation-delay: 0ms;
+}
+
+.d2 {
+  animation-delay: 120ms;
+}
+
+.d3 {
+  animation-delay: 240ms;
+}
+
+.d4 {
+  animation-delay: 360ms;
+}
+
+.d5 {
+  animation-delay: 480ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

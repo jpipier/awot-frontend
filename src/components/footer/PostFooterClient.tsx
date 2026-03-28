@@ -67,11 +67,16 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
       window.clearTimeout(transitionCleanupTimeoutRef.current)
       transitionCleanupTimeoutRef.current = null
     }
-    if (transitionElementsRef.current?.timeline) {
-      transitionElementsRef.current.timeline.kill()
+    const currentTransition = transitionElementsRef.current
+    const timeline = currentTransition?.timeline
+    if (currentTransition) {
+      currentTransition.timeline = undefined
     }
-    transitionElementsRef.current?.overlay?.remove()
-    transitionElementsRef.current?.image?.remove()
+    if (timeline) {
+      timeline.kill()
+    }
+    currentTransition?.overlay?.remove()
+    currentTransition?.image?.remove()
     transitionElementsRef.current = null
     isTransitioningRef.current = false
     document.documentElement.classList.remove('is-guide-transitioning')
