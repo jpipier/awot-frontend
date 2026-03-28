@@ -393,7 +393,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
                         alt={imgAlt}
                         fill
                         sizes="(min-width: 1280px) 15vw, 50vw"
-                        unoptimized
+                        quality={65}
                       />
                     ) : null
                   })()}

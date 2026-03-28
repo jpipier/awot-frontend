@@ -47,6 +47,8 @@ const CAROUSEL_EASE = 'sine.inOut'
 const POSTS_BATCH_SIZE = 6
 const TRANSITION_PUSH_OFFSET_S = 0.58
 const TRANSITION_MAX_WAIT_MS = 45000
+const GUIDE_VOYAGE_BACKGROUND_QUALITY = 60
+const GUIDE_VOYAGE_BACKGROUND_WIDTHS = [640, 750, 828, 1080, 1200, 1536, 1920, 2560, 3072]
 
 const slugify = (str: string) =>
   str
@@ -64,6 +66,23 @@ const toAccessibleLabel = (value?: string | null) => {
 
   const cleaned = value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
   return cleaned || 'article'
+}
+
+const getGuideVoyageBackgroundWidth = (targetWidth: number) =>
+  GUIDE_VOYAGE_BACKGROUND_WIDTHS.find((width) => width >= targetWidth) ??
+  GUIDE_VOYAGE_BACKGROUND_WIDTHS[GUIDE_VOYAGE_BACKGROUND_WIDTHS.length - 1]
+
+const getGuideVoyageBackgroundUrl = (source: string) => {
+  if (!source) {
+    return ''
+  }
+
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1920
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+  const requestedWidth = Math.max(1, Math.round(viewportWidth * pixelRatio))
+  const width = getGuideVoyageBackgroundWidth(requestedWidth)
+
+  return `/_next/image?url=${encodeURIComponent(source)}&w=${width}&q=${GUIDE_VOYAGE_BACKGROUND_QUALITY}`
 }
 
 function AnimatedCarouselItem({
@@ -653,9 +672,12 @@ export default function GuideVoyageLayoutClient({
       return
     }
 
+    const backgroundLayerNode = backgroundLayerRef.current
+    const coverNode = coverRef.current
+
     if (!currentBackgroundImage) {
-      if (backgroundLayerRef.current) {
-        backgroundLayerRef.current.style.backgroundImage = ''
+      if (backgroundLayerNode) {
+        backgroundLayerNode.style.backgroundImage = ''
       }
       return
     }
@@ -667,22 +689,22 @@ export default function GuideVoyageLayoutClient({
       try {
         const { default: gsap } = await import('gsap')
         gsapInstance = gsap
-        if (!backgroundLayerRef.current || isCancelled) {
+        if (!backgroundLayerNode || isCancelled) {
           return
         }
 
-        backgroundLayerRef.current.style.backgroundImage = `url(${currentBackgroundImage})`
-        gsap.killTweensOf(backgroundLayerRef.current)
+        backgroundLayerNode.style.backgroundImage = `url(${getGuideVoyageBackgroundUrl(currentBackgroundImage)})`
+        gsap.killTweensOf(backgroundLayerNode)
         gsap.fromTo(
-          backgroundLayerRef.current,
+          backgroundLayerNode,
           { opacity: 0, scale: 1.08 },
           { opacity: 1, scale: 1, duration: 0.9, ease: CAROUSEL_EASE }
         )
 
-        if (coverRef.current) {
-          gsap.killTweensOf(coverRef.current)
+        if (coverNode) {
+          gsap.killTweensOf(coverNode)
           gsap.fromTo(
-            coverRef.current,
+            coverNode,
             { xPercent: -100, opacity: 0.85 },
             {
               xPercent: 100,
@@ -690,9 +712,9 @@ export default function GuideVoyageLayoutClient({
               duration: 0.9,
               ease: CAROUSEL_EASE,
               onComplete: () => {
-                if (coverRef.current) {
-                  coverRef.current.style.transform = 'translateX(-100%)'
-                  coverRef.current.style.opacity = '0.85'
+                if (coverNode) {
+                  coverNode.style.transform = 'translateX(-100%)'
+                  coverNode.style.opacity = '0.85'
                 }
               }
             }
@@ -708,11 +730,11 @@ export default function GuideVoyageLayoutClient({
     return () => {
       isCancelled = true
       if (gsapInstance) {
-        if (backgroundLayerRef.current) {
-          gsapInstance.killTweensOf(backgroundLayerRef.current)
+        if (backgroundLayerNode) {
+          gsapInstance.killTweensOf(backgroundLayerNode)
         }
-        if (coverRef.current) {
-          gsapInstance.killTweensOf(coverRef.current)
+        if (coverNode) {
+          gsapInstance.killTweensOf(coverNode)
         }
       }
     }
@@ -998,24 +1020,24 @@ export default function GuideVoyageLayoutClient({
                     {portraitSrc ? (
                       <div
                         ref={(node) => {
-                        if (!post.slug) {
-                          return
-                        }
-                        if (node) {
-                          slideImageRefs.current[post.slug] = node
-                        } else {
-                          delete slideImageRefs.current[post.slug]
-                        }
-                      }}
-                      className="relative w-full overflow-hidden aspect-[4/5] md:aspect-auto md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
-                    >
-                      <Image
-                        src={portraitSrc}
-                        alt={portraitAlt}
-                        fill
+                          if (!post.slug) {
+                            return
+                          }
+                          if (node) {
+                            slideImageRefs.current[post.slug] = node
+                          } else {
+                            delete slideImageRefs.current[post.slug]
+                          }
+                        }}
+                        className="relative w-full overflow-hidden aspect-[4/5] md:aspect-auto md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
+                      >
+                        <Image
+                          src={portraitSrc}
+                          alt={portraitAlt}
+                          fill
                           className="object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                           sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                          unoptimized
+                          quality={65}
                         />
                       </div>
                     ) : null}

@@ -1,13 +1,23 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ComponentPropsWithoutRef } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ComponentPropsWithoutRef,
+  type MouseEvent
+} from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination, Mousewheel, HashNavigation } from 'swiper/modules'
 import type { Swiper as SwiperClass } from 'swiper/types'
 import type { Article } from '@/types/wordpress'
 import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
+import type { gsap as GSAP } from 'gsap'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -23,6 +33,9 @@ interface GuideLayoutClientProps {
 }
 
 const AUTOPLAY_DELAY_MS = 2500
+const TRANSITION_PUSH_OFFSET_S = 0.58
+const TRANSITION_MAX_WAIT_MS = 45000
+type GSAPTimeline = ReturnType<GSAP['timeline']>
 
 const slugify = (str: string) =>
   str
@@ -139,9 +152,20 @@ function AnimatedGuideSubtitle({
 }
 
 export default function GuideLayoutClient({ posts, link, titreDeLaSection }: GuideLayoutClientProps) {
+  const router = useRouter()
   const sectionRef = useRef<HTMLElement | null>(null)
   const sliderShellRef = useRef<HTMLDivElement | null>(null)
   const swiperInstanceRef = useRef<SwiperClass | null>(null)
+  const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const transitionElementsRef = useRef<{
+    overlay?: HTMLDivElement
+    image?: HTMLImageElement
+    timeline?: GSAPTimeline
+  } | null>(null)
+  const isTransitioningRef = useRef(false)
+  const transitionCleanupTimeoutRef = useRef<number | null>(null)
+  const prefetchedSlugsRef = useRef<Set<string>>(new Set())
+  const prefetchInFlightRef = useRef<Map<string, Promise<void>>>(new Map())
   const [autoplayEnabled, setAutoplayEnabled] = useState(false)
   const paginationProgressStyle: CSSProperties = {
     ['--progress-duration' as string]: `${AUTOPLAY_DELAY_MS}ms`
@@ -153,6 +177,208 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
     const { pathname, search } = window.location
     window.history.replaceState(null, '', `${pathname}${search}`)
   }, [])
+
+  const clearTransitionElements = useCallback(() => {
+    if (transitionCleanupTimeoutRef.current) {
+      window.clearTimeout(transitionCleanupTimeoutRef.current)
+      transitionCleanupTimeoutRef.current = null
+    }
+    const currentTransition = transitionElementsRef.current
+    const timeline = currentTransition?.timeline
+    if (currentTransition) {
+      currentTransition.timeline = undefined
+    }
+    if (timeline) {
+      timeline.kill()
+    }
+    currentTransition?.overlay?.remove()
+    currentTransition?.image?.remove()
+    transitionElementsRef.current = null
+    isTransitioningRef.current = false
+    document.documentElement.classList.remove('is-guide-transitioning')
+  }, [])
+
+  const prefetchArticle = useCallback(
+    (slug?: string) => {
+      if (!slug || typeof router.prefetch !== 'function') {
+        return Promise.resolve()
+      }
+
+      if (prefetchedSlugsRef.current.has(slug)) {
+        return Promise.resolve()
+      }
+
+      const inFlightPrefetch = prefetchInFlightRef.current.get(slug)
+      if (inFlightPrefetch) {
+        return inFlightPrefetch
+      }
+
+      const href = `/articles/${slug}`
+      const prefetchPromise = Promise.resolve(router.prefetch(href))
+        .then(() => {
+          prefetchedSlugsRef.current.add(slug)
+        })
+        .catch((error) => {
+          console.error('Unable to prefetch article page', error)
+          throw error
+        })
+        .finally(() => {
+          prefetchInFlightRef.current.delete(slug)
+        })
+
+      prefetchInFlightRef.current.set(slug, prefetchPromise)
+      return prefetchPromise
+    },
+    [router]
+  )
+
+  const startImageTransition = async (
+    imageWrapper: HTMLDivElement,
+    imageElement: HTMLImageElement,
+    href: string,
+    slug?: string
+  ) => {
+    if (isTransitioningRef.current) {
+      return
+    }
+
+    void prefetchArticle(slug)
+    let hasNavigated = false
+    const navigateToTarget = () => {
+      if (hasNavigated) {
+        return
+      }
+      hasNavigated = true
+      router.push(href)
+    }
+
+    isTransitioningRef.current = true
+    document.documentElement.classList.add('is-guide-transitioning')
+
+    const overlay = document.createElement('div')
+    overlay.className = 'guide-voyage-transition-backdrop'
+    overlay.setAttribute('aria-hidden', 'true')
+    document.body.appendChild(overlay)
+
+    const floatingImage = imageElement.cloneNode(true) as HTMLImageElement
+    const wrapperBounds = imageWrapper.getBoundingClientRect()
+    const wrapperStyles = window.getComputedStyle(imageWrapper)
+    floatingImage.classList.add('guide-voyage-transition-image')
+    floatingImage.style.top = `${wrapperBounds.top}px`
+    floatingImage.style.left = `${wrapperBounds.left}px`
+    floatingImage.style.width = `${wrapperBounds.width}px`
+    floatingImage.style.height = `${wrapperBounds.height}px`
+    floatingImage.style.borderRadius = wrapperStyles.borderRadius || '0px'
+    floatingImage.style.position = 'fixed'
+    floatingImage.style.objectFit = 'cover'
+    floatingImage.style.pointerEvents = 'none'
+    floatingImage.style.zIndex = '9997'
+    floatingImage.style.willChange = 'transform, top, left, width, height'
+    document.body.appendChild(floatingImage)
+    transitionElementsRef.current = { overlay, image: floatingImage }
+
+    try {
+      const { default: gsap } = await import('gsap')
+      const viewportHeight = window.innerHeight || wrapperBounds.height
+      const viewportWidth = window.innerWidth || wrapperBounds.width
+      const isMobile = viewportWidth < 768
+      const topTarget = isMobile ? 0 : viewportHeight * 0.05
+      const leftTarget = isMobile ? 0 : viewportWidth * 0.02
+      const finalHeight = isMobile ? viewportHeight * 0.61 : viewportHeight * 0.9
+      const finalWidth = isMobile ? viewportWidth : viewportWidth * 0.44
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+        onComplete: () => {
+          navigateToTarget()
+          transitionCleanupTimeoutRef.current = window.setTimeout(() => {
+            clearTransitionElements()
+          }, TRANSITION_MAX_WAIT_MS)
+        },
+        onInterrupt: clearTransitionElements
+      })
+
+      timeline.to(
+        overlay,
+        {
+          opacity: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.65)',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          borderRadius: '18px',
+          duration: 0.45
+        },
+        0
+      )
+
+      timeline.to(
+        floatingImage,
+        {
+          top: `${topTarget}px`,
+          left: `${leftTarget}px`,
+          width: `${finalWidth}px`,
+          height: `${finalHeight}px`,
+          borderRadius: '0',
+          duration: 0.6,
+          ease: 'power4.inOut'
+        },
+        0
+      )
+      timeline.call(() => {
+        navigateToTarget()
+      }, [], TRANSITION_PUSH_OFFSET_S)
+
+      if (transitionElementsRef.current) {
+        transitionElementsRef.current.timeline = timeline
+      }
+    } catch (error) {
+      console.error('Unable to animate guide transition', error)
+      clearTransitionElements()
+      router.push(href)
+    }
+  }
+
+  const handleSlideClick = (event: MouseEvent<HTMLAnchorElement>, post: Article) => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    const allowClick = (swiperInstanceRef.current as (SwiperClass & { allowClick?: boolean }) | null)?.allowClick
+    if (allowClick === false) {
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
+
+    const imageWrapper = slideImageRefs.current[post.slug] ?? null
+    const imageElement = imageWrapper?.querySelector('img') ?? null
+    if (!imageWrapper || !(imageElement instanceof HTMLImageElement)) {
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    if (prefersReducedMotion?.matches) {
+      return
+    }
+
+    if (isTransitioningRef.current) {
+      event.preventDefault()
+      return
+    }
+
+    event.preventDefault()
+    void startImageTransition(imageWrapper, imageElement, `/articles/${post.slug}`, post.slug)
+  }
 
   useEffect(() => {
     clearUrlHash()
@@ -185,6 +411,19 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
     }
     swiperInstanceRef.current.autoplay.start()
   }, [autoplayEnabled])
+
+  useEffect(() => {
+    return () => {
+      clearTransitionElements()
+    }
+  }, [clearTransitionElements])
+
+  useEffect(() => {
+    const PREFETCH_LIMIT = 4
+    posts.slice(0, PREFETCH_LIMIT).forEach((post) => {
+      void prefetchArticle(post.slug)
+    })
+  }, [posts, prefetchArticle])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) {
@@ -336,17 +575,37 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                 paysageNode?.sourceUrl ?? paysageNode?.guid ??
                 thumbnailNode?.sourceUrl ?? thumbnailNode?.guid ?? null
               const slideImageAlt = paysageNode?.altText ?? thumbnailNode?.altText ?? post.title
+              const postHref = post.slug ? `/articles/${post.slug}` : '#'
 
               return (
                 <SwiperSlide key={post.slug} data-hash={slugify(post.title)} className="carousel-item">
                   <div className="relative">
                     <Link
-                      href={`/articles/${post.slug}`}
+                      href={postHref}
                       className="block"
                       aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
+                      onClick={(event) => handleSlideClick(event, post)}
+                      onPointerEnter={() => {
+                        void prefetchArticle(post.slug)
+                      }}
+                      onFocus={() => {
+                        void prefetchArticle(post.slug)
+                      }}
                     >
                       {slideImageSrc ? (
-                        <div className="relative w-full overflow-hidden aspect-[3/2] md:aspect-auto md:h-[450px] lg:h-[80vh]">
+                        <div
+                          ref={(node) => {
+                            if (!post.slug) {
+                              return
+                            }
+                            if (node) {
+                              slideImageRefs.current[post.slug] = node
+                            } else {
+                              delete slideImageRefs.current[post.slug]
+                            }
+                          }}
+                          className="relative w-full overflow-hidden aspect-[3/2] md:aspect-auto md:h-[450px] lg:h-[80vh]"
+                        >
                           <Image
                             src={slideImageSrc}
                             alt={slideImageAlt}
@@ -454,6 +713,25 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
           to {
             transform: scaleX(1);
           }
+        }
+      `}</style>
+      <style jsx global>{`
+        .guide-voyage-transition-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(255, 255, 255, 0);
+          backdrop-filter: blur(0);
+          -webkit-backdrop-filter: blur(0);
+          opacity: 0;
+          pointer-events: none;
+          z-index: 9996;
+          will-change: opacity, backdrop-filter;
+        }
+        .guide-voyage-transition-image {
+          position: fixed;
+          pointer-events: none;
+          object-fit: cover;
+          z-index: 9997;
         }
       `}</style>
     </section>

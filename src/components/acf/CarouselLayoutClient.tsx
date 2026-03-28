@@ -862,7 +862,7 @@ export default function CarouselLayoutClient({
                             fill
                             className="object-cover shadow-md transition-transform duration-300 group-hover:scale-110"
                             sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                            unoptimized
+                            quality={65}
                           />
                         </div>
                       ) : null}
