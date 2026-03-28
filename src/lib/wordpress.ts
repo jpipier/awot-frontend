@@ -17,13 +17,15 @@ interface FetchOptions {
 
 const WORDPRESS_EDITOR_COOKIE_PREFIXES = ['wordpress_logged_in_', 'wordpress_sec_']
 
-function hasWordPressEditorSessionCookie() {
+export function isWordPressEditorCookieName(name: string) {
+  return WORDPRESS_EDITOR_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix))
+}
+
+export function hasWordPressEditorSessionCookie() {
   try {
     const cookieStore = cookies()
     const allCookies = cookieStore.getAll()
-    return allCookies.some(({ name }) =>
-      WORDPRESS_EDITOR_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix))
-    )
+    return allCookies.some(({ name }) => isWordPressEditorCookieName(name))
   } catch {
     return false
   }
