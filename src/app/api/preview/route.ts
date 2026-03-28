@@ -1,6 +1,6 @@
 import { draftMode } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchWordPressGraphQL, isWordPressEditorCookieName } from '@/lib/wordpress'
+import { fetchWordPressGraphQL, hasWordPressEditorSessionInCookieHeader } from '@/lib/wordpress'
 
 interface PreviewPostResponse {
   post: {
@@ -58,12 +58,8 @@ function getWordPressContentAuthHeaders() {
   }
 }
 
-function hasWordPressEditorSession(request: NextRequest) {
-  return request.cookies.getAll().some(({ name }) => isWordPressEditorCookieName(name))
-}
-
 export async function GET(request: NextRequest) {
-  if (!hasWordPressEditorSession(request)) {
+  if (!hasWordPressEditorSessionInCookieHeader(request.headers.get('cookie'))) {
     return NextResponse.json({ message: 'WordPress editor session required' }, { status: 401 })
   }
 

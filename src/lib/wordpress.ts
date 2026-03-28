@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { cookies, draftMode } from 'next/headers'
+import { cookies, draftMode, headers } from 'next/headers'
 import { getWordPressConfig } from './config'
 
 type NextCacheOptions = {
@@ -16,12 +16,30 @@ interface FetchOptions {
 }
 
 const WORDPRESS_EDITOR_COOKIE_PREFIXES = ['wordpress_logged_in_', 'wordpress_sec_']
+const WORDPRESS_EDITOR_COOKIE_HEADER_REGEX =
+  /(?:^|;\s*)(?:wordpress_logged_in_[^=]*|wordpress_sec_[^=]*)=/
 
 export function isWordPressEditorCookieName(name: string) {
   return WORDPRESS_EDITOR_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix))
 }
 
+export function hasWordPressEditorSessionInCookieHeader(cookieHeader: string | null | undefined) {
+  if (!cookieHeader) {
+    return false
+  }
+
+  return WORDPRESS_EDITOR_COOKIE_HEADER_REGEX.test(cookieHeader)
+}
+
 export function hasWordPressEditorSessionCookie() {
+  try {
+    if (hasWordPressEditorSessionInCookieHeader(headers().get('cookie'))) {
+      return true
+    }
+  } catch {
+    // Continue with parsed cookie fallback.
+  }
+
   try {
     const cookieStore = cookies()
     const allCookies = cookieStore.getAll()

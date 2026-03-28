@@ -116,7 +116,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
         categories={article.categories?.edges?.map((e) => e.node)}
         excludeSlug={article.slug}
       />
-      <Footer postId={article.databaseId} />
+      <Footer postId={article.databaseId ?? previewId ?? undefined} />
     </div>
   )
 }

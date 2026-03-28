@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isWordPressEditorCookieName } from '@/lib/wordpress'
-
-function hasWordPressEditorSession(request: NextRequest) {
-  return request.cookies.getAll().some(({ name }) => isWordPressEditorCookieName(name))
-}
+import { hasWordPressEditorSessionInCookieHeader } from '@/lib/wordpress'
 
 export function GET(request: NextRequest) {
-  return NextResponse.json({ loggedIn: hasWordPressEditorSession(request) })
+  const loggedIn = hasWordPressEditorSessionInCookieHeader(request.headers.get('cookie'))
+
+  return NextResponse.json(
+    { loggedIn },
+    {
+      headers: {
+        'Cache-Control': 'private, no-store, no-cache, must-revalidate, max-age=0',
+        Pragma: 'no-cache',
+        Expires: '0'
+      }
+    }
+  )
 }

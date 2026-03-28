@@ -18,7 +18,8 @@ export default function EditBanner({ postId }: EditBannerProps) {
     const fetchSession = async () => {
       try {
         const response = await fetch('/api/wp-session', {
-          credentials: 'include'
+          credentials: 'include',
+          cache: 'no-store'
         })
 
         if (!response.ok) {
