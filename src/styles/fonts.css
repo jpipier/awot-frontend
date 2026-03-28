@@ -110,76 +110,76 @@
 
 .lato-thin,
 .lato-thin p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 100;
   font-style: normal;
 }
 
 .lato-light,
 .lato-light p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 300;
   font-style: normal;
 }
 
 .lato-regular,
 .lato-regular p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 400;
   font-style: normal;
 }
 
 .lato-bold,
 .lato-bold p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 700;
   font-style: normal;
 }
 
 .lato-black,
 .lato-black p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 900;
   font-style: normal;
 }
 
 .lato-thin-italic,
 .lato-thin-italic p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 100;
   font-style: italic;
 }
 
 .lato-light-italic,
 .lato-light-italic p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 300;
   font-style: italic;
 }
 
 .lato-regular-italic,
 .lato-regular-italic p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 400;
   font-style: italic;
 }
 
 .lato-bold-italic,
 .lato-bold-italic p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 700;
   font-style: italic;
 }
 
 .lato-black-italic,
 .lato-black-italic p {
-  font-family: var(--font-lato), sans-serif;
+   
   font-weight: 900;
   font-style: italic;
 }
 
 .contentElementor {
-  font-family: var(--font-lato), sans-serif;
+   
   font-size: 15px;
   font-weight: 300;
   line-height: 32px;

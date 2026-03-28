@@ -245,7 +245,7 @@ html{
     margin-bottom: 11rem;
   }
   .single article.post .col-lg-6 .header .cat {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 15px;
     font-weight: 300;
     text-transform: uppercase;
@@ -254,14 +254,13 @@ html{
   }
   .single article.post .col-lg-6 .header h1 {
     color: #000;
-    font-family: "vultura", Sans-serif;
     font-size: 80px;
     font-weight: 500;
     margin-bottom: -60px;
   }
   .single article.post .col-lg-6 .header h3 {
     text-align: center;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 18px;
     font-weight: 300;
     text-transform: uppercase;
@@ -292,7 +291,6 @@ html{
   
   .old-post .main-content p {
     margin: 50px 220px 30px;
-    font-family: var(--font-lato), Sans-serif;
     font-size: 15px;
     font-weight: 300;
     color: #000000;
@@ -348,7 +346,7 @@ html{
     position: relative;
   }
   .bloc-guide .subtitle {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 300;
   }
@@ -397,7 +395,7 @@ html{
     color: #000;
   }
   .bloc-guide .liste a .content_num {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 900;
     text-transform: uppercase;
@@ -408,7 +406,7 @@ html{
   .bloc-guide .liste a .content_cat {
     margin: 0;
     padding: 0em 0em 0em 1em;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-weight: 300;
     line-height: 35px;
     font-size: 14px;
@@ -504,7 +502,7 @@ html{
   }
   .bloc-voyage .awot-listing-cat .cat-list_item, .bloc-voyage .awot-listing-cat a {
     font-size: 15px;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-weight: 300;
     text-transform: uppercase;
     line-height: 34px;
@@ -519,7 +517,7 @@ html{
     text-transform: uppercase;
     color: #000;
     font-weight: 300;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 11px;
     letter-spacing: 2px;
   }
@@ -580,7 +578,7 @@ html{
     margin-top: 260px;
   }
   .bloc-carousel .content_subtitle {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 300;
     text-transform: uppercase;
@@ -606,7 +604,7 @@ html{
     padding-left: 67px;
   }
   .bloc-carousel .slide .reademore a {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 300;
     text-transform: uppercase;
@@ -632,7 +630,7 @@ html{
   }
   .bloc-carousel .slide .carousel-cell a.read-more-slider {
     text-transform: uppercase;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 11px;
     font-weight: 300;
     text-transform: uppercase;
@@ -685,7 +683,7 @@ html{
     color: #000;
     opacity: 0;
     color: #000;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 16px;
     line-height: 20px;
     text-transform: uppercase;
@@ -772,7 +770,7 @@ html{
     left: 38%;
   }
   .header-category .subtitle {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 100;
     text-transform: uppercase;
@@ -799,7 +797,7 @@ html{
     justify-content: space-between;
   }
   .header-category .menu_cat ul a {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -824,7 +822,7 @@ html{
     z-index: -1;
   }
   article .content_subtitle {
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 100;
     text-transform: uppercase;
@@ -1511,7 +1509,7 @@ html{
     .home .carousel.slide .carousel-cell a.content-excerpt {
       padding-top: 5vh;
       padding-right: 5vh;
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 12px;
       font-weight: 300;
       line-height: 23px;
@@ -1535,7 +1533,7 @@ html{
       transform: translateY(-150px) !important;
     }
     .content-mini {
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 10px;
       font-weight: 300;
       line-height: initial;
@@ -1617,7 +1615,7 @@ html{
     body .slide .carousel-cell a.content-excerpt {
       padding-top: 8vh;
       padding-right: 5vh;
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 18px;
       font-weight: 300;
     }
@@ -1654,11 +1652,11 @@ html{
       text-transform: uppercase;
       font-weight: 500 !important;
       margin: 10px 0 0 0 !important;
-      font-family: var(--font-lato), Sans-serif;
+       
     }
     span.content_num {
       margin-bottom: 10px;
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 0.9rem;
       font-weight: 500;
     }
@@ -1992,7 +1990,7 @@ html{
       left: 38%;
     }
     body .header-category .subtitle {
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 10px;
       font-weight: 300;
     }
@@ -2039,7 +2037,7 @@ html{
       left: 38%;
     }
     body .header-category .subtitle p {
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 9px;
       font-weight: 300;
       letter-spacing: 1px;
@@ -2066,7 +2064,7 @@ html{
       overflow: hidden;
     }
     body .header-category .menu_cat ul a {
-      font-family: var(--font-lato), Sans-serif;
+       
       font-size: 14px;
       text-transform: uppercase;
     }
@@ -2678,12 +2676,12 @@ body .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-l
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-field-group > label {
-    font-family: var(--font-lato), Sans-serif;
+     
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-field-type-html {
     padding-bottom: 0px;
-    font-family: var(--font-lato), Sans-serif;
+     
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-field-group:not(.elementor-field-type-upload) .elementor-field:not(.elementor-select-wrapper) {
@@ -2705,7 +2703,7 @@ body .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-l
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-button {
-    font-family: var(--font-lato), Sans-serif;
+     
     text-transform: uppercase;
 }
 
@@ -2744,7 +2742,7 @@ body .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-l
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-message {
-    font-family: var(--font-lato), Sans-serif;
+     
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-message.elementor-message-success {
@@ -2760,7 +2758,7 @@ body .elementor-23971 .elementor-element.elementor-element-7466e158 .elementor-l
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 .e-form__indicators__indicator, .elementor-23971 .elementor-element.elementor-element-7466e158 .e-form__indicators__indicator__label {
-    font-family: var(--font-lato), Sans-serif;
+     
 }
 
 .elementor-23971 .elementor-element.elementor-element-7466e158 {
@@ -2836,7 +2834,7 @@ body.rtl .elementor-23971 .elementor-element.elementor-element-7466e158 {
 
 .elementor-23971 .elementor-element.elementor-element-6bfcc5e7 {
     text-align: center;
-    font-family: var(--font-lato), Sans-serif;
+     
     font-size: 14px;
     font-weight: 300;
     font-style: normal;
