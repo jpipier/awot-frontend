@@ -17,16 +17,7 @@ export default function ImageLayout({ image }: ImageLayoutProps) {
 
   return (
     <section className="relative h-[80vh] w-full">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-cover"
-        sizes="100vw"
-        loading="lazy"
-        fetchPriority="low"
-        quality={60}
-      />
+      <Image src={src} alt={alt} fill className="object-cover" sizes="100vw" priority />
     </section>
   )
 }

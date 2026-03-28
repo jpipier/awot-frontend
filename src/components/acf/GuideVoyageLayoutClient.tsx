@@ -1047,6 +1047,7 @@ export default function GuideVoyageLayoutClient({
             thresholdTime: 420,
             sensitivity: 0.6
           }}
+          touchStartPreventDefault={false}
           preventClicks={false}
           preventClicksPropagation={false}
           onHashSet={clearUrlHash}

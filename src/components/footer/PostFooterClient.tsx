@@ -43,6 +43,15 @@ const TRANSITION_PUSH_OFFSET_S = 0.58
 const TRANSITION_MAX_WAIT_MS = 45000
 type GSAPTimeline = ReturnType<GSAP['timeline']>
 
+const shouldUseAnimatedLinkTransition = () => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  const finePointerQuery = window.matchMedia?.('(hover: hover) and (pointer: fine)')
+  return Boolean(finePointerQuery?.matches) && window.innerWidth >= 768
+}
+
 interface PostFooterClientProps {
   posts: PostSummary[]
   isVoyage?: boolean
@@ -234,6 +243,10 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
     }
 
     if (typeof window === 'undefined' || !post.slug) {
+      return
+    }
+
+    if (!shouldUseAnimatedLinkTransition()) {
       return
     }
 

@@ -579,6 +579,7 @@ export default function PortraitLayoutClient({
                 thresholdTime: 420,
                 sensitivity: 0.6
               }}
+              touchStartPreventDefault={false}
               preventClicks={false}
               preventClicksPropagation={false}
               onSwiper={(instance) => {
