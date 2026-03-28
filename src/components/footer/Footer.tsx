@@ -7,10 +7,9 @@ import { useSiteChrome } from '@/components/providers/SiteChromeProvider'
 
 interface FooterProps {
   postId?: string | number
-  canEdit?: boolean
 }
 
-export default function Footer({ postId, canEdit }: FooterProps) {
+export default function Footer({ postId }: FooterProps) {
   const { settings, footerMenu: menuItems } = useSiteChrome()
   return (
     <footer className="relative mt-10 overflow-hidden bg-black py-5 text-white after:absolute after:top-0 after:z-0 after:h-[80px] after:w-full md:after:bg-white h-[250px] md:h-auto">
@@ -68,7 +67,7 @@ export default function Footer({ postId, canEdit }: FooterProps) {
           </div>
         </div>
       </div>
-      <EditBanner postId={postId} canEdit={canEdit} />
+      <EditBanner postId={postId} />
     </footer>
   )
 }

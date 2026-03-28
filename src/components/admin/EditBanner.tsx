@@ -1,68 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { getWordPressConfig } from '@/lib/config'
 
 interface EditBannerProps {
   postId?: string | number
-  canEdit?: boolean
 }
 
-interface SessionResponse {
-  loggedIn: boolean
-}
-
-export default function EditBanner({ postId, canEdit }: EditBannerProps) {
-  const [session, setSession] = useState<SessionResponse | null>(
-    typeof canEdit === 'boolean' ? { loggedIn: canEdit } : null
-  )
-
-  useEffect(() => {
-    if (typeof canEdit === 'boolean') {
-      setSession({ loggedIn: canEdit })
-      return
-    }
-
-    const fetchSession = async () => {
-      try {
-        const response = await fetch('/api/wp-session', {
-          credentials: 'include',
-          cache: 'no-store'
-        })
-
-        if (!response.ok) {
-          setSession({ loggedIn: false })
-          return
-        }
-
-        const data = (await response.json()) as SessionResponse
-        setSession(data)
-      } catch (error) {
-        console.error('Erreur lors de la récupération de la session WP', error)
-        setSession({ loggedIn: false })
-      }
-    }
-
-    fetchSession()
-  }, [canEdit])
-
+export default function EditBanner({ postId }: EditBannerProps) {
   if (!postId) {
     return null
   }
 
-  if (!session?.loggedIn) {
-    return null
-  }
-
   const { siteUrl } = getWordPressConfig()
-  const editUrl = `${siteUrl?.replace(/\/$/, '')}/wp-admin/post.php?post=${postId}&action=edit`
+  const editUrl = `${siteUrl?.replace(/\/$/, '')}/wp/wp-admin/post.php?post=${postId}&action=edit`
 
   return (
     <a
       href={editUrl}
       target="_blank"
       rel="noreferrer"
-      className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#1f1f1f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 md:bottom-6 md:right-6 md:px-6 md:text-sm"
+      className="fixed bottom-4 right-4 z-[9999] inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_12px_30px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#1f1f1f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 md:bottom-6 md:right-6 md:px-6 md:text-sm"
     >
       <svg
         aria-hidden="true"
