@@ -1,8 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { hasWordPressEditorSessionInCookieHeader } from '@/lib/wordpress'
+import { NextResponse } from 'next/server'
+import {
+  hasWordPressEditorSessionCookie,
+  hasWordPressEditorSessionInCookieHeader
+} from '@/lib/wordpress'
 
-export function GET(request: NextRequest) {
-  const loggedIn = hasWordPressEditorSessionInCookieHeader(request.headers.get('cookie'))
+export function GET(request: Request) {
+  const loggedIn = hasWordPressEditorSessionCookie()
+  const cookieHeader = request.headers.get('cookie')
+  const cookieNames = request.headers
+    .get('cookie')
+    ?.split(';')
+    .map((entry) => entry.trim().split('=')[0])
+    .filter(Boolean) ?? []
+  const wpCookieNames = cookieNames.filter(
+    (name) => name.startsWith('wordpress_') || name.startsWith('wp-') || name.startsWith('wp_')
+  )
+
+  console.info('[wp-session] cookie debug', {
+    loggedIn,
+    hasHeaderMatch: hasWordPressEditorSessionInCookieHeader(cookieHeader),
+    totalCookieNames: cookieNames.length,
+    wpCookieNames
+  })
 
   return NextResponse.json(
     { loggedIn },

@@ -1,6 +1,10 @@
 import { draftMode } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchWordPressGraphQL, hasWordPressEditorSessionInCookieHeader } from '@/lib/wordpress'
+import {
+  fetchWordPressGraphQL,
+  hasWordPressEditorSessionCookie,
+  hasWordPressEditorSessionInCookieHeader
+} from '@/lib/wordpress'
 
 interface PreviewPostResponse {
   post: {
@@ -59,7 +63,23 @@ function getWordPressContentAuthHeaders() {
 }
 
 export async function GET(request: NextRequest) {
-  if (!hasWordPressEditorSessionInCookieHeader(request.headers.get('cookie'))) {
+  const cookieHeader = request.headers.get('cookie')
+  const cookieNames = request.cookies.getAll().map(({ name }) => name)
+  const wpCookieNames = cookieNames.filter(
+    (name) => name.startsWith('wordpress_') || name.startsWith('wp-') || name.startsWith('wp_')
+  )
+  const isEditorSession = hasWordPressEditorSessionCookie()
+
+  console.info('[preview] cookie debug', {
+    path: request.nextUrl.pathname,
+    previewId: request.nextUrl.searchParams.get('p') ?? request.nextUrl.searchParams.get('preview_id'),
+    isEditorSession,
+    hasHeaderMatch: hasWordPressEditorSessionInCookieHeader(cookieHeader),
+    totalCookieNames: cookieNames.length,
+    wpCookieNames
+  })
+
+  if (!isEditorSession) {
     return NextResponse.json({ message: 'WordPress editor session required' }, { status: 401 })
   }
 
