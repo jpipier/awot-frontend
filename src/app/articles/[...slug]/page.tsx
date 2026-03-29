@@ -48,6 +48,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
   const slugSegments = Array.isArray(params.slug) ? params.slug : [params.slug]
   const previewId = slugSegments[0] === 'preview' ? Number.parseInt(slugSegments[1] ?? '', 10) : null
   const isPreviewRoute = Boolean(previewId && Number.isInteger(previewId) && previewId > 0)
+  const configuredPreviewSecret = process.env.WORDPRESS_PREVIEW_SECRET?.trim() ?? null
   const canEdit = hasWordPressEditorSessionCookie()
   let article = null
 
@@ -56,16 +57,19 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
       notFound()
     }
 
+    const providedSecret =
+      getFirstSearchParam(searchParams?.secret) ?? getFirstSearchParam(searchParams?.preview_secret)
+
+    if (!configuredPreviewSecret || providedSecret !== configuredPreviewSecret) {
+      notFound()
+    }
+
     if (!draftMode().isEnabled) {
       const previewSearch = new URLSearchParams({
         p: String(previewId),
         preview: 'true'
       })
-      const secret = getFirstSearchParam(searchParams?.secret) ?? getFirstSearchParam(searchParams?.preview_secret)
-
-      if (secret) {
-        previewSearch.set('secret', secret)
-      }
+      previewSearch.set('secret', providedSecret)
 
       redirect(`/api/preview?${previewSearch.toString()}`)
     }

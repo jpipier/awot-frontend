@@ -92,8 +92,10 @@ export async function GET(request: NextRequest) {
     }
 
     draftMode().enable()
+    const target = new URL(`/articles/preview/${previewId}`, request.url)
+    target.searchParams.set('secret', providedSecret)
 
-    return NextResponse.redirect(new URL(`/articles/preview/${previewId}`, request.url))
+    return NextResponse.redirect(target)
   } catch (error) {
     console.error('WordPress preview resolution error', error)
     return NextResponse.json({ message: 'Unable to resolve preview' }, { status: 500 })
