@@ -1,10 +1,6 @@
 import { draftMode } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  fetchWordPressGraphQL,
-  hasWordPressEditorSessionCookie,
-  hasWordPressEditorSessionInCookieHeader
-} from '@/lib/wordpress'
+import { fetchWordPressGraphQL } from '@/lib/wordpress'
 
 interface PreviewPostResponse {
   post: {
@@ -63,24 +59,19 @@ function getWordPressContentAuthHeaders() {
 }
 
 export async function GET(request: NextRequest) {
-  const cookieHeader = request.headers.get('cookie')
-  const cookieNames = request.cookies.getAll().map(({ name }) => name)
-  const wpCookieNames = cookieNames.filter(
-    (name) => name.startsWith('wordpress_') || name.startsWith('wp-') || name.startsWith('wp_')
-  )
-  const isEditorSession = hasWordPressEditorSessionCookie()
+  const configuredSecret = process.env.WORDPRESS_PREVIEW_SECRET?.trim()
+  const providedSecret =
+    request.nextUrl.searchParams.get('secret') ?? request.nextUrl.searchParams.get('preview_secret')
 
-  console.info('[preview] cookie debug', {
-    path: request.nextUrl.pathname,
-    previewId: request.nextUrl.searchParams.get('p') ?? request.nextUrl.searchParams.get('preview_id'),
-    isEditorSession,
-    hasHeaderMatch: hasWordPressEditorSessionInCookieHeader(cookieHeader),
-    totalCookieNames: cookieNames.length,
-    wpCookieNames
-  })
+  if (!configuredSecret) {
+    return NextResponse.json(
+      { message: 'Preview secret is not configured on frontend' },
+      { status: 500 }
+    )
+  }
 
-  if (!isEditorSession) {
-    return NextResponse.json({ message: 'WordPress editor session required' }, { status: 401 })
+  if (providedSecret !== configuredSecret) {
+    return NextResponse.json({ message: 'Invalid preview secret' }, { status: 401 })
   }
 
   const previewId = extractPreviewId(request.nextUrl.searchParams)
