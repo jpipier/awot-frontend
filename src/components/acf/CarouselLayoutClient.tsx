@@ -676,7 +676,7 @@ export default function CarouselLayoutClient({
         opacity: titleOpacity
       }
     : titleTransition
-  const baseTitleClass = 'font-schnyder_wide_xl_webdemi leading-tight text-[13vw] lg:text-[5vw] text-left'
+  const baseTitleClass = 'font-schnyder_wide_xl_webdemi leading-tight text-[13vw] lg:text-[5vw] text-left ml-0'
   const easingClass = titleScrollEnabled
     ? 'transform will-change-transform transition-opacity duration-500 ease-out'
     : 'transform transition-all duration-700 ease-out'
@@ -885,11 +885,11 @@ export default function CarouselLayoutClient({
                         </div>
                       ) : null}
                       <div className="mt-3">
-                        <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+                        <p className="mb-0 text-sm md:text-[0.7vw] uppercase font-montserrat italic text-gray-800 md:text-gray-600">
                           {localisationLabel}
                         </p>
                         <h3
-                          className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium tracking-[2px]"
+                          className="text-[4vw] md:text-[0.9vw] uppercase font-brandonRegular font-medium tracking-[1px] md:tracking-[2px]"
                           dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(post.title) }}
                         />
                       </div>

@@ -19,7 +19,7 @@ interface SearchProps {
   onNavigate?: () => void
 }
 
-const placeholders = ['un restaurant ?', 'un hotel ?', 'une idée de sortie ?']
+const placeholders = ['un restaurant végétarien ?', 'un hotel ?', 'une idée de sortie ?','un cours de yoga ?', 'une idée cadeau ?']
 const SUGGESTIONS_LIMIT = 6
 const SUGGESTIONS_DEBOUNCE_MS = 150
 
@@ -230,10 +230,10 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
           />
           <button
             type="submit"
-            className="rounded-r bg-black px-6 font-montserrat text-[6pt] uppercase tracking-widest text-white transition hover:bg-gray-900"
+            className="rounded-r bg-black px-6 font-montserrat text-[6pt] uppercase tracking-widest text-white transition hover:bg-gray-900 w-[110px]"
             aria-label="Chercher"
           >
-            Chercher
+            Let’s go !
           </button>
         </form>
 

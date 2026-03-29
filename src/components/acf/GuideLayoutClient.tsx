@@ -547,8 +547,8 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
       className="max-w-screen-full bg-white md:pt-[5rem]"
     >
       
-      <h2 className="font-custom px-6 text-[12vw] sm:text-[12vw] md:text-4xl leading-tight md:text-[9rem] md:leading-[1] lg:pl-[8rem] lg:-mr-[7rem] pb-[1rem] md:hidden">Activités</h2>
-
+      <h2 className="font-custom mx-auto w-full text-[22vw] md:text-[12vw] md:text-4xl leading-[20vw] md:leading-tight md:text-[9rem] md:leading-[1] text-center pb-[1rem] capitalize md:normal-case">Bougez, explorez, créez…</h2>
+      <p className="w-full md:w-1/2 mx-auto mb-10 md:mb-20 font-montserrat brandongrotesque-light-black-20px text-sm text-center px-[15px]">Retrouvez toutes nos idées pour bouger, explorer et s’émerveiller — que vous soyez plutôt surf du matin, musée le dimanche ou cours de céramique entre amis. Sports, sorties culturelles, ateliers créatifs, activités en plein air… On a rassemblé ici tout ce qui donne envie de lever le nez du quotidien et de profiter de ce qu’il y a autour de soi.</p>
       <div className="flex flex-col items-center px-6 sm:px-10 lg:px-0 h-auto md:h-[50vh] lg:h-[80vh] lg:flex-row">
         <div
           ref={sliderShellRef}

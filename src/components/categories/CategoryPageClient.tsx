@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import clsx from 'clsx'
 import EditorialPostGrid from '@/components/listing/EditorialPostGrid'
-import type { Article, CategoryNode } from '@/types/wordpress'
+import type { Article, CategoryNode, FiltreNode } from '@/types/wordpress'
 
 interface CategoryPageClientProps {
   slug: string
@@ -15,6 +16,7 @@ interface CategoryPageClientProps {
   hasNextPage: boolean
   subcategories: CategoryNode[]
   localisations?: CategoryNode[]
+  filtres?: FiltreNode[]
 }
 
 export default function CategoryPageClient({
@@ -25,14 +27,16 @@ export default function CategoryPageClient({
   initialCursor,
   hasNextPage,
   subcategories,
-  localisations
+  localisations,
+  filtres
 }: CategoryPageClientProps) {
   const [posts, setPosts] = useState(() => initialPosts)
   const [cursor, setCursor] = useState<string | null | undefined>(initialCursor)
   const [loading, setLoading] = useState(false)
   const [canLoadMore, setCanLoadMore] = useState(hasNextPage)
   const [activeLocalisation, setActiveLocalisation] = useState<string | null>(null)
-  const [localisationLoading, setLocalisationLoading] = useState(false)
+  const [activeFiltres, setActiveFiltres] = useState<string[]>([])
+  const [filtersLoading, setFiltersLoading] = useState(false)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const buildApiUrl = useCallback(
@@ -43,13 +47,17 @@ export default function CategoryPageClient({
         params.set('localisation', activeLocalisation)
       }
 
+      activeFiltres.forEach((filtreSlug) => {
+        params.append('filtre', filtreSlug)
+      })
+
       return `/api/categories/${slug}/posts?${params.toString()}`
     },
-    [activeLocalisation, slug]
+    [activeFiltres, activeLocalisation, slug]
   )
 
   const fetchMore = useCallback(async () => {
-    if (!canLoadMore || loading || !cursor) {
+    if (!canLoadMore || loading || filtersLoading || !cursor) {
       return
     }
 
@@ -70,21 +78,18 @@ export default function CategoryPageClient({
     } finally {
       setLoading(false)
     }
-  }, [buildApiUrl, canLoadMore, cursor, loading])
+  }, [buildApiUrl, canLoadMore, cursor, filtersLoading, loading])
 
-  const handleLocalisationClick = useCallback(
-    async (locSlug: string) => {
-      const normalizedSlug = locSlug.trim()
-      const nextSlug = !normalizedSlug || normalizedSlug === activeLocalisation ? null : normalizedSlug
-
-      setActiveLocalisation(nextSlug)
-      setLocalisationLoading(true)
+  const loadFilteredPosts = useCallback(
+    async (nextLocalisation: string | null, nextFiltres: string[]) => {
+      setFiltersLoading(true)
 
       try {
         const params = new URLSearchParams({ limit: '12' })
-        if (nextSlug) {
-          params.set('localisation', nextSlug)
+        if (nextLocalisation) {
+          params.set('localisation', nextLocalisation)
         }
+        nextFiltres.forEach((filtreSlug) => params.append('filtre', filtreSlug))
 
         const response = await fetch(`/api/categories/${slug}/posts?${params.toString()}`)
         if (!response.ok) {
@@ -98,10 +103,38 @@ export default function CategoryPageClient({
       } catch (error) {
         console.error(error)
       } finally {
-        setLocalisationLoading(false)
+        setFiltersLoading(false)
       }
     },
-    [activeLocalisation, slug]
+    [slug]
+  )
+
+  const handleLocalisationClick = useCallback(
+    async (locSlug: string) => {
+      const normalizedSlug = locSlug.trim()
+      const nextSlug = !normalizedSlug || normalizedSlug === activeLocalisation ? null : normalizedSlug
+
+      setActiveLocalisation(nextSlug)
+      await loadFilteredPosts(nextSlug, activeFiltres)
+    },
+    [activeFiltres, activeLocalisation, loadFilteredPosts]
+  )
+
+  const handleFiltreClick = useCallback(
+    async (filtreSlug: string) => {
+      const normalizedSlug = filtreSlug.trim()
+      if (!normalizedSlug) {
+        return
+      }
+
+      const nextFiltres = activeFiltres.includes(normalizedSlug)
+        ? activeFiltres.filter((slug) => slug !== normalizedSlug)
+        : [...activeFiltres, normalizedSlug]
+
+      setActiveFiltres(nextFiltres)
+      await loadFilteredPosts(activeLocalisation, nextFiltres)
+    },
+    [activeFiltres, activeLocalisation, loadFilteredPosts]
   )
 
   useEffect(() => {
@@ -133,6 +166,14 @@ export default function CategoryPageClient({
       return (cat.count ?? 0) > 0 && cat.slug !== 'voyages' && normalizedName !== 'tous les voyages'
     })
   }, [subcategories])
+
+  const filtreList = useMemo(() => {
+    if (!filtres?.length) {
+      return []
+    }
+
+    return filtres.filter((filtre): filtre is FiltreNode & { pictoUrl: string } => Boolean(filtre.slug && filtre.pictoUrl))
+  }, [filtres])
 
   const introLabel = useMemo(() => {
     const punchline = categoryPunchline?.trim()
@@ -187,8 +228,8 @@ export default function CategoryPageClient({
                 <li key={loc.slug}>
                   <button
                     type="button"
-                    onClick={() => handleLocalisationClick(loc.slug)}
-                    disabled={localisationLoading}
+                    onClick={() => void handleLocalisationClick(loc.slug)}
+                    disabled={filtersLoading}
                     className={clsx(
                       'inline-flex min-w-[124px] items-center justify-center border border-black px-4 py-[0.55rem] font-montserrat text-[10px] uppercase tracking-[0.24em] transition-colors duration-300 hover:bg-black hover:text-white disabled:opacity-50',
                       activeLocalisation === loc.slug && 'bg-black text-white'
@@ -210,7 +251,7 @@ export default function CategoryPageClient({
                   void handleLocalisationClick(value)
                 }}
                 value={activeLocalisation ?? ''}
-                disabled={localisationLoading}
+                disabled={filtersLoading}
                 className="w-full border border-black px-4 py-[0.55rem] font-montserrat text-[10px] uppercase tracking-[0.24em] disabled:opacity-50"
               >
                 <option value="">Toutes les localisations</option>
@@ -224,14 +265,79 @@ export default function CategoryPageClient({
           </div>
         ) : null}
 
+        {filtreList.length > 0 ? (
+          <div className="mx-auto mb-4 w-full md:mb-8">
+            <ul className="flex flex-wrap items-start justify-center gap-0 mb-2 md:mb-0">
+              {filtreList.map((filtre) => {
+                const isActive = activeFiltres.includes(filtre.slug)
+
+                return (
+                  <li key={filtre.slug}>
+                    <button
+                      type="button"
+                      onClick={() => void handleFiltreClick(filtre.slug)}
+                      disabled={filtersLoading}
+                      aria-pressed={isActive}
+                      aria-label={filtre.name ?? filtre.slug}
+                      title={filtre.name ?? filtre.slug}
+                      className={clsx(
+                        'group inline-flex w-[86px] flex-col items-center justify-start gap-2 px-2 py-2 text-center transition-colors duration-300 disabled:opacity-50 md:w-[96px]',
+                        isActive && ''
+                      )}
+                    >
+                      <span className="relative h-10 w-10 md:h-8 md:w-8">
+                        <Image
+                          src={filtre.pictoUrl}
+                          alt=""
+                          aria-hidden="true"
+                          width={40}
+                          height={40}
+                          unoptimized
+                          className={clsx(
+                            'absolute inset-0 h-full w-full object-contain transition-opacity duration-200',
+                            filtre.pictoHoverUrl
+                              ? isActive
+                                ? 'opacity-0'
+                                : 'opacity-100 group-hover:opacity-0'
+                              : 'opacity-100'
+                          )}
+                        />
+                        {filtre.pictoHoverUrl ? (
+                          <Image
+                            src={filtre.pictoHoverUrl}
+                            alt=""
+                            aria-hidden="true"
+                            width={40}
+                            height={40}
+                            unoptimized
+                            className={clsx(
+                              'absolute inset-0 h-full w-full object-contain transition-opacity duration-200',
+                              isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                            )}
+                          />
+                        ) : null}
+                      </span>
+                      <span className={clsx('font-montserrat text-[9px] uppercase tracking-[0.16em] leading-tight group-hover:font-bold', 
+                              isActive && 'font-bold'
+                            )}>
+                        {filtre.name ?? filtre.slug}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ) : null}
+
         <EditorialPostGrid
           posts={posts}
           emptyMessage="Aucun article pour cette catégorie."
-          revealKey={`${slug}:${activeLocalisation ?? 'all'}`}
+          revealKey={`${slug}:${activeLocalisation ?? 'all'}:${activeFiltres.join(',') || 'all'}`}
         />
 
         <div ref={sentinelRef} className="h-10" />
-        {loading ? (
+        {loading || filtersLoading ? (
           <p className="mt-4 text-center font-montserrat text-[10px] uppercase tracking-[0.24em] text-black/60">
             Chargement...
           </p>

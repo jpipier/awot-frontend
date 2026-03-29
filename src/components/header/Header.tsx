@@ -155,6 +155,8 @@ export default function Header() {
   const overlayOpen = isMenuOpen || isSearchOpen
   const headerColorClass = isOverDark && !overlayOpen ? 'text-white' : 'text-black'
   const burgerBgClass = isOverDark && !overlayOpen ? 'bg-white' : 'bg-black'
+  const headerColorBg = isOverDark && !overlayOpen ? '' : 'bg-white md:bg-white/0 fixed right-0 top-0 z-50 flex w-full h-20'
+
 
   const controlsVisibilityClass = clsx(
     'transition-opacity duration-300',
@@ -162,7 +164,7 @@ export default function Header() {
   )
 
   return (
-    <>
+    <div className={clsx(headerColorBg, controlsVisibilityClass)}>
       <span
         className={clsx(
           'fixed left-6 md:left-[2rem] top-4 z-50 flex h-10 items-center justify-center font-custom text-[20pt] transition-colors duration-300',
@@ -282,6 +284,6 @@ export default function Header() {
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

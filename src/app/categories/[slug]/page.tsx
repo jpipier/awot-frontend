@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
 import CategoryPageClient from '@/components/categories/CategoryPageClient'
-import { getCategoryPage, getCategoryPunchlineBySlug, getLocalisations } from '@/lib/categories'
+import { getCategoryPage, getCategoryPunchlineBySlug, getFiltres, getLocalisations } from '@/lib/categories'
 
 interface CategoryPageProps {
   params: {
@@ -11,9 +11,10 @@ interface CategoryPageProps {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = params
-  const [category, categoryPunchline] = await Promise.all([
+  const [category, categoryPunchline, filtres] = await Promise.all([
     getCategoryPage(slug, 12),
-    getCategoryPunchlineBySlug(slug)
+    getCategoryPunchlineBySlug(slug),
+    getFiltres(slug)
   ])
 
   if (!category) {
@@ -41,6 +42,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         hasNextPage={Boolean(pageInfo?.hasNextPage)}
         subcategories={isGuideChild ? [] : subcategories}
         localisations={localisations}
+        filtres={filtres}
       />
       <Footer />
     </div>

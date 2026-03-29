@@ -154,12 +154,12 @@ export default async function NotFound() {
 
                       <div className="pt-3 md:pl-2">
                         {taxonomyLabel ? (
-                          <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+                          <p className="mb-0 text-sm md:text-[0.7vw] uppercase font-montserrat italic text-gray-800 md:text-gray-600">
                             {taxonomyLabel}
                           </p>
                         ) : null}
                         <h2
-                          className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium"
+                          className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ml-0"
                           dangerouslySetInnerHTML={{ __html: sanitizePostTitleHtml(post.title) }}
                         />
                         <p className="mt-4 max-w-[36ch] font-montserrat text-[13px] leading-relaxed text-black/80">

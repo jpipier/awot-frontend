@@ -112,11 +112,11 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
     return (
       <div className="mt-3">
         {locationLabel ? (
-          <p className="mb-0 text-xs md:text-[0.5vw] uppercase font-montserrat italic text-gray-600">
+          <p className="mb-0 text-sm md:text-[0.7vw] uppercase font-montserrat italic text-gray-800 md:text-gray-600">
             {locationLabel}
           </p>
         ) : null}
-        <h2 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium">{post.title}</h2>
+        <h2 className="text-[3vw] md:text-xs uppercase font-brandonRegular font-medium ml-0">{post.title}</h2>
       </div>
     )
   }, [])

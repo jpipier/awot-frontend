@@ -34,6 +34,17 @@ export interface CategoryNode {
   }
 }
 
+export interface FiltreNode {
+  id?: string
+  name?: string
+  slug: string
+  count?: number
+  pictoUrl?: string | null
+  pictoAlt?: string | null
+  pictoHoverUrl?: string | null
+  pictoHoverAlt?: string | null
+}
+
 export interface HomePageData {
   template?: {
     homepage?: {

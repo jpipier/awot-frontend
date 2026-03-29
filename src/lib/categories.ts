@@ -1,5 +1,5 @@
 import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
-import type { Article, CategoryNode, CategoryPageData } from '@/types/wordpress'
+import type { Article, CategoryNode, CategoryPageData, FiltreNode } from '@/types/wordpress'
 
 const CATEGORY_REVALIDATE_SECONDS = 300
 const CATEGORY_FEED_REVALIDATE_SECONDS = 180
@@ -346,6 +346,110 @@ const CATEGORY_LOCALISATION_POSTS_QUERY = /* GraphQL */ `
   }
 `
 
+const CATEGORY_FILTRE_POSTS_QUERY = /* GraphQL */ `
+  query GetCategoryFiltrePosts($limit: Int!, $after: String, $categorySlug: String!, $filtreSlug: [String!]!) {
+    posts(
+      first: $limit
+      after: $after
+      where: {
+        categoryName: $categorySlug
+        taxQuery: {
+          taxArray: [
+            { taxonomy: FILTRE, field: SLUG, terms: $filtreSlug, operator: AND }
+          ]
+        }
+      }
+    ) {
+      nodes {
+        title
+        slug
+        excerpt
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+        optionsArticles {
+          champsLibrePageAccueil
+          imagePortait {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+          imagePaysage {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
+const CATEGORY_LOCALISATION_FILTRE_POSTS_QUERY = /* GraphQL */ `
+  query GetCategoryLocalisationFiltrePosts(
+    $limit: Int!
+    $after: String
+    $categorySlug: String!
+    $localisationSlug: [String!]!
+    $filtreSlug: [String!]!
+  ) {
+    posts(
+      first: $limit
+      after: $after
+      where: {
+        categoryName: $categorySlug
+        taxQuery: {
+          relation: AND
+          taxArray: [
+            { taxonomy: LOCALISATION, field: SLUG, terms: $localisationSlug }
+            { taxonomy: FILTRE, field: SLUG, terms: $filtreSlug, operator: AND }
+          ]
+        }
+      }
+    ) {
+      nodes {
+        title
+        slug
+        excerpt
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+        optionsArticles {
+          champsLibrePageAccueil
+          imagePortait {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+          imagePaysage {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
 export async function getCategoryPostsByLocalisation(
   categorySlug: string,
   localisationSlug: string,
@@ -356,6 +460,68 @@ export async function getCategoryPostsByLocalisation(
     variables: {
       categorySlug,
       localisationSlug: [localisationSlug],
+      limit,
+      after: after ?? null
+    },
+    next: { revalidate: CATEGORY_FEED_REVALIDATE_SECONDS }
+  })
+
+  return data.posts ?? { nodes: [], pageInfo: { hasNextPage: false } }
+}
+
+function normalizeTermSlugs(termSlugs: string | string[]) {
+  const values = Array.isArray(termSlugs) ? termSlugs : [termSlugs]
+
+  return Array.from(
+    new Set(
+      values
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0)
+    )
+  )
+}
+
+export async function getCategoryPostsByFiltre(
+  categorySlug: string,
+  filtreSlug: string | string[],
+  limit: number,
+  after?: string | null
+) {
+  const filtreSlugs = normalizeTermSlugs(filtreSlug)
+  if (!filtreSlugs.length) {
+    return { nodes: [], pageInfo: { hasNextPage: false } }
+  }
+
+  const data = await fetchWordPressGraphQL<PostsByFiltersResponse>(CATEGORY_FILTRE_POSTS_QUERY, {
+    variables: {
+      categorySlug,
+      filtreSlug: filtreSlugs,
+      limit,
+      after: after ?? null
+    },
+    next: { revalidate: CATEGORY_FEED_REVALIDATE_SECONDS }
+  })
+
+  return data.posts ?? { nodes: [], pageInfo: { hasNextPage: false } }
+}
+
+export async function getCategoryPostsByLocalisationAndFiltre(
+  categorySlug: string,
+  localisationSlug: string,
+  filtreSlug: string | string[],
+  limit: number,
+  after?: string | null
+) {
+  const filtreSlugs = normalizeTermSlugs(filtreSlug)
+  if (!filtreSlugs.length) {
+    return { nodes: [], pageInfo: { hasNextPage: false } }
+  }
+
+  const data = await fetchWordPressGraphQL<PostsByFiltersResponse>(CATEGORY_LOCALISATION_FILTRE_POSTS_QUERY, {
+    variables: {
+      categorySlug,
+      localisationSlug: [localisationSlug],
+      filtreSlug: filtreSlugs,
       limit,
       after: after ?? null
     },
@@ -384,6 +550,107 @@ const LOCALISATIONS_QUERY = /* GraphQL */ `
   }
 `
 
+interface FiltresResponse {
+  filtres?: {
+    nodes?: Array<{
+      id?: string
+      name?: string | null
+      slug?: string | null
+      count?: number | null
+      posts?: {
+        nodes?: Array<{
+          slug?: string | null
+        }>
+      } | null
+      filtreChamps?: {
+        picto?: {
+          node?: {
+            sourceUrl?: string | null
+            mediaItemUrl?: string | null
+            altText?: string | null
+            mimeType?: string | null
+          } | null
+        } | null
+        pictoHover?: {
+          node?: {
+            sourceUrl?: string | null
+            mediaItemUrl?: string | null
+            altText?: string | null
+            mimeType?: string | null
+          } | null
+        } | null
+        picto_hover?: {
+          node?: {
+            sourceUrl?: string | null
+            mediaItemUrl?: string | null
+            altText?: string | null
+            mimeType?: string | null
+          } | null
+        } | null
+      } | null
+    }>
+  }
+}
+
+type FiltreHoverFieldName = 'pictoHover' | 'picto_hover'
+
+function buildFiltresQuery(withCategory: boolean, hoverFieldName?: FiltreHoverFieldName) {
+  const variableDeclaration = withCategory ? '$first: Int!, $categorySlug: String!' : '$first: Int!'
+  const postsSelection = withCategory
+    ? `
+        posts(first: 1, where: { categoryName: $categorySlug }) {
+          nodes {
+            slug
+          }
+        }
+      `
+    : ''
+  const hoverSelection = hoverFieldName
+    ? `
+          ${hoverFieldName} {
+            node {
+              sourceUrl
+              mediaItemUrl
+              altText
+              mimeType
+            }
+          }
+      `
+    : ''
+
+  return /* GraphQL */ `
+    query GetFiltres(${variableDeclaration}) {
+      filtres(first: $first, where: { hideEmpty: false }) {
+        nodes {
+          id
+          name
+          slug
+          count
+          ${postsSelection}
+          filtreChamps {
+            picto {
+              node {
+                sourceUrl
+                mediaItemUrl
+                altText
+                mimeType
+              }
+            }
+            ${hoverSelection}
+          }
+        }
+      }
+    }
+  `
+}
+
+const FILTRES_QUERY = buildFiltresQuery(false)
+const FILTRES_QUERY_WITH_HOVER_CAMEL = buildFiltresQuery(false, 'pictoHover')
+const FILTRES_QUERY_WITH_HOVER_SNAKE = buildFiltresQuery(false, 'picto_hover')
+const FILTRES_BY_CATEGORY_QUERY = buildFiltresQuery(true)
+const FILTRES_BY_CATEGORY_QUERY_WITH_HOVER_CAMEL = buildFiltresQuery(true, 'pictoHover')
+const FILTRES_BY_CATEGORY_QUERY_WITH_HOVER_SNAKE = buildFiltresQuery(true, 'picto_hover')
+
 export async function getLocalisations(first = 100) {
   const data = await fetchWordPressGraphQL<LocalisationsResponse>(LOCALISATIONS_QUERY, {
     variables: { first },
@@ -391,4 +658,81 @@ export async function getLocalisations(first = 100) {
   })
 
   return data.localisations?.nodes ?? []
+}
+
+export async function getFiltres(categorySlug?: string | null, first = 100): Promise<FiltreNode[]> {
+  try {
+    const normalizedCategorySlug = asNonEmptyString(categorySlug)
+    const variables = normalizedCategorySlug ? { first, categorySlug: normalizedCategorySlug } : { first }
+    const queryCandidates = normalizedCategorySlug
+      ? [
+          FILTRES_BY_CATEGORY_QUERY_WITH_HOVER_CAMEL,
+          FILTRES_BY_CATEGORY_QUERY_WITH_HOVER_SNAKE,
+          FILTRES_BY_CATEGORY_QUERY
+        ]
+      : [FILTRES_QUERY_WITH_HOVER_CAMEL, FILTRES_QUERY_WITH_HOVER_SNAKE, FILTRES_QUERY]
+
+    let data: FiltresResponse | null = null
+    let lastError: unknown = null
+
+    for (const query of queryCandidates) {
+      try {
+        data = await fetchWordPressGraphQL<FiltresResponse>(query, {
+          variables,
+          next: { revalidate: 600 }
+        })
+        break
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    if (!data) {
+      throw lastError ?? new Error('Unable to load filtres')
+    }
+
+    const rawNodes = data.filtres?.nodes ?? []
+
+    return rawNodes
+      .map<FiltreNode | null>((node) => {
+        const slug = asNonEmptyString(node.slug)
+        if (!slug) {
+          return null
+        }
+
+        if (normalizedCategorySlug) {
+          const relatedPostCount = node.posts?.nodes?.length ?? 0
+          if (relatedPostCount === 0) {
+            return null
+          }
+        }
+
+        const pictoNode = node.filtreChamps?.picto?.node
+        const pictoHoverNode = node.filtreChamps?.pictoHover?.node ?? node.filtreChamps?.picto_hover?.node
+        const pictoUrl = asNonEmptyString(pictoNode?.sourceUrl) ?? asNonEmptyString(pictoNode?.mediaItemUrl)
+        const pictoAlt = asNonEmptyString(pictoNode?.altText) ?? asNonEmptyString(node.name)
+        const pictoHoverUrl =
+          asNonEmptyString(pictoHoverNode?.sourceUrl) ?? asNonEmptyString(pictoHoverNode?.mediaItemUrl)
+        const pictoHoverAlt = asNonEmptyString(pictoHoverNode?.altText) ?? asNonEmptyString(node.name)
+
+        if (!pictoUrl) {
+          return null
+        }
+
+        return {
+          id: asNonEmptyString(node.id) ?? undefined,
+          slug,
+          name: asNonEmptyString(node.name) ?? '',
+          count: typeof node.count === 'number' ? node.count : undefined,
+          pictoUrl,
+          pictoAlt,
+          pictoHoverUrl,
+          pictoHoverAlt
+        }
+      })
+      .filter((node): node is FiltreNode => Boolean(node))
+  } catch (error) {
+    console.warn('Unable to load filtres', error)
+    return []
+  }
 }
