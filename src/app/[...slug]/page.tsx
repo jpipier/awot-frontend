@@ -5,6 +5,7 @@ import Footer from '@/components/footer/Footer'
 import PageDebugLogger from '@/components/PageDebugLogger'
 import { getPageByUri } from '@/lib/pages'
 import { getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
+import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
 
 interface GenericPageProps {
   params: {
@@ -33,6 +34,7 @@ export default async function GenericPage({ params }: GenericPageProps) {
   const segments = params.slug ?? []
   const path = segments.join('/')
   const uri = path ? `/${path}/` : '/'
+  const canEdit = hasWordPressEditorSessionCookie()
   const page = await getPageByUri(uri)
 
   if (!page) {
@@ -63,7 +65,7 @@ export default async function GenericPage({ params }: GenericPageProps) {
           dangerouslySetInnerHTML={{ __html: page.elementorContent ?? page.content ?? '' }}
         />
       ) : null}
-      <Footer postId={page.databaseId} />
+      <Footer postId={page.databaseId} canEdit={canEdit} />
     </div>
   )
 }

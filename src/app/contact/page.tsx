@@ -5,6 +5,7 @@ import ContactForm from '@/components/contact/ContactForm'
 import Footer from '@/components/footer/Footer'
 import { getPageByUri } from '@/lib/pages'
 import { getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
+import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
 
 function extractElementorBodyClasses(content?: string | null) {
   if (!content) {
@@ -25,6 +26,7 @@ function extractElementorBodyClasses(content?: string | null) {
 
 export default async function ContactPage() {
   const uri = '/contact/'
+  const canEdit = hasWordPressEditorSessionCookie()
   const page = await getPageByUri(uri)
 
   if (!page) {
@@ -61,7 +63,7 @@ export default async function ContactPage() {
           </div>
         </div>
       </section>
-      <Footer postId={page.databaseId} />
+      <Footer postId={page.databaseId} canEdit={canEdit} />
     </div>
   )
 }
