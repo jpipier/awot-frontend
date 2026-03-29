@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ElementorStylesLoader from '@/components/ElementorStylesLoader'
 import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
@@ -6,11 +7,45 @@ import PageDebugLogger from '@/components/PageDebugLogger'
 import { getPageByUri } from '@/lib/pages'
 import { getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
+import { getYoastMetadataForPageSlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 
 interface GenericPageProps {
   params: {
     slug: string[]
   }
+}
+
+export async function generateMetadata({ params }: GenericPageProps): Promise<Metadata> {
+  const segments = params.slug ?? []
+  const path = segments.join('/')
+  const uri = path ? `/${path}/` : '/'
+  const page = await getPageByUri(uri)
+
+  if (!page) {
+    return {
+      title: 'Page introuvable',
+      robots: {
+        index: false,
+        follow: false
+      }
+    }
+  }
+
+  const title = sanitizeExcerptText(page.title)
+  const description = toSeoDescription(page.content ?? page.elementorContent)
+  const fallback: Metadata = {
+    title: title || 'Page',
+    description: description || 'A Way of Travel',
+    alternates: {
+      canonical: path ? `/${path}` : '/'
+    }
+  }
+
+  const yoastMetadata =
+    (page.slug ? await getYoastMetadataForPageSlug(page.slug) : null) ??
+    (await getYoastMetadataForWpUrl(page.link ?? page.uri ?? uri))
+  return mergeMetadataWithFallback(yoastMetadata, fallback)
 }
 
 function extractElementorBodyClasses(content?: string | null) {

@@ -24,7 +24,17 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   const resultCount = term.length >= 3 ? (await searchPostsByTerm(term, 180)).length : 0
 
   return {
-    title: term ? `${resultCount} résultat${resultCount > 1 ? 's' : ''} pour votre recherche` : 'Recherche'
+    title: term ? `${resultCount} résultat${resultCount > 1 ? 's' : ''} pour votre recherche` : 'Recherche',
+    description: term
+      ? `${resultCount} résultat${resultCount > 1 ? 's' : ''} pour "${term}".`
+      : 'Recherchez une adresse, une destination ou une activité.',
+    robots: {
+      index: false,
+      follow: true
+    },
+    alternates: {
+      canonical: '/recherche'
+    }
   }
 }
 

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import ImageLayout from '@/components/acf/ImageLayout'
 import ContenuLayout from '@/components/acf/ContenuLayout'
 import GuideVoyageLayout from '@/components/acf/GuideVoyageLayout'
@@ -11,6 +12,20 @@ import PostFooter from '@/components/footer/PostFooter'
 import InstagramFeed from '@/components/social/InstagramFeed'
 import { getHomePage } from '@/lib/home'
 import type { HomePageBloc } from '@/types/wordpress'
+import { getYoastMetadataForWpPath, mergeMetadataWithFallback } from '@/lib/seo'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const fallback: Metadata = {
+    title: { absolute: 'Accueil - A Way of Travel' },
+    description: 'Guide Landes & Pays Basque - A Way of Travel',
+    alternates: {
+      canonical: '/'
+    }
+  }
+
+  const yoastMetadata = await getYoastMetadataForWpPath('/')
+  return mergeMetadataWithFallback(yoastMetadata, fallback)
+}
 
 function slugifyId(value: string) {
   return value

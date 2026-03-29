@@ -68,6 +68,7 @@ interface VcSingleImageShortcode {
 const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
   databaseId
   title
+  excerpt
   renderedContent: content
   rawContent: content(format: RAW)
   elementorContent

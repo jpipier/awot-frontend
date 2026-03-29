@@ -20,9 +20,16 @@ NEXT_PUBLIC_WORDPRESS_GQL=https://<your-site>/wp/graphql
 NEXT_PUBLIC_WORDPRESS_API=https://<your-site>/wp-json
 NEXT_PUBLIC_WORDPRESS_URL=https://<your-site>/
 WORDPRESS_PREVIEW_SECRET=<optional-shared-secret>
+# Optional (headless SEO)
+NEXT_PUBLIC_SITE_URL=https://<your-frontend-domain>
+YOAST_SYNC_CANONICAL=false
+YOAST_SYNC_ROBOTS=false
 ```
 
 Server-only fallbacks (`WORDPRESS_GQL`, `WORDPRESS_API`, `WORDPRESS_URL`) are also supported if you prefer not to expose the endpoints publicly.
+
+When Yoast SEO is enabled in WordPress, the frontend consumes `yoast_head_json` to build page metadata (title/description/Open Graph/Twitter).  
+For headless setups, canonical and robots are disabled by default to avoid propagating backend-domain canonicals or accidental `noindex`; enable them explicitly with `YOAST_SYNC_CANONICAL=true` and/or `YOAST_SYNC_ROBOTS=true` if desired.
 
 ### WordPress preview (BO -> headless)
 

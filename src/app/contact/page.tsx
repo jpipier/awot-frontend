@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ElementorStylesLoader from '@/components/ElementorStylesLoader'
 import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
@@ -6,6 +7,8 @@ import Footer from '@/components/footer/Footer'
 import { getPageByUri } from '@/lib/pages'
 import { getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
+import { getYoastMetadataForPageSlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 
 function extractElementorBodyClasses(content?: string | null) {
   if (!content) {
@@ -22,6 +25,34 @@ function extractElementorBodyClasses(content?: string | null) {
     .split(/\s+/)
     .map((cls) => cls.trim())
     .filter((cls) => cls.length > 0)
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const uri = '/contact/'
+  const page = await getPageByUri(uri)
+
+  if (!page) {
+    return {
+      title: 'Contact',
+      robots: {
+        index: false,
+        follow: false
+      }
+    }
+  }
+
+  const fallback: Metadata = {
+    title: sanitizeExcerptText(page.title) || 'Contact',
+    description: toSeoDescription(page.content ?? page.elementorContent) || 'Contactez-nous.',
+    alternates: {
+      canonical: '/contact'
+    }
+  }
+
+  const yoastMetadata =
+    (page.slug ? await getYoastMetadataForPageSlug(page.slug) : null) ??
+    (await getYoastMetadataForWpUrl(page.link ?? page.uri ?? uri))
+  return mergeMetadataWithFallback(yoastMetadata, fallback)
 }
 
 export default async function ContactPage() {

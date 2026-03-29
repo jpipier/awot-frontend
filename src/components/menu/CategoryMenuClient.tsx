@@ -28,7 +28,10 @@ export default function CategoryMenuClient({ categories, selectedSlug, parentNam
     )
 
     const carousel = document.querySelector('.guide-voyage-carousel__swiper')
-    carousel?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const shouldDisableSmoothScroll = window.matchMedia(
+      '(max-width: 1024px), (hover: none), (pointer: coarse)'
+    ).matches
+    carousel?.scrollIntoView({ behavior: shouldDisableSmoothScroll ? 'auto' : 'smooth', block: 'start' })
   }, [])
 
   const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>, slug: string) => {

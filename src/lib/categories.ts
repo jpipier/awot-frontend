@@ -13,6 +13,9 @@ const CATEGORY_PAGE_QUERY = /* GraphQL */ `
     category(id: $slug, idType: SLUG) {
       name
       slug
+      uri
+      link
+      description
       parent {
         node {
           id

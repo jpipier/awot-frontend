@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
@@ -9,6 +10,9 @@ import ElementorHeadingAnimator from '@/components/article/ElementorHeadingAnima
 import { getArticleByDatabaseId, getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
 import PostHero from '@/components/article/PostHero'
+import { getArticleLandscapeImage, getArticlePortraitImage } from '@/lib/article-card'
+import { getYoastMetadataForPostSlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 
 interface ArticlePageProps {
   params: {
@@ -17,6 +21,68 @@ interface ArticlePageProps {
   searchParams?: {
     [key: string]: string | string[] | undefined
   }
+}
+
+function resolveArticleSlugSegments(params: ArticlePageProps['params']) {
+  return Array.isArray(params.slug) ? params.slug : [params.slug]
+}
+
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const slugSegments = resolveArticleSlugSegments(params)
+  const previewId = slugSegments[0] === 'preview' ? Number.parseInt(slugSegments[1] ?? '', 10) : null
+  const isPreviewRoute = Boolean(previewId && Number.isInteger(previewId) && previewId > 0)
+
+  if (isPreviewRoute) {
+    return {
+      title: 'Apercu article',
+      robots: {
+        index: false,
+        follow: false
+      }
+    }
+  }
+
+  const slugSegment = slugSegments[slugSegments.length - 1]
+  const article = await getArticleBySlug(slugSegment)
+
+  if (!article) {
+    return {
+      title: 'Article introuvable',
+      robots: {
+        index: false,
+        follow: false
+      }
+    }
+  }
+
+  const title = sanitizeExcerptText(article.title)
+  const description = toSeoDescription(article.excerpt ?? article.content ?? article.elementorContent)
+  const image = getArticleLandscapeImage(article) || getArticlePortraitImage(article)
+
+  const fallback: Metadata = {
+    title: title || 'Article',
+    description: description || 'A Way of Travel',
+    alternates: {
+      canonical: article.slug ? `/articles/${article.slug}` : undefined
+    },
+    openGraph: {
+      type: 'article',
+      title: title || undefined,
+      description: description || undefined,
+      ...(image ? { images: [{ url: image }] } : {})
+    },
+    twitter: {
+      card: image ? 'summary_large_image' : 'summary',
+      title: title || undefined,
+      description: description || undefined,
+      ...(image ? { images: [image] } : {})
+    }
+  }
+
+  const yoastMetadata =
+    (await getYoastMetadataForPostSlug(slugSegment)) ??
+    (await getYoastMetadataForWpUrl(article.uri ?? `/${slugSegment}/`))
+  return mergeMetadataWithFallback(yoastMetadata, fallback)
 }
 
 function extractElementorBodyClasses(content?: string | null) {
@@ -45,7 +111,7 @@ function getFirstSearchParam(value: string | string[] | undefined) {
 }
 
 export default async function ArticlePage({ params, searchParams }: ArticlePageProps) {
-  const slugSegments = Array.isArray(params.slug) ? params.slug : [params.slug]
+  const slugSegments = resolveArticleSlugSegments(params)
   const previewId = slugSegments[0] === 'preview' ? Number.parseInt(slugSegments[1] ?? '', 10) : null
   const isPreviewRoute = Boolean(previewId && Number.isInteger(previewId) && previewId > 0)
   const configuredPreviewSecret = process.env.WORDPRESS_PREVIEW_SECRET?.trim() ?? null

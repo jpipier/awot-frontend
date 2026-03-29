@@ -7,6 +7,7 @@ import { getSiteChrome } from '@/lib/site'
 import { SiteChromeProvider } from '@/components/providers/SiteChromeProvider'
 import ScrollSmootherProvider from '@/components/providers/ScrollSmootherProvider'
 import IosInputZoomGuard from '@/components/providers/IosInputZoomGuard'
+import { getMetadataBaseUrl } from '@/lib/seo'
 
 const lato = Lato({
   subsets: ['latin'],
@@ -17,8 +18,28 @@ const lato = Lato({
 })
 
 export const metadata: Metadata = {
-  title: 'A Way of Travel',
-  description: 'Guide Landes & Pays Basque - A Way of Travel'
+  metadataBase: getMetadataBaseUrl(),
+  title: {
+    default: 'A Way of Travel',
+    template: '%s | A Way of Travel'
+  },
+  description: 'Guide Landes & Pays Basque - A Way of Travel',
+  alternates: {
+    canonical: '/'
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    siteName: 'A Way of Travel',
+    title: 'A Way of Travel',
+    description: 'Guide Landes & Pays Basque - A Way of Travel',
+    url: '/'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'A Way of Travel',
+    description: 'Guide Landes & Pays Basque - A Way of Travel'
+  }
 }
 
 export const viewport: Viewport = {

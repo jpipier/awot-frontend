@@ -74,6 +74,12 @@ a {
   will-change: transform;
 }
 
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
 #sticky1 {
   position: relative;
   z-index: 10;

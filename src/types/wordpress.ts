@@ -203,6 +203,9 @@ export interface CategoryPageData {
   category?: {
     name?: string
     slug?: string
+    uri?: string
+    link?: string
+    description?: string
     parent?: {
       node?: CategoryNode
     }

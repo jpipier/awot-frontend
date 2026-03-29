@@ -1,12 +1,49 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Footer from '@/components/footer/Footer'
 import CategoryPageClient from '@/components/categories/CategoryPageClient'
 import { getCategoryPage, getCategoryPunchlineBySlug, getFiltres, getLocalisations } from '@/lib/categories'
+import { getYoastMetadataForCategorySlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
+import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 
 interface CategoryPageProps {
   params: {
     slug: string
   }
+}
+
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { slug } = params
+  const [category, categoryPunchline] = await Promise.all([
+    getCategoryPage(slug, 12),
+    getCategoryPunchlineBySlug(slug)
+  ])
+
+  if (!category) {
+    return {
+      title: 'Categorie introuvable',
+      robots: {
+        index: false,
+        follow: false
+      }
+    }
+  }
+
+  const title = sanitizeExcerptText(category.name)
+  const description =
+    toSeoDescription(categoryPunchline) || toSeoDescription(category.description) || 'Explorez notre guide local.'
+  const fallback: Metadata = {
+    title: title || 'Categorie',
+    description,
+    alternates: {
+      canonical: `/categories/${slug}`
+    }
+  }
+
+  const yoastMetadata =
+    (await getYoastMetadataForCategorySlug(slug)) ??
+    (await getYoastMetadataForWpUrl(category.link ?? category.uri ?? `/category/${slug}/`))
+  return mergeMetadataWithFallback(yoastMetadata, fallback)
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
