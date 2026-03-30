@@ -196,9 +196,9 @@ function AnalyticsConsentBanner() {
 }
 
 function AnalyticsConsentShortcut() {
-  const { analyticsConfigured, isBannerOpen, isHydrated, openBanner } = useAnalyticsConsent()
+  const { analyticsConfigured, isBannerOpen, isHydrated, openBanner, status } = useAnalyticsConsent()
 
-  if (!analyticsConfigured || !isHydrated || isBannerOpen) {
+  if (!analyticsConfigured || !isHydrated || isBannerOpen || status !== 'denied') {
     return null
   }
 
