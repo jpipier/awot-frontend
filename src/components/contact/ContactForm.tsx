@@ -36,7 +36,7 @@ export default function ContactForm() {
         ? errorMessage || 'Une erreur est survenue.'
         : null
   const helperMessage =
-    status === 'idle' ? 'Nous repondons rapidement a toutes les demandes.' : status === 'submitting' ? 'Envoi en cours...' : null
+    status === 'idle' ? 'Nous répondons à toutes les demandes. Si vous n’avez pas de nouvelles de nous d’ici quelques jours n’hésitez pas à nous faire un MP sur Instagram !' : status === 'submitting' ? 'Envoi en cours...' : null
 
   const handleChange =
     (field: keyof ContactFormState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -92,7 +92,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 grid gap-6 rounded-2xl border border-black/10 bg-white p-6 shadow-sm md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="mt-2 grid gap-6 rounded-2xl border border-black/10 bg-white p-6 shadow-sm md:grid-cols-2">
       {bannerMessage ? (
         <div
           role="status"

@@ -554,6 +554,97 @@ body.built-with-classic.not-built-with-elementor .contentElementor p img{
   padding: 10px 0;
 }
 
+.contact-page-shell {
+  background: #fff;
+}
+
+.contact-page-hero {
+  display: grid;
+  min-height: 100vh;
+}
+
+.contact-page-media-frame {
+  overflow: hidden;
+}
+
+.contact-page-media {
+  display: flex;
+  min-height: 24rem;
+  width: 100%;
+}
+
+.contact-page-media > * {
+  width: 100%;
+  @media (min-width: 768px) {
+    width: 88%;
+  }
+}
+
+.contact-page-media figure.wp-block-image {
+  margin: 0;
+}
+
+.contact-page-media figure.wp-block-image img {
+  object-fit: cover;
+  height: 108vh;
+}
+
+.contact-page-copy-panel {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.contact-page-copy-inner {
+  width: 100%;
+  max-width: 42rem;
+}
+
+.contact-page-kicker {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.contact-page-shell .contact-page-title {
+  margin: 1rem 0 0;
+  color: #000;
+  font-size: clamp(3.5rem, 9vw, 5.75rem);
+  line-height: 0.92;
+}
+
+.contact-page-intro {
+  max-width: 34rem;
+  margin: .5rem 0 1.5rem;
+  color: rgba(0, 0, 0, 0.68);
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .contact-page-hero {
+    grid-template-columns: 35% 75%;
+  }
+
+  .contact-page-hero--without-media {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .contact-page-media-frame {
+    position: sticky;
+    top: 0;
+  }
+
+  .contact-page-copy-panel {
+    min-height: 100vh;
+  }
+}
+
 img.wp-smiley, img.emoji {
     display: inline !important;
     border: none !important;

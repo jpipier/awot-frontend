@@ -69,27 +69,37 @@ export default async function ContactPage() {
   const hasElementorMarkup = Boolean(page.elementorContent?.trim())
   const isElementor = page.isBuiltWithElementor !== false || hasElementorMarkup
   const fallbackBodyClasses = isElementor ? extractElementorBodyClasses(page.elementorContent ?? page.content) : []
-  const shouldDisplayHeading = !(page.elementorContent && page.elementorContent.trim().length > 0)
   const contentMarkup = page.elementorContent ?? page.content ?? ''
+  const headingMarkup = page.title?.trim() || 'Contact'
 
   return (
-    <div>
+    <div className="article-container contact-page-shell font-brandon_grotesquelight overflow-x-hidden">
       <ElementorStylesLoader
         cssBundle={cssBundle}
         bodyClasses={isElementor && fallbackBodyClasses.length ? fallbackBodyClasses : undefined}
         isBuiltWithElementor={isElementor}
       />
       <ElementorScriptsLoader assets={elementorAssets} />
-      {contentMarkup ? (
-        <div
-          className="contentElementor font-montserrat"
-          dangerouslySetInnerHTML={{ __html: contentMarkup }}
-        />
-      ) : null}
-      <section className="bg-white py-12">
-        <div className="container mx-auto px-6 mt-20">
-          <div className="max-w-4xl">
-            <h2 className="text-3xl font-custom">Contactez-nous !</h2>
+      <section className={`contact-page-hero${contentMarkup ? '' : ' contact-page-hero--without-media'}`}>
+        {contentMarkup ? (
+          <div className="contact-page-media-panel h-[100vh] overflow-hidden">
+            <div className="contact-page-media-frame">
+              <div
+                className="contact-page-media contentElementor font-montserrat text-left [&_br]:inline [&_h1]:mb-4 [&_h1]:text-left [&_h1]:leading-tight [&_h2]:mb-4 [&_h2]:text-left [&_h2]:leading-tight [&_h3]:mb-4 [&_h3]:text-left [&_h3]:leading-tight [&_p]:mb-4 [&_p]:text-left [&_p]:leading-7 [&_p:last-child]:mb-0"
+                dangerouslySetInnerHTML={{ __html: contentMarkup }}
+              />
+            </div>
+          </div>
+        ) : null}
+        <div className="contact-page-copy-panel">
+          <div className="contact-page-copy-inner">
+            <h1
+              className="contact-page-title font-schnyder_wide_xl_webdemi"
+              dangerouslySetInnerHTML={{ __html: headingMarkup }}
+            />
+            <p className="contact-page-intro font-montserrat">
+              Nous répondons à toutes les demandes. Si vous n’avez pas de nouvelles de nous d’ici quelques jours n’hésitez pas à nous faire un MP sur Instagram !
+            </p>
             <ContactForm />
           </div>
         </div>
