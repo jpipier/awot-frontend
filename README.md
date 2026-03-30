@@ -24,6 +24,10 @@ WORDPRESS_PREVIEW_SECRET=<optional-shared-secret>
 NEXT_PUBLIC_SITE_URL=https://<your-frontend-domain>
 YOAST_SYNC_CANONICAL=false
 YOAST_SYNC_ROBOTS=false
+# Optional (Matomo analytics)
+NEXT_PUBLIC_MATOMO_URL=https://analytics.example.com/
+NEXT_PUBLIC_MATOMO_SITE_ID=1
+NEXT_PUBLIC_MATOMO_DISABLE_COOKIES=false
 ```
 
 Server-only fallbacks (`WORDPRESS_GQL`, `WORDPRESS_API`, `WORDPRESS_URL`) are also supported if you prefer not to expose the endpoints publicly.
@@ -79,16 +83,15 @@ The UI itself is powered by Meta’s oEmbed Read API, so also provide `INSTAGRAM
 
 The response mirrors Meta’s JSON payload and is cached on the server for 10 minutes.
 
-### Facebook SDK
+### Matomo analytics
 
-If you need the Facebook JS SDK (for example to manage Instagram tokens on the client), provide:
+When `NEXT_PUBLIC_MATOMO_URL` and `NEXT_PUBLIC_MATOMO_SITE_ID` are configured, the frontend displays an analytics consent banner and only loads Matomo after acceptance.
+
+If you want a cookieless Matomo setup, also set:
 
 ```
-NEXT_PUBLIC_FACEBOOK_APP_ID=<your-app-id>
-NEXT_PUBLIC_FACEBOOK_API_VERSION=v21.0
+NEXT_PUBLIC_MATOMO_DISABLE_COOKIES=true
 ```
-
-With those variables set, the SDK snippet is automatically injected from the root layout after hydration.
 
 ## Available Scripts
 
