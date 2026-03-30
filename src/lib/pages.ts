@@ -2,41 +2,101 @@ import { fetchWordPressGraphQL } from './wordpress'
 
 const PAGE_REVALIDATE_SECONDS = 600
 
-interface PageResponse {
-  page: {
-    databaseId: number
-    title: string
-    slug?: string | null
-    link?: string | null
-    uri: string
-    isFrontPage: boolean
-    elementorContent?: string | null
-    isBuiltWithElementor?: boolean | null
-    content?: string | null
-  } | null
+interface PageBase {
+  databaseId: number
+  title: string
+  slug?: string | null
+  link?: string | null
+  uri: string
+  isFrontPage: boolean
+  content?: string | null
 }
 
-const PAGE_BY_URI_QUERY = /* GraphQL */ `
+interface PageWithElementor extends PageBase {
+  elementorContent?: string | null
+  isBuiltWithElementor?: boolean | null
+}
+
+interface PageResponseWithElementor {
+  page: PageWithElementor | null
+}
+
+interface PageResponseBase {
+  page: PageBase | null
+}
+
+const PAGE_BASE_FIELDS = /* GraphQL */ `
+  databaseId
+  title
+  slug
+  link
+  uri
+  isFrontPage
+  content
+`
+
+const PAGE_BY_URI_QUERY_WITH_ELEMENTOR = /* GraphQL */ `
   query GetPageByUri($uri: ID!) {
     page(id: $uri, idType: URI) {
-      databaseId
-      title
-      slug
-      link
-      uri
-      isFrontPage
+      ${PAGE_BASE_FIELDS}
       elementorContent
       isBuiltWithElementor
-      content
     }
   }
 `
 
+const PAGE_BY_URI_QUERY_BASE = /* GraphQL */ `
+  query GetPageByUriWithoutElementor($uri: ID!) {
+    page(id: $uri, idType: URI) {
+      ${PAGE_BASE_FIELDS}
+    }
+  }
+`
+
+let pageSupportsElementorFields: boolean | null = null
+
+function isMissingPageElementorFieldError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false
+  }
+
+  return /Cannot query field "(elementorContent|isBuiltWithElementor)" on type "Page"/.test(error.message)
+}
+
+function withFallbackElementorFields(page: PageBase | null): PageWithElementor | null {
+  if (!page) {
+    return null
+  }
+
+  return {
+    ...page,
+    elementorContent: null,
+    isBuiltWithElementor: null
+  }
+}
+
 export async function getPageByUri(uri: string) {
-  const data = await fetchWordPressGraphQL<PageResponse>(PAGE_BY_URI_QUERY, {
+  const options = {
     variables: { uri },
     next: { revalidate: PAGE_REVALIDATE_SECONDS }
-  })
+  } as const
 
-  return data.page
+  if (pageSupportsElementorFields === false) {
+    const fallbackData = await fetchWordPressGraphQL<PageResponseBase>(PAGE_BY_URI_QUERY_BASE, options)
+    return withFallbackElementorFields(fallbackData.page)
+  }
+
+  try {
+    const data = await fetchWordPressGraphQL<PageResponseWithElementor>(PAGE_BY_URI_QUERY_WITH_ELEMENTOR, options)
+    pageSupportsElementorFields = true
+    return data.page
+  } catch (error) {
+    if (!isMissingPageElementorFieldError(error)) {
+      throw error
+    }
+
+    pageSupportsElementorFields = false
+    const fallbackData = await fetchWordPressGraphQL<PageResponseBase>(PAGE_BY_URI_QUERY_BASE, options)
+    return withFallbackElementorFields(fallbackData.page)
+  }
 }

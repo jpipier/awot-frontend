@@ -188,6 +188,18 @@ export default function CategoryPageClient({
     return ' '
   }, [categoryName, categoryPunchline])
 
+  const emptyMessage = useMemo(() => {
+    if (activeFiltres.length > 1) {
+      return 'Aucun article ne correspond aux filtres sélectionnés.'
+    }
+
+    if (activeFiltres.length === 1) {
+      return 'Aucun article ne correspond au filtre sélectionné.'
+    }
+
+    return 'Aucun article pour cette catégorie.'
+  }, [activeFiltres.length])
+
   return (
     <div className="template-categories">
       <div className="mx-auto max-w-[1120px] px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-24">
@@ -332,7 +344,7 @@ export default function CategoryPageClient({
 
         <EditorialPostGrid
           posts={posts}
-          emptyMessage="Aucun article pour cette catégorie."
+          emptyMessage={emptyMessage}
           revealKey={`${slug}:${activeLocalisation ?? 'all'}:${activeFiltres.join(',') || 'all'}`}
         />
 

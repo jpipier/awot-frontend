@@ -236,7 +236,12 @@ export async function getElementorCssFiles(options: ElementorCssRequestOptions =
   const query = params.toString()
   const path = query ? `elementor/v1/css-files?${query}` : 'elementor/v1/css-files'
 
-  return fetchWordPressRest<string[]>(path)
+  try {
+    return await fetchWordPressRest<string[]>(path)
+  } catch (error) {
+    console.warn('Failed to load Elementor CSS file list from REST API', error)
+    return []
+  }
 }
 
 export type ElementorCssAsset = {
