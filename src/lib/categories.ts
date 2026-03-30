@@ -74,12 +74,17 @@ const CATEGORY_PAGE_QUERY = /* GraphQL */ `
 `
 
 export async function getCategoryPage(slug: string, limit: number) {
-  const data = await fetchWordPressGraphQL<CategoryPageResponse>(CATEGORY_PAGE_QUERY, {
-    variables: { slug, limit },
-    next: { revalidate: CATEGORY_REVALIDATE_SECONDS }
-  })
+  try {
+    const data = await fetchWordPressGraphQL<CategoryPageResponse>(CATEGORY_PAGE_QUERY, {
+      variables: { slug, limit },
+      next: { revalidate: CATEGORY_REVALIDATE_SECONDS }
+    })
 
-  return data.category ?? null
+    return data.category ?? null
+  } catch (error) {
+    console.warn(`Failed to load category page "${slug}"`, error)
+    return null
+  }
 }
 
 interface CategoryRestNode {
@@ -655,12 +660,17 @@ const FILTRES_BY_CATEGORY_QUERY_WITH_HOVER_CAMEL = buildFiltresQuery(true, 'pict
 const FILTRES_BY_CATEGORY_QUERY_WITH_HOVER_SNAKE = buildFiltresQuery(true, 'picto_hover')
 
 export async function getLocalisations(first = 100) {
-  const data = await fetchWordPressGraphQL<LocalisationsResponse>(LOCALISATIONS_QUERY, {
-    variables: { first },
-    next: { revalidate: 600 }
-  })
+  try {
+    const data = await fetchWordPressGraphQL<LocalisationsResponse>(LOCALISATIONS_QUERY, {
+      variables: { first },
+      next: { revalidate: 600 }
+    })
 
-  return data.localisations?.nodes ?? []
+    return data.localisations?.nodes ?? []
+  } catch (error) {
+    console.warn('Failed to load localisations', error)
+    return []
+  }
 }
 
 export async function getFiltres(categorySlug?: string | null, first = 100): Promise<FiltreNode[]> {

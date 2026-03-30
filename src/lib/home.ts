@@ -170,20 +170,25 @@ const HOME_PAGE_QUERY = /* GraphQL */ `
 `
 
 export async function getHomePage(): Promise<HomePageData | null> {
-  const { allSettings } = await fetchWordPressGraphQL<HomePageIdResponse>(HOME_ID_QUERY, {
-    next: { revalidate: HOME_REVALIDATE_SECONDS }
-  })
+  try {
+    const { allSettings } = await fetchWordPressGraphQL<HomePageIdResponse>(HOME_ID_QUERY, {
+      next: { revalidate: HOME_REVALIDATE_SECONDS }
+    })
 
-  const pageId = allSettings?.readingSettingsPageOnFront
+    const pageId = allSettings?.readingSettingsPageOnFront
 
-  if (!pageId) {
+    if (!pageId) {
+      return null
+    }
+
+    const { page } = await fetchWordPressGraphQL<HomePageResponse>(HOME_PAGE_QUERY, {
+      variables: { id: pageId },
+      next: { revalidate: HOME_REVALIDATE_SECONDS }
+    })
+
+    return page ?? null
+  } catch (error) {
+    console.warn('Failed to load home page data from WordPress', error)
     return null
   }
-
-  const { page } = await fetchWordPressGraphQL<HomePageResponse>(HOME_PAGE_QUERY, {
-    variables: { id: pageId },
-    next: { revalidate: HOME_REVALIDATE_SECONDS }
-  })
-
-  return page ?? null
 }

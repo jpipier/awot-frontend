@@ -163,13 +163,18 @@ const SUPPORTED_VC_SHORTCODES = new Set([
 ])
 
 export async function getArticleBySlug(slug: string) {
-  const data = await fetchWordPressGraphQL<ArticleResponse>(ARTICLE_BY_SLUG_QUERY, {
-    variables: { slug },
-    next: { revalidate: ARTICLE_REVALIDATE_SECONDS },
-    headers: getWordPressContentAuthHeaders()
-  })
+  try {
+    const data = await fetchWordPressGraphQL<ArticleResponse>(ARTICLE_BY_SLUG_QUERY, {
+      variables: { slug },
+      next: { revalidate: ARTICLE_REVALIDATE_SECONDS },
+      headers: getWordPressContentAuthHeaders()
+    })
 
-  return resolveArticle(data.postBy ?? null)
+    return resolveArticle(data.postBy ?? null)
+  } catch (error) {
+    console.warn(`Failed to load article by slug "${slug}"`, error)
+    return null
+  }
 }
 
 export async function getArticleByDatabaseId(databaseId: number, options?: { asPreview?: boolean }) {
@@ -179,16 +184,21 @@ export async function getArticleByDatabaseId(databaseId: number, options?: { asP
 
   const asPreview = options?.asPreview ?? false
 
-  const data = await fetchWordPressGraphQL<ArticleByDatabaseIdResponse>(ARTICLE_BY_DATABASE_ID_QUERY, {
-    variables: {
-      id: String(databaseId),
-      asPreview
-    },
-    ...(asPreview ? { cache: 'no-store' as const } : { next: { revalidate: ARTICLE_REVALIDATE_SECONDS } }),
-    headers: getWordPressContentAuthHeaders()
-  })
+  try {
+    const data = await fetchWordPressGraphQL<ArticleByDatabaseIdResponse>(ARTICLE_BY_DATABASE_ID_QUERY, {
+      variables: {
+        id: String(databaseId),
+        asPreview
+      },
+      ...(asPreview ? { cache: 'no-store' as const } : { next: { revalidate: ARTICLE_REVALIDATE_SECONDS } }),
+      headers: getWordPressContentAuthHeaders()
+    })
 
-  return resolveArticle(data.post ?? null)
+    return resolveArticle(data.post ?? null)
+  } catch (error) {
+    console.warn(`Failed to load article by database id "${databaseId}"`, error)
+    return null
+  }
 }
 
 async function resolveArticle(article: ArticleNode | null) {

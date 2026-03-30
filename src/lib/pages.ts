@@ -82,8 +82,13 @@ export async function getPageByUri(uri: string) {
   } as const
 
   if (pageSupportsElementorFields === false) {
-    const fallbackData = await fetchWordPressGraphQL<PageResponseBase>(PAGE_BY_URI_QUERY_BASE, options)
-    return withFallbackElementorFields(fallbackData.page)
+    try {
+      const fallbackData = await fetchWordPressGraphQL<PageResponseBase>(PAGE_BY_URI_QUERY_BASE, options)
+      return withFallbackElementorFields(fallbackData.page)
+    } catch (error) {
+      console.warn(`Failed to load page by uri "${uri}" without Elementor fields`, error)
+      return null
+    }
   }
 
   try {
@@ -92,11 +97,17 @@ export async function getPageByUri(uri: string) {
     return data.page
   } catch (error) {
     if (!isMissingPageElementorFieldError(error)) {
-      throw error
+      console.warn(`Failed to load page by uri "${uri}"`, error)
+      return null
     }
 
     pageSupportsElementorFields = false
-    const fallbackData = await fetchWordPressGraphQL<PageResponseBase>(PAGE_BY_URI_QUERY_BASE, options)
-    return withFallbackElementorFields(fallbackData.page)
+    try {
+      const fallbackData = await fetchWordPressGraphQL<PageResponseBase>(PAGE_BY_URI_QUERY_BASE, options)
+      return withFallbackElementorFields(fallbackData.page)
+    } catch (fallbackError) {
+      console.warn(`Failed to load page by uri "${uri}" on Elementor fallback`, fallbackError)
+      return null
+    }
   }
 }
