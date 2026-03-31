@@ -76,7 +76,7 @@ export default function PostHeroMedia({
       <div ref={containerRef} className="relative flex w-full h-full items-center justify-center overflow-hidden bg-transparent">
         <div
           className="awot-post-hero-video-frame"
-          style={squareSize ? { width: `${squareSize}px`, height: `${squareSize}px` } : undefined}
+          style={squareSize ? { width: `${squareSize}px` } : undefined}
         >
           <video
             ref={videoRef}
