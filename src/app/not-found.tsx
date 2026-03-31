@@ -2,19 +2,22 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import Footer from '@/components/footer/Footer'
-import { getRecentPosts } from '@/lib/posts'
+import { getCategoryChildrenBySlug } from '@/lib/categories'
 import {
   getArticleAlt,
   getArticlePortraitImage
 } from '@/lib/article-card'
+import { getPostsByCategory } from '@/lib/posts'
 import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
 import { sanitizePostTitleHtml } from '@/lib/sanitize-post-title-html'
 
 const SUGGESTED_POSTS_COUNT = 9
 const SUGGESTED_POSTS_POOL_SIZE = 36
+const SUGGESTED_POSTS_CATEGORY_SLUG = 'guide-pays-basque-l-landes'
+const MIN_POSTS_PER_CATEGORY = 12
 
-type RecentPost = Awaited<ReturnType<typeof getRecentPosts>>[number]
-type SuggestedPost = RecentPost & { slug: string }
+type CategoryPost = Awaited<ReturnType<typeof getPostsByCategory>>[number]
+type SuggestedPost = CategoryPost & { id: string; slug: string }
 
 export const metadata: Metadata = {
   title: 'Page introuvable',
@@ -61,19 +64,54 @@ function getTaxonomyLabel(post: SuggestedPost) {
   return localisation || category
 }
 
+function isSuggestedPost(post: CategoryPost): post is SuggestedPost {
+  return (
+    typeof post.id === 'string' &&
+    post.id.trim().length > 0 &&
+    typeof post.slug === 'string' &&
+    post.slug.trim().length > 0
+  )
+}
+
 async function getSuggestedPosts(): Promise<SuggestedPost[]> {
   try {
-    const posts = await getRecentPosts(SUGGESTED_POSTS_POOL_SIZE)
+    let childSlugs: string[] = []
 
-    const postsWithSlug = posts
-      .filter(
-        (post): post is SuggestedPost =>
-          typeof post.slug === 'string' && post.slug.trim().length > 0
-      )
+    try {
+      const category = await getCategoryChildrenBySlug(SUGGESTED_POSTS_CATEGORY_SLUG)
+      childSlugs =
+        category?.children?.nodes
+          ?.map((node) => node.slug?.trim() ?? '')
+          .filter((slug) => slug.length > 0) ?? []
+    } catch (error) {
+      console.warn('Unable to load category children for 404 page', error)
+    }
 
-    return shuffle(postsWithSlug).slice(0, SUGGESTED_POSTS_COUNT)
+    const categorySlugs = Array.from(
+      new Set([SUGGESTED_POSTS_CATEGORY_SLUG, ...childSlugs])
+    )
+
+    const postsPerCategory = Math.max(
+      MIN_POSTS_PER_CATEGORY,
+      Math.ceil(SUGGESTED_POSTS_POOL_SIZE / categorySlugs.length)
+    )
+
+    const postGroups = await Promise.all(
+      categorySlugs.map((slug) => getPostsByCategory(slug, postsPerCategory))
+    )
+
+    const uniquePosts = new Map<string, SuggestedPost>()
+    for (const post of postGroups.flat()) {
+      if (!isSuggestedPost(post)) {
+        continue
+      }
+
+      uniquePosts.set(post.id, post)
+    }
+
+    return shuffle(Array.from(uniquePosts.values())).slice(0, SUGGESTED_POSTS_COUNT)
   } catch (error) {
-    console.error('Unable to load recent posts for 404 page', error)
+    console.error('Unable to load suggested posts for 404 page', error)
     return []
   }
 }

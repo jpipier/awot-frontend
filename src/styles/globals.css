@@ -628,7 +628,7 @@ body.built-with-classic.not-built-with-elementor .contentElementor p img{
 
 @media (min-width: 768px) {
   .contact-page-hero {
-    grid-template-columns: 35% 75%;
+    grid-template-columns: 46% 54%;
   }
 
   .contact-page-hero--without-media {
