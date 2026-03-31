@@ -183,19 +183,17 @@ export default function Header() {
         className={clsx('fixed right-14 top-4 z-50 flex h-10 w-10 items-center justify-center', controlsVisibilityClass)}
         aria-label={isSearchOpen ? 'Fermer la recherche' : 'Ouvrir la recherche'}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className={clsx('h-6 w-6 transition-colors duration-300', headerColorClass)}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z"
-          />
+        <svg 
+            className={clsx('h-[1.5rem] w-[1.5rem] transition-colors duration-300', headerColorClass)} 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor">
+                <path 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  stroke-width="1.5" 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                </path>
         </svg>
       </button>
 
