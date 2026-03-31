@@ -15,6 +15,7 @@ declare global {
 
 const MATOMO_SCRIPT_ID = 'awot-matomo-script'
 const MATOMO_CONSENT_COOKIE_NAMES = ['_pk_', 'mtm']
+const PAGEVIEW_TRACK_DELAY_MS = 150
 
 function normalizeMatomoBaseUrl(value?: string | null) {
   if (!value) {
@@ -161,22 +162,34 @@ export default function MatomoTracker() {
     }
 
     const resolvedPath = pathname ?? '/'
-    const currentUrl = new URL(search ? `${resolvedPath}?${search}` : resolvedPath, window.location.origin).toString()
+    const nextUrl = new URL(search ? `${resolvedPath}?${search}` : resolvedPath, window.location.origin).toString()
 
-    if (lastTrackedUrlRef.current === currentUrl) {
+    if (lastTrackedUrlRef.current === nextUrl) {
       return
     }
 
-    window._paq = window._paq ?? []
+    const timeoutId = window.setTimeout(() => {
+      const finalUrl = window.location.href
 
-    if (lastTrackedUrlRef.current) {
-      window._paq.push(['setReferrerUrl', lastTrackedUrlRef.current])
+      if (lastTrackedUrlRef.current === finalUrl) {
+        return
+      }
+
+      window._paq = window._paq ?? []
+
+      if (lastTrackedUrlRef.current) {
+        window._paq.push(['setReferrerUrl', lastTrackedUrlRef.current])
+      }
+
+      window._paq.push(['setCustomUrl', finalUrl])
+      window._paq.push(['setDocumentTitle', document.title])
+      window._paq.push(['trackPageView'])
+      lastTrackedUrlRef.current = finalUrl
+    }, PAGEVIEW_TRACK_DELAY_MS)
+
+    return () => {
+      window.clearTimeout(timeoutId)
     }
-
-    window._paq.push(['setCustomUrl', currentUrl])
-    window._paq.push(['setDocumentTitle', document.title])
-    window._paq.push(['trackPageView'])
-    lastTrackedUrlRef.current = currentUrl
   }, [analyticsConfigured, isReady, pathname, search, status])
 
   return null

@@ -368,7 +368,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
             >
               <a
                 className="elementor-post__thumbnail__link rounded-md"
-                href={`/articles/${post.slug}/`}
+                href={`/articles/${post.slug}`}
                 onClick={(event) => handleCardClick(event, post)}
                 onPointerEnter={() => {
                   void prefetchArticle(post.slug)
