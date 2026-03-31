@@ -673,11 +673,21 @@ p b, p strong {
 #sticky1 .awot-post-hero-video{
   display: block;
   height: 100% !important;
-  width: auto !important;
-  max-width: none;
+  width: 100% !important;
+  max-width: 100%;
   max-height: 100%;
   margin: 0 auto;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
+}
+
+#sticky1 .awot-post-hero-video-frame{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
 }
 
 

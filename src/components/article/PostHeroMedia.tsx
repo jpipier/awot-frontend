@@ -15,8 +15,10 @@ export default function PostHeroMedia({
   imageSrcSet,
   imageAlt
 }: PostHeroMediaProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [showControls, setShowControls] = useState(false)
+  const [squareSize, setSquareSize] = useState<number | null>(null)
 
   useEffect(() => {
     const video = videoRef.current
@@ -38,25 +40,61 @@ export default function PostHeroMedia({
     void playVideo()
   }, [videoSrc])
 
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || !videoSrc) {
+      return
+    }
+
+    const updateSquareSize = () => {
+      const { width, height } = container.getBoundingClientRect()
+      const nextSize = Math.max(Math.floor(Math.min(width, height)), 0)
+      setSquareSize((prev) => (prev === nextSize ? prev : nextSize))
+    }
+
+    updateSquareSize()
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateSquareSize)
+      return () => {
+        window.removeEventListener('resize', updateSquareSize)
+      }
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateSquareSize()
+    })
+    observer.observe(container)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [videoSrc])
+
   if (videoSrc) {
     return (
-      <div className="relative flex w-full h-full items-center justify-center overflow-hidden bg-transparent">
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          controls={showControls}
-          muted
-          loop
-          autoPlay
-          playsInline
-          preload="auto"
-          poster={imageSrc ?? undefined}
-          className="awot-post-hero-video"
-          onMouseEnter={() => setShowControls(true)}
-          onMouseLeave={() => setShowControls(false)}
-          onFocus={() => setShowControls(true)}
-          onBlur={() => setShowControls(false)}
-        />
+      <div ref={containerRef} className="relative flex w-full h-full items-center justify-center overflow-hidden bg-transparent">
+        <div
+          className="awot-post-hero-video-frame"
+          style={squareSize ? { width: `${squareSize}px`, height: `${squareSize}px` } : undefined}
+        >
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            controls={showControls}
+            muted
+            loop
+            autoPlay
+            playsInline
+            preload="auto"
+            poster={imageSrc ?? undefined}
+            className="awot-post-hero-video"
+            onMouseEnter={() => setShowControls(true)}
+            onMouseLeave={() => setShowControls(false)}
+            onFocus={() => setShowControls(true)}
+            onBlur={() => setShowControls(false)}
+          />
+        </div>
       </div>
     )
   }
