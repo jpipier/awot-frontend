@@ -98,7 +98,7 @@ export default async function ContactPage() {
               dangerouslySetInnerHTML={{ __html: headingMarkup }}
             />
             <p className="contact-page-intro font-montserrat">
-              Nous répondons à toutes les demandes. Si vous n’avez pas de nouvelles de nous d’ici quelques jours n’hésitez pas à nous faire un MP sur Instagram !
+              Une question, une idee de collaboration ou un projet a partager ? Envoyez-nous un message, nous revenons vers vous rapidement.
             </p>
             <ContactForm />
           </div>
