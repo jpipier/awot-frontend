@@ -12,9 +12,11 @@ export interface SiteSettings {
 export interface WPImage {
   guid?: string | null
   sourceUrl?: string | null
+  mediaItemUrl?: string | null
   srcSet?: string | null
   sizes?: string | null
   altText?: string | null
+  mimeType?: string | null
   mediaDetails?: {
     width?: number | null
     height?: number | null
@@ -180,6 +182,9 @@ export interface Article {
   optionsArticles?: {
     champsLibre?: string | null
     champsLibrePageAccueil?: string | null
+    video?: {
+      node?: WPImage
+    }
     imagePortait?: {
       node?: WPImage
     }

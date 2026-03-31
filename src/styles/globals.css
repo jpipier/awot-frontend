@@ -666,6 +666,20 @@ p b, p strong {
   object-fit: cover;
 }
 
+#sticky1 video{
+  background: transparent;
+}
+
+#sticky1 .awot-post-hero-video{
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  max-width: none;
+  max-height: 100%;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
 
 body.built-with-elementor footer h2 {
   margin-top: 0;

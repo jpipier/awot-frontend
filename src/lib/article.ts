@@ -78,6 +78,19 @@ const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
   optionsArticles {
     champsLibre
     champsLibrePageAccueil
+    video {
+      node {
+        guid
+        sourceUrl
+        mediaItemUrl
+        altText
+        mimeType
+        mediaDetails {
+          width
+          height
+        }
+      }
+    }
     imagePortait {
       node {
         guid

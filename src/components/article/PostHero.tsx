@@ -1,15 +1,18 @@
 import type { Article } from '@/types/wordpress'
+import PostHeroMedia from './PostHeroMedia'
 
 interface PostHeroProps {
   article: Article
 }
 
 export default function PostHero({ article }: PostHeroProps) {
+  const heroVideo = article.optionsArticles?.video?.node
   const portraitImage = article.optionsArticles?.imagePortait?.node
   const heroImage = portraitImage ?? article.featuredImage?.node
   const imageSrc = heroImage?.sourceUrl ?? heroImage?.guid
   const imageSrcSet = heroImage?.srcSet?.trim() ? heroImage.srcSet : undefined
   const imageAlt = heroImage?.altText ?? article.title ?? ''
+  const videoSrc = heroVideo?.sourceUrl ?? heroVideo?.mediaItemUrl ?? heroVideo?.guid
 
   const childCategory = article.categories?.edges
     ?.map((e) => e.node)
@@ -17,34 +20,20 @@ export default function PostHero({ article }: PostHeroProps) {
 
   const localisations = article.localisations?.edges?.map((e) => e.node) ?? []
 
-  const imageBlock = imageSrc ? (
-    <div className="relative w-full h-full overflow-hidden">
-      {/* Use native img + WP srcSet to bypass next/image remote optimization cold-start on hero. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imageSrc}
-        srcSet={imageSrcSet}
-        sizes="(min-width: 768px) 50vw, 100vw"
-        alt={imageAlt}
-        className="h-full w-full object-cover"
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-      />
-    </div>
-  ) : (
-    <div className="w-full h-full bg-gray-200" />
-  )
-
   return (
     <div id="sticky-anchor" className="relative h-screen w-full mb-[4rem] md:mb-auto">
       {/* Image — pinned par StickyWatcher via #sticky1 */}
       <div
         id="sticky1"
-        {...(imageSrc ? { 'data-header-dark': '' } : {})}
+        {...(videoSrc || imageSrc ? { 'data-header-dark': '' } : {})}
         className="w-full md:w-1/2 h-2/3 md:h-screen md:p-[2.05rem]"
       >
-        {imageBlock}
+        <PostHeroMedia
+          videoSrc={videoSrc}
+          imageSrc={imageSrc}
+          imageSrcSet={imageSrcSet}
+          imageAlt={imageAlt}
+        />
       </div>
 
       {/* Text — right side on desktop */}
