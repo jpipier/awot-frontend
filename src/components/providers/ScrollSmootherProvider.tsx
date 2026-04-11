@@ -1,7 +1,7 @@
 'use client'
 
 import { type PropsWithChildren, Suspense, useEffect, useRef } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 type ScrollSmootherInstance = import('gsap/ScrollSmoother').ScrollSmoother | null
 type GSAPContext = { revert: (config?: object) => void } | undefined
@@ -16,11 +16,10 @@ export default function ScrollSmootherProvider({ children }: PropsWithChildren) 
 
 function ScrollSmootherInner({ children }: PropsWithChildren) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const searchParamsKey = searchParams.toString()
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
   const smootherRef = useRef<ScrollSmootherInstance>(null)
+  const previousPathnameRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -113,6 +112,23 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
       return
     }
 
+    const currentPathname = pathname ?? null
+
+    if (!currentPathname) {
+      return
+    }
+
+    if (!previousPathnameRef.current) {
+      previousPathnameRef.current = currentPathname
+      return
+    }
+
+    if (previousPathnameRef.current === currentPathname) {
+      return
+    }
+
+    previousPathnameRef.current = currentPathname
+
     const frame = window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
       smootherRef.current?.scrollTop(0)
@@ -121,7 +137,7 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
     return () => {
       window.cancelAnimationFrame(frame)
     }
-  }, [pathname, searchParamsKey])
+  }, [pathname])
 
   return (
     <div ref={wrapperRef} className="scroll-smoother-wrapper">
