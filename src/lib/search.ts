@@ -2,6 +2,7 @@ import { fetchWordPressGraphQL } from './wordpress'
 import type { Article } from '@/types/wordpress'
 
 const SEARCH_REVALIDATE_SECONDS = 300
+const SEARCH_MIN_DATE = '2024-01-01T00:00:00'
 
 interface SearchKeywordConnection {
   edges: Array<{
@@ -14,6 +15,8 @@ interface SearchKeywordConnection {
 export interface SearchPost extends Article {
   id: string
   slug: string
+  date?: string
+  dateGmt?: string
   optionsArticles?: Article['optionsArticles'] & {
     keywordSearch?: SearchKeywordConnection
   }
@@ -32,6 +35,8 @@ const SEARCH_POSTS_QUERY = /* GraphQL */ `
         id
         title
         slug
+        date
+        dateGmt
         excerpt
         featuredImage {
           node {
@@ -141,6 +146,20 @@ const getSearchableHaystacks = (post: SearchPost) => {
   ]
 }
 
+const isSearchPostWithinDateRange = (post: SearchPost) => {
+  const rawDate = post.dateGmt ?? post.date
+  if (!rawDate) {
+    return false
+  }
+
+  const timestamp = Date.parse(rawDate)
+  if (Number.isNaN(timestamp)) {
+    return false
+  }
+
+  return timestamp >= Date.parse(SEARCH_MIN_DATE)
+}
+
 export function filterSearchPosts(posts: SearchPost[], term: string) {
   const tokens = tokenizeSearchTerm(term)
   return filterSearchPostsByTokens(posts, tokens)
@@ -152,7 +171,7 @@ export async function searchPosts(first = 120) {
     next: { revalidate: SEARCH_REVALIDATE_SECONDS }
   })
 
-  return data.posts?.nodes ?? []
+  return (data.posts?.nodes ?? []).filter(isSearchPostWithinDateRange)
 }
 
 export async function searchPostsByTerm(term: string, first = 120) {
