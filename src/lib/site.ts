@@ -1,5 +1,6 @@
 import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
 import type { MenuItem, SiteSettings } from '@/types/wordpress'
+import he from 'he'
 
 interface SiteChromeResponse {
   generalSettings: SiteSettings
@@ -68,9 +69,14 @@ export async function getSiteChrome() {
   ])
 
   const faviconUrl = restIndex?.site_icon_url ?? null
+  const settings = data?.generalSettings ?? DEFAULT_SITE_SETTINGS
 
   return {
-    settings: data?.generalSettings ?? DEFAULT_SITE_SETTINGS,
+    settings: {
+      ...settings,
+      title: he.decode(settings.title),
+      description: he.decode(settings.description)
+    },
     headerMenu: data?.headerMenu?.menuItems?.nodes ?? [],
     footerMenu: data?.footerMenu?.menuItems?.nodes ?? [],
     faviconUrl

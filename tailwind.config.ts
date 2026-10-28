@@ -16,6 +16,7 @@ const config: Config = {
         590: '34vw'
       },
       fontFamily: {
+        schnyderCondensed: ['schnyder_condensed_xl_light', 'serif'],
         custom: ['schnyder_xl_weblight', 'sans-serif'],
         montserrat: ['brandon_grotesquelight', 'sans-serif'],
         brandonLight: ['brandon_grotesquelight', 'sans-serif'],

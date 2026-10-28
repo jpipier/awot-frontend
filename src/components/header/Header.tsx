@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
 import Search from '@/components/search/Search'
+import SaltAndPineLogo from './SaltAndPineLogo'
 import { useSiteChrome } from '@/components/providers/SiteChromeProvider'
 
 export default function Header() {
@@ -172,8 +173,8 @@ export default function Header() {
           controlsVisibilityClass
         )}
       >
-        <Link href="/" onClick={closeOverlays}>
-          A way of travel
+        <Link href="/" onClick={closeOverlays} aria-label="Salt & Pine — Accueil">
+          <SaltAndPineLogo />
         </Link>
       </span>
 
@@ -189,9 +190,9 @@ export default function Header() {
             fill="none" 
             stroke="currentColor">
                 <path 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round" 
-                  stroke-width="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth="1.5" 
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
                 </path>
         </svg>
