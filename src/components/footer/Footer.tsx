@@ -13,7 +13,7 @@ interface FooterProps {
 export default function Footer({ postId, canEdit = false }: FooterProps) {
   const { settings, footerMenu: menuItems } = useSiteChrome()
   return (
-    <footer className="relative mt-10 overflow-hidden bg-black py-5 text-white after:absolute after:top-0 after:z-0 after:h-[80px] after:w-full md:after:bg-white h-[250px] md:h-auto">
+    <footer className="relative mt-10 overflow-hidden bg-black pt-20 pb-5 md:py-5 text-white after:absolute after:top-0 after:z-0 after:h-[80px] after:w-full md:after:bg-white h-[310px] md:h-auto">
       <div className="container mx-auto flex flex-col items-center gap-10 px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <div className="elementor-23971 hidden md:flex flex-col space-y-2 pt-20 text-left text-sm uppercase">
           <ul>
@@ -38,7 +38,7 @@ export default function Footer({ postId, canEdit = false }: FooterProps) {
           <p className="mt-2 text-[8pt] uppercase font-montserrat">{settings.description}</p>
         </div>
 
-        <div className="relative flex h-full flex-col items-center space-y-3 lg:items-end lg:justify-self-end">
+        <div className="relative flex h-full flex-col items-center space-y-3 lg:h-0 lg:self-center lg:items-end lg:justify-self-end">
           <div className="h-[200px] md:h-[300px] w-44 lg:w-56 absolute -top-[30px] md:-top-[130px] md:right-[4rem]">
             <Image
               src="/images/image-30-1x-png@1x.png"

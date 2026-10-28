@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -98,16 +98,24 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
   }
 
   return (
-    <div ref={containerRef} data-home-hero-slider className="relative h-[85vh] w-full">
-      <div className="absolute left-1/2 top-1/4 z-20 w-full max-w-full -translate-x-1/2">
-        <div className="mb-[10vh] mt-[-7vh] text-center text-white">
-          <h1 className="font-custom text-[45pt] lg:text-[103pt]">{siteTitle}</h1>
-          <p className="font-montserrat text-[10pt] uppercase lg:text-[17pt] tracking-wider font-extrabold md:font-normal">{siteDescription}</p>
-          <p className="font-montserrat text-[10pt] uppercase lg:text-[10pt] -mt-[10px] md:-mt-[10px] md:mb-[80px] tracking-wider font-extrabold md:font-normal ">(Et plus loin...)</p>
-          <div className="mt-10 max-w-2xl mx-auto">
-            <Search />
+    <div ref={containerRef} data-home-hero-slider className="home-hero relative w-full">
+      <div className="home-hero-brand absolute left-1/2 z-20 w-full -translate-x-1/2 px-6 text-center text-white">
+          <h1 className="home-hero-title font-schnyderCondensed font-light uppercase">
+            {siteTitle.split('&').map((part, index) => (
+              <Fragment key={index}>
+                {index > 0 && (
+                  <span className="home-hero-ampersand inline-block align-baseline">&</span>
+                )}
+                {part.trim()}
+              </Fragment>
+            ))}
+          </h1>
+          <p className="home-hero-baseline font-brandonRegular uppercase">
+            {siteDescription} <span className="whitespace-nowrap">(Et plus loin...)</span>
+          </p>
+          <div className="home-hero-search mx-auto">
+            <Search variant="hero" />
           </div>
-        </div>
       </div>
       <Swiper
         modules={[Autoplay, EffectFade]}
@@ -120,7 +128,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
         fadeEffect={{ crossFade: true }}
         speed={1200}
         autoplay={{ delay: 3000, disableOnInteraction: false }}
-        className="h-[85vh]"
+        className="h-full"
       >
         {slides.map((slide, index) => {
           const imageSrc = slide.img?.node?.guid
@@ -128,7 +136,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
             return null
           }
           const content = (
-            <div className="relative h-screen overflow-hidden">
+            <div className="relative h-full overflow-hidden">
               <div className="absolute inset-0">
                 <Image
                   src={imageSrc}

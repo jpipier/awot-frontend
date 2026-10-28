@@ -17,13 +17,14 @@ interface SearchSuggestion {
 interface SearchProps {
   initialQuery?: string
   onNavigate?: () => void
+  variant?: 'default' | 'hero'
 }
 
 const placeholders = ['un restaurant végétarien ?', 'un hotel ?', 'une idée de sortie ?','un cours de yoga ?', 'une idée cadeau ?']
 const SUGGESTIONS_LIMIT = 6
 const SUGGESTIONS_DEBOUNCE_MS = 150
 
-export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
+export default function Search({ initialQuery = '', onNavigate, variant = 'default' }: SearchProps) {
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
@@ -218,9 +219,15 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
     (isLoadingSuggestions || suggestions.length > 0 || hasSearchedSuggestions)
 
   return (
-    <div className="mx-auto w-full px-3">
-      <div className="relative mx-auto flex w-full max-w-2xl flex-col">
-        <form onSubmit={handleSubmit} className="flex w-full flex-row">
+    <div className={variant === 'hero' ? 'home-hero-search-control mx-auto w-full' : 'mx-auto w-full px-3'}>
+      <div className={`relative mx-auto flex w-full flex-col${variant === 'hero' ? '' : ' max-w-2xl'}`}>
+        <form onSubmit={handleSubmit} className="relative flex w-full flex-row">
+          {variant === 'hero' && (
+            <svg aria-hidden="true" className="home-hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <circle cx="10" cy="10" r="7" />
+              <path d="m15 15 6 6" />
+            </svg>
+          )}
           <input
             type="text"
             value={query}
@@ -233,7 +240,7 @@ export default function Search({ initialQuery = '', onNavigate }: SearchProps) {
             className="rounded-r bg-black px-6 font-montserrat text-[6pt] uppercase tracking-widest text-white transition hover:bg-gray-900 w-[110px]"
             aria-label="Chercher"
           >
-            Let’s go !
+            {variant === 'hero' ? 'Chercher' : 'Let’s go !'}
           </button>
         </form>
 
