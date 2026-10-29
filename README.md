@@ -103,3 +103,17 @@ NEXT_PUBLIC_MATOMO_DISABLE_COOKIES=true
 ## Legacy Nuxt code
 
 All legacy Vue/Nuxt files were moved to `legacy-nuxt/`. They are excluded from the build but can be consulted if you need to compare implementations.
+
+## SEO et changement de domaine (Salt & Pine)
+
+Variables d'environnement liées au SEO :
+
+| Variable | Rôle | Défaut |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Domaine canonique public (ex. `https://saltandpine.fr`). Sert aux canonical, au sitemap, à robots.txt, au JSON-LD et aux redirections. | - |
+| `SEO_LEGACY_HOSTS` | Anciens domaines redirigés en 301 vers `NEXT_PUBLIC_SITE_URL` (liste séparée par des virgules). | `guide-landes-paysbasque.fr,www.guide-landes-paysbasque.fr` |
+| `SEO_NOINDEX_ARCHIVES` | `true` : `noindex, follow` et exclusion du sitemap pour les contenus qui ne sont que dans la catégorie archives. | désactivé |
+| `SEO_ARCHIVE_CATEGORY_ID` | ID WordPress de la catégorie « Archives du blog ». | `1` |
+| `SEO_ARCHIVE_CATEGORY_SLUGS` | Slugs de cette catégorie. | `1,archives-du-blog` |
+
+Les redirections de domaine (`next.config.js`) ne s'activent que si `NEXT_PUBLIC_SITE_URL` est défini. Le nom du site et la description sont dans `src/lib/site-config.ts`.

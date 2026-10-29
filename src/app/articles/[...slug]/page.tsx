@@ -13,6 +13,10 @@ import PostHero from '@/components/article/PostHero'
 import { getArticleLandscapeImage, getArticlePortraitImage } from '@/lib/article-card'
 import { getYoastMetadataForPostSlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
 import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
+import { SITE_DESCRIPTION, SITE_NAME, isArchiveNoindexEnabled, isArchiveOnly } from '@/lib/site-config'
+import { buildArticleJsonLd, buildBreadcrumbJsonLd } from '@/lib/structured-data'
+import { getMetadataBaseUrl } from '@/lib/seo'
+import JsonLd from '@/components/seo/JsonLd'
 
 interface ArticlePageProps {
   params: {
@@ -61,7 +65,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
   const fallback: Metadata = {
     title: title || 'Article',
-    description: description || 'A Way of Travel',
+    description: description || SITE_DESCRIPTION,
     alternates: {
       canonical: article.slug ? `/articles/${article.slug}` : undefined
     },
@@ -82,7 +86,17 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const yoastMetadata =
     (await getYoastMetadataForPostSlug(slugSegment)) ??
     (await getYoastMetadataForWpUrl(article.uri ?? `/${slugSegment}/`))
-  return mergeMetadataWithFallback(yoastMetadata, fallback)
+  const merged = mergeMetadataWithFallback(yoastMetadata, fallback)
+
+  if (isArchiveNoindexEnabled() && isArchiveOnly(getArticleCategorySlugs(article))) {
+    return { ...merged, robots: { index: false, follow: true } }
+  }
+
+  return merged
+}
+
+function getArticleCategorySlugs(article: { categories?: { edges?: Array<{ node: { slug?: string | null } }> } }) {
+  return (article.categories?.edges ?? []).map((edge) => edge.node?.slug)
 }
 
 function extractElementorBodyClasses(content?: string | null) {
@@ -166,8 +180,38 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
     ...(article.hasClassicEditor ? ['built-with-classic'] : [])
   ]
 
+  const siteOrigin = getMetadataBaseUrl()?.origin
+  const articlePath = article.slug ? `/articles/${article.slug}` : null
+  const articleTitle = sanitizeExcerptText(article.title)
+  const mainCategory = article.categories?.edges?.[0]?.node
+  const articleImage = getArticleLandscapeImage(article) || getArticlePortraitImage(article)
+  const jsonLd =
+    siteOrigin && articlePath && !isPreviewRoute
+      ? [
+          buildArticleJsonLd({
+            origin: siteOrigin,
+            path: articlePath,
+            title: articleTitle || SITE_NAME,
+            description: toSeoDescription(article.excerpt ?? article.content ?? article.elementorContent) || undefined,
+            image: articleImage,
+            datePublished: article.date,
+            dateModified: article.modified,
+            authorName: article.author?.node?.name,
+            section: mainCategory?.name
+          }),
+          buildBreadcrumbJsonLd(siteOrigin, [
+            { name: 'Accueil', path: '/' },
+            ...(mainCategory?.slug && mainCategory.name
+              ? [{ name: mainCategory.name, path: `/categories/${mainCategory.slug}` }]
+              : []),
+            { name: articleTitle || SITE_NAME, path: articlePath }
+          ])
+        ]
+      : null
+
   return (
     <div className="article-container font-brandon_grotesquelight overflow-x-hidden">
+      {jsonLd ? <JsonLd data={jsonLd} /> : null}
       <ElementorStylesLoader cssBundle={cssBundle} bodyClasses={bodyClasses.length ? bodyClasses : undefined} isBuiltWithElementor={isElementor} />
       <ElementorScriptsLoader assets={elementorAssets} />
       <ElementorHeadingAnimator />

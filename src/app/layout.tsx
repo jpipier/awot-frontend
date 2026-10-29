@@ -10,6 +10,9 @@ import IosInputZoomGuard from '@/components/providers/IosInputZoomGuard'
 import { AnalyticsConsentProvider } from '@/components/analytics/AnalyticsConsent'
 import MatomoTracker from '@/components/analytics/MatomoTracker'
 import { getMetadataBaseUrl } from '@/lib/seo'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE_TEMPLATE } from '@/lib/site-config'
+import { buildWebSiteJsonLd } from '@/lib/structured-data'
+import JsonLd from '@/components/seo/JsonLd'
 
 const lato = Lato({
   subsets: ['latin'],
@@ -22,25 +25,25 @@ const lato = Lato({
 export const metadata: Metadata = {
   metadataBase: getMetadataBaseUrl(),
   title: {
-    default: 'A Way of Travel',
-    template: '%s | A Way of Travel'
+    default: SITE_NAME,
+    template: SITE_TITLE_TEMPLATE
   },
-  description: 'Guide Landes & Pays Basque - A Way of Travel',
+  description: SITE_DESCRIPTION,
   alternates: {
     canonical: '/'
   },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    siteName: 'A Way of Travel',
-    title: 'A Way of Travel',
-    description: 'Guide Landes & Pays Basque - A Way of Travel',
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
     url: '/'
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'A Way of Travel',
-    description: 'Guide Landes & Pays Basque - A Way of Travel'
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION
   }
 }
 
@@ -56,6 +59,7 @@ export default async function RootLayout({
 }) {
   const siteChrome = await getSiteChrome()
   const faviconHref = siteChrome.faviconUrl ?? '/favicon.ico'
+  const siteOrigin = getMetadataBaseUrl()?.origin
 
   return (
     <html lang="fr" className={lato.variable}>
@@ -64,6 +68,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href={faviconHref} />
       </head>
       <body>
+        {siteOrigin ? <JsonLd data={buildWebSiteJsonLd(siteOrigin)} /> : null}
         <AnalyticsConsentProvider>
           <Suspense fallback={null}>
             <MatomoTracker />

@@ -1,5 +1,45 @@
 /** @type {import('next').NextConfig} */
+const LEGACY_HOSTS = (process.env.SEO_LEGACY_HOSTS || 'guide-landes-paysbasque.fr,www.guide-landes-paysbasque.fr')
+  .split(',')
+  .map((host) => host.trim())
+  .filter(Boolean)
+
+function getCanonicalOrigin() {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || ''
+
+  try {
+    return raw ? new URL(raw).origin : null
+  } catch {
+    return null
+  }
+}
+
 const nextConfig = {
+  // Redirections 301 de domaine : actives uniquement quand le domaine canonique
+  // (NEXT_PUBLIC_SITE_URL) est différent des anciens domaines. Aucun effet tant que
+  // le site est encore servi sur l'ancien domaine.
+  async redirects() {
+    const origin = getCanonicalOrigin()
+
+    if (!origin) {
+      return []
+    }
+
+    const canonicalHost = new URL(origin).host
+    const hosts = new Set(LEGACY_HOSTS.filter((host) => host !== canonicalHost))
+
+    if (!canonicalHost.startsWith('www.')) {
+      hosts.add(`www.${canonicalHost}`)
+    }
+
+    return Array.from(hosts).map((host) => ({
+      source: '/:path*',
+      has: [{ type: 'host', value: host }],
+      destination: `${origin}/:path*`,
+      permanent: true
+    }))
+  },
+
   reactStrictMode: true,
   output: 'standalone',
   experimental: {

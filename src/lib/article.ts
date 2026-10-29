@@ -75,6 +75,13 @@ const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
   isBuiltWithElementor
   uri
   slug
+  date
+  modified
+  author {
+    node {
+      name
+    }
+  }
   optionsArticles {
     champsLibre
     champsLibrePageAccueil

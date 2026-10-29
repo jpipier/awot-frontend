@@ -9,6 +9,7 @@ import { getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
 import { getYoastMetadataForPageSlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
 import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
+import { SITE_DESCRIPTION } from '@/lib/site-config'
 
 interface GenericPageProps {
   params: {
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: GenericPageProps): Promise<Me
   const description = toSeoDescription(page.content ?? page.elementorContent)
   const fallback: Metadata = {
     title: title || 'Page',
-    description: description || 'A Way of Travel',
+    description: description || SITE_DESCRIPTION,
     alternates: {
       canonical: path ? `/${path}` : '/'
     }
