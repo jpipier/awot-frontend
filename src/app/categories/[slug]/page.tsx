@@ -5,6 +5,7 @@ import CategoryPageClient from '@/components/categories/CategoryPageClient'
 import { getCategoryPage, getCategoryPunchlineBySlug, getFiltres, getLocalisations } from '@/lib/categories'
 import { getYoastMetadataForCategorySlug, getYoastMetadataForWpUrl, mergeMetadataWithFallback, toSeoDescription } from '@/lib/seo'
 import { sanitizeExcerptText } from '@/lib/sanitize-excerpt-text'
+import { getArchiveCategorySlugs, isArchiveNoindexEnabled } from '@/lib/site-config'
 
 interface CategoryPageProps {
   params: {
@@ -43,7 +44,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const yoastMetadata =
     (await getYoastMetadataForCategorySlug(slug)) ??
     (await getYoastMetadataForWpUrl(category.link ?? category.uri ?? `/category/${slug}/`))
-  return mergeMetadataWithFallback(yoastMetadata, fallback)
+  const merged = mergeMetadataWithFallback(yoastMetadata, fallback)
+
+  if (isArchiveNoindexEnabled() && getArchiveCategorySlugs().includes(slug)) {
+    return { ...merged, robots: { index: false, follow: true } }
+  }
+
+  return merged
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

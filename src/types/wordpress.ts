@@ -197,6 +197,13 @@ export interface Article {
   }
   excerpt?: string | null
   slug?: string
+  date?: string | null
+  modified?: string | null
+  author?: {
+    node?: {
+      name?: string | null
+    }
+  } | null
   categories?: {
     edges: Array<{
       node: CategoryNode

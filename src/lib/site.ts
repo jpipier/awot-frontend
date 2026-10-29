@@ -1,6 +1,7 @@
 import { fetchWordPressGraphQL, fetchWordPressRest } from './wordpress'
 import type { MenuItem, SiteSettings } from '@/types/wordpress'
 import he from 'he'
+import { SITE_DESCRIPTION, SITE_NAME } from './site-config'
 
 interface SiteChromeResponse {
   generalSettings: SiteSettings
@@ -21,8 +22,8 @@ interface WordPressRestIndexResponse {
 }
 
 const DEFAULT_SITE_SETTINGS: SiteSettings = {
-  title: 'A Way of Travel',
-  description: 'Guide Landes & Pays Basque - A Way of Travel'
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION
 }
 
 const SITE_CHROME_QUERY = /* GraphQL */ `

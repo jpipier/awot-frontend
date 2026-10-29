@@ -13,11 +13,12 @@ import InstagramFeed from '@/components/social/InstagramFeed'
 import { getHomePage } from '@/lib/home'
 import type { HomePageBloc } from '@/types/wordpress'
 import { getYoastMetadataForWpPath, mergeMetadataWithFallback } from '@/lib/seo'
+import { SITE_DESCRIPTION, SITE_NAME } from '@/lib/site-config'
 
 export async function generateMetadata(): Promise<Metadata> {
   const fallback: Metadata = {
-    title: { absolute: 'Accueil - A Way of Travel' },
-    description: 'Guide Landes & Pays Basque - A Way of Travel',
+    title: { absolute: `${SITE_NAME} : guide des Landes et du Pays Basque` },
+    description: SITE_DESCRIPTION,
     alternates: {
       canonical: '/'
     }
