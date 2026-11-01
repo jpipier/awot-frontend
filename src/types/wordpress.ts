@@ -179,9 +179,43 @@ export interface Article {
       node: CategoryNode
     }>
   }
+  coordonnees?: {
+    adresse?: string | null
+    telephone?: string | null
+    instagram?: string | null
+    siteInternet?: string | null
+  } | null
+  filtres?: {
+    nodes: Array<{
+      id?: string
+      name?: string
+      slug: string
+      filtreChamps?: {
+        pictoHover?: {
+          node?: WPImage
+        } | null
+        picto_hover?: {
+          node?: WPImage
+        } | null
+        picto?: {
+          node?: WPImage
+        } | null
+      } | null
+    }>
+  }
   optionsArticles?: {
     champsLibre?: string | null
     champsLibrePageAccueil?: string | null
+    coordonnees?: {
+      adresse?: string | null
+      telephone?: string | null
+      instagram?: string | null
+      siteInternet?: string | null
+    } | null
+    adresse?: string | null
+    telephone?: string | null
+    instagram?: string | null
+    siteInternet?: string | null
     video?: {
       node?: WPImage
     }

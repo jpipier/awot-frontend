@@ -65,7 +65,7 @@ interface VcSingleImageShortcode {
   alignment?: string
 }
 
-const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
+const ARTICLE_BASE_QUERY_FIELDS = /* GraphQL */ `
   databaseId
   title
   excerpt
@@ -78,6 +78,11 @@ const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
   optionsArticles {
     champsLibre
     champsLibrePageAccueil
+  }
+`
+
+const ARTICLE_OPTIONS_MEDIA_QUERY_FIELDS = /* GraphQL */ `
+  optionsArticles {
     video {
       node {
         guid
@@ -106,6 +111,54 @@ const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
       }
     }
   }
+`
+
+const ARTICLE_OPTIONAL_CONTACT_FIELDS = /* GraphQL */ `
+  coordonnees {
+    adresse
+    telephone
+    instagram
+    siteInternet
+  }
+`
+
+const ARTICLE_OPTIONAL_CONTACT_FIELDS_LEGACY = /* GraphQL */ `
+  optionsArticles {
+    adresse
+    telephone
+    instagram
+    siteInternet
+  }
+`
+
+function buildArticleOptionalFiltresFields(hoverFieldName: 'pictoHover' | 'picto_hover' | 'picto') {
+  return /* GraphQL */ `
+  filtres {
+    nodes {
+      id
+      name
+      slug
+      filtreChamps {
+        ${hoverFieldName} {
+          node {
+            sourceUrl
+            mediaItemUrl
+            altText
+          }
+        }
+      }
+    }
+  }
+`
+}
+
+const ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL = buildArticleOptionalFiltresFields('pictoHover')
+const ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE = buildArticleOptionalFiltresFields('picto_hover')
+const ARTICLE_OPTIONAL_FILTRES_FIELDS_LEGACY = buildArticleOptionalFiltresFields('picto')
+
+const ARTICLE_COMMON_QUERY_FIELDS = /* GraphQL */ `
+  ${ARTICLE_BASE_QUERY_FIELDS}
+  ${ARTICLE_OPTIONS_MEDIA_QUERY_FIELDS}
   featuredImage {
     node {
       guid
@@ -146,21 +199,49 @@ const ARTICLE_QUERY_FIELDS = /* GraphQL */ `
   }
 `
 
-const ARTICLE_BY_SLUG_QUERY = /* GraphQL */ `
-  query GetPostBySlug($slug: String!) {
-    postBy(slug: $slug) {
-      ${ARTICLE_QUERY_FIELDS}
+function buildArticleBySlugQuery(extraFields = '') {
+  return /* GraphQL */ `
+    query GetPostBySlug($slug: String!) {
+      postBy(slug: $slug) {
+        ${ARTICLE_COMMON_QUERY_FIELDS}
+        ${extraFields}
+      }
     }
-  }
-`
+  `
+}
 
-const ARTICLE_BY_DATABASE_ID_QUERY = /* GraphQL */ `
-  query GetPostByDatabaseId($id: ID!, $asPreview: Boolean!) {
-    post(id: $id, idType: DATABASE_ID, asPreview: $asPreview) {
-      ${ARTICLE_QUERY_FIELDS}
+function buildArticleByDatabaseIdQuery(extraFields = '') {
+  return /* GraphQL */ `
+    query GetPostByDatabaseId($id: ID!, $asPreview: Boolean!) {
+      post(id: $id, idType: DATABASE_ID, asPreview: $asPreview) {
+        ${ARTICLE_COMMON_QUERY_FIELDS}
+        ${extraFields}
+      }
     }
-  }
-`
+  `
+}
+
+const ARTICLE_SLUG_QUERY_CANDIDATES = [
+  buildArticleBySlugQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL}`),
+  buildArticleBySlugQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE}`),
+  buildArticleBySlugQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS_LEGACY}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL}`),
+  buildArticleBySlugQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS_LEGACY}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE}`),
+  buildArticleBySlugQuery(ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL),
+  buildArticleBySlugQuery(ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE),
+  buildArticleBySlugQuery(ARTICLE_OPTIONAL_FILTRES_FIELDS_LEGACY),
+  buildArticleBySlugQuery('')
+]
+
+const ARTICLE_DATABASE_ID_QUERY_CANDIDATES = [
+  buildArticleByDatabaseIdQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL}`),
+  buildArticleByDatabaseIdQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE}`),
+  buildArticleByDatabaseIdQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS_LEGACY}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL}`),
+  buildArticleByDatabaseIdQuery(`${ARTICLE_OPTIONAL_CONTACT_FIELDS_LEGACY}\n${ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE}`),
+  buildArticleByDatabaseIdQuery(ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_CAMEL),
+  buildArticleByDatabaseIdQuery(ARTICLE_OPTIONAL_FILTRES_FIELDS_HOVER_SNAKE),
+  buildArticleByDatabaseIdQuery(ARTICLE_OPTIONAL_FILTRES_FIELDS_LEGACY),
+  buildArticleByDatabaseIdQuery('')
+]
 
 const VC_SINGLE_IMAGE_REGEX = /\[vc_single_image([^\]]*)\]/gi
 const VC_SINGLE_IMAGE_BLOCK_REGEX = /<p>\s*(\[vc_single_image[^\]]*\])\s*<\/p>|(\[vc_single_image[^\]]*\])/gi
@@ -177,11 +258,7 @@ const SUPPORTED_VC_SHORTCODES = new Set([
 
 export async function getArticleBySlug(slug: string) {
   try {
-    const data = await fetchWordPressGraphQL<ArticleResponse>(ARTICLE_BY_SLUG_QUERY, {
-      variables: { slug },
-      next: { revalidate: ARTICLE_REVALIDATE_SECONDS },
-      headers: getWordPressContentAuthHeaders()
-    })
+    const data = await fetchArticleBySlugWithFallback(slug)
 
     return resolveArticle(data.postBy ?? null)
   } catch (error) {
@@ -198,20 +275,52 @@ export async function getArticleByDatabaseId(databaseId: number, options?: { asP
   const asPreview = options?.asPreview ?? false
 
   try {
-    const data = await fetchWordPressGraphQL<ArticleByDatabaseIdResponse>(ARTICLE_BY_DATABASE_ID_QUERY, {
-      variables: {
-        id: String(databaseId),
-        asPreview
-      },
-      ...(asPreview ? { cache: 'no-store' as const } : { next: { revalidate: ARTICLE_REVALIDATE_SECONDS } }),
-      headers: getWordPressContentAuthHeaders()
-    })
+    const data = await fetchArticleByDatabaseIdWithFallback(databaseId, asPreview)
 
     return resolveArticle(data.post ?? null)
   } catch (error) {
     console.warn(`Failed to load article by database id "${databaseId}"`, error)
     return null
   }
+}
+
+async function fetchArticleBySlugWithFallback(slug: string) {
+  let lastError: unknown = null
+
+  for (const query of ARTICLE_SLUG_QUERY_CANDIDATES) {
+    try {
+      return await fetchWordPressGraphQL<ArticleResponse>(query, {
+        variables: { slug },
+        next: { revalidate: ARTICLE_REVALIDATE_SECONDS },
+        headers: getWordPressContentAuthHeaders()
+      })
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  throw lastError ?? new Error(`Failed to load article by slug "${slug}"`)
+}
+
+async function fetchArticleByDatabaseIdWithFallback(databaseId: number, asPreview: boolean) {
+  let lastError: unknown = null
+
+  for (const query of ARTICLE_DATABASE_ID_QUERY_CANDIDATES) {
+    try {
+      return await fetchWordPressGraphQL<ArticleByDatabaseIdResponse>(query, {
+        variables: {
+          id: String(databaseId),
+          asPreview
+        },
+        ...(asPreview ? { cache: 'no-store' as const } : { next: { revalidate: ARTICLE_REVALIDATE_SECONDS } }),
+        headers: getWordPressContentAuthHeaders()
+      })
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  throw lastError ?? new Error(`Failed to load article by database id "${databaseId}"`)
 }
 
 async function resolveArticle(article: ArticleNode | null) {

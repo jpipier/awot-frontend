@@ -7,6 +7,7 @@ import ElementorStylesLoader from '@/components/ElementorStylesLoader'
 import ElementorScriptsLoader from '@/components/ElementorScriptsLoader'
 import StickyWatcher from '@/components/article/StickyWatcher'
 import ElementorHeadingAnimator from '@/components/article/ElementorHeadingAnimator'
+import PostSpotDetails from '@/components/article/PostSpotDetails'
 import { getArticleByDatabaseId, getArticleBySlug, getElementorCssBundle, getElementorJsAssets } from '@/lib/article'
 import { hasWordPressEditorSessionCookie } from '@/lib/wordpress'
 import PostHero from '@/components/article/PostHero'
@@ -179,6 +180,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
           dangerouslySetInnerHTML={{ __html: article.elementorContent ?? article.content ?? '' }}
         />
       </section>
+      <PostSpotDetails article={article} />
       <PostFooter
         categories={article.categories?.edges?.map((e) => e.node)}
         excludeSlug={article.slug}
