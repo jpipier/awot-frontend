@@ -37,7 +37,7 @@ html p{
   margin-inline: 0.12em;
   font-size: 0.45em;
   line-height: 1;
-  letter-spacing: 0;
+  letter-spacing: 15px;
 }
 
 .home-hero-baseline {
