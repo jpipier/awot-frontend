@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: GenericPageProps): Promise<Me
   const description = toSeoDescription(page.content ?? page.elementorContent)
   const fallback: Metadata = {
     title: title || 'Page',
-    description: description || 'A Way of Travel',
+    description: description || 'Salt & Pine',
     alternates: {
       canonical: path ? `/${path}` : '/'
     }

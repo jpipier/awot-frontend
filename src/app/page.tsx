@@ -16,8 +16,8 @@ import { getYoastMetadataForWpPath, mergeMetadataWithFallback } from '@/lib/seo'
 
 export async function generateMetadata(): Promise<Metadata> {
   const fallback: Metadata = {
-    title: { absolute: 'Accueil - A Way of Travel' },
-    description: 'Guide Landes & Pays Basque - A Way of Travel',
+    title: { absolute: 'Accueil - Salt & Pine' },
+    description: 'Guide Landes & Pays Basque - Salt & Pine',
     alternates: {
       canonical: '/'
     }

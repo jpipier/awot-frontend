@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
   const fallback: Metadata = {
     title: title || 'Article',
-    description: description || 'A Way of Travel',
+    description: description || 'Salt & Pine',
     alternates: {
       canonical: article.slug ? `/articles/${article.slug}` : undefined
     },
@@ -179,6 +179,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
           dangerouslySetInnerHTML={{ __html: article.elementorContent ?? article.content ?? '' }}
         />
       </section>
+      <PostSpotDetails article={article} />
       <PostFooter
         categories={article.categories?.edges?.map((e) => e.node)}
         excludeSlug={article.slug}

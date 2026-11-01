@@ -21,8 +21,8 @@ interface WordPressRestIndexResponse {
 }
 
 const DEFAULT_SITE_SETTINGS: SiteSettings = {
-  title: 'A Way of Travel',
-  description: 'Guide Landes & Pays Basque - A Way of Travel'
+  title: 'Salt & Pine',
+  description: 'Guide Landes & Pays Basque - Salt & Pine'
 }
 
 const SITE_CHROME_QUERY = /* GraphQL */ `

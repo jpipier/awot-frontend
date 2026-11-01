@@ -32,7 +32,7 @@ export default function Footer({ postId, canEdit = false }: FooterProps) {
               alt="Salt & Pine"
               width={160}
               height={66}
-              className="h-auto w-40"
+              className="h-auto w-20"
             />
           </h2>
           <p className="mt-2 text-[8pt] uppercase font-montserrat">{settings.description}</p>

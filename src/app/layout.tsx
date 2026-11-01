@@ -22,25 +22,25 @@ const lato = Lato({
 export const metadata: Metadata = {
   metadataBase: getMetadataBaseUrl(),
   title: {
-    default: 'A Way of Travel',
-    template: '%s | A Way of Travel'
+    default: 'Salt & Pine',
+    template: '%s | Salt & Pine'
   },
-  description: 'Guide Landes & Pays Basque - A Way of Travel',
+  description: 'Guide Landes & Pays Basque - Salt & Pine',
   alternates: {
     canonical: '/'
   },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    siteName: 'A Way of Travel',
-    title: 'A Way of Travel',
-    description: 'Guide Landes & Pays Basque - A Way of Travel',
+    siteName: 'Salt & Pine',
+    title: 'Salt & Pine',
+    description: 'Guide Landes & Pays Basque - Salt & Pine',
     url: '/'
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'A Way of Travel',
-    description: 'Guide Landes & Pays Basque - A Way of Travel'
+    title: 'Salt & Pine',
+    description: 'Guide Landes & Pays Basque - Salt & Pine'
   }
 }
 
