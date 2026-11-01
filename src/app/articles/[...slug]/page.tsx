@@ -179,7 +179,6 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
           dangerouslySetInnerHTML={{ __html: article.elementorContent ?? article.content ?? '' }}
         />
       </section>
-      <PostSpotDetails article={article} />
       <PostFooter
         categories={article.categories?.edges?.map((e) => e.node)}
         excludeSlug={article.slug}
