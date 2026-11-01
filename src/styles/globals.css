@@ -165,6 +165,11 @@ a {
   will-change: transform;
 }
 
+/* ScrollSmoother owns the animation; native smoothing also animates its scroll resets. */
+html[data-scroll-smoother='enabled'] {
+  scroll-behavior: auto !important;
+}
+
 @media (max-width: 1024px), (hover: none), (pointer: coarse) {
   html {
     scroll-behavior: auto !important;
