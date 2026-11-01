@@ -122,8 +122,6 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
         slidesPerView={1}
         spaceBetween={0}
         loop={loop}
-        preventClicks={false}
-        preventClicksPropagation={false}
         effect="fade"
         fadeEffect={{ crossFade: true }}
         speed={1200}
@@ -139,6 +137,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
             <div className="relative h-full overflow-hidden">
               <div className="absolute inset-0">
                 <Image
+                  draggable={false}
                   src={imageSrc}
                   alt={slide.titre ?? `Slide ${index + 1}`}
                   fill

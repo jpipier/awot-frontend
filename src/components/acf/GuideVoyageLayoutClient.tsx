@@ -1047,9 +1047,6 @@ export default function GuideVoyageLayoutClient({
             thresholdTime: 420,
             sensitivity: 0.6
           }}
-          touchStartPreventDefault={false}
-          preventClicks={false}
-          preventClicksPropagation={false}
           onHashSet={clearUrlHash}
           onSwiper={(instance) => {
             swiperInstanceRef.current = instance
@@ -1104,6 +1101,7 @@ export default function GuideVoyageLayoutClient({
                         className="relative w-full overflow-hidden aspect-[4/5] md:aspect-auto md:h-[420px] lg:h-[380px] xl:h-[480px] 3xl:h-[540px]"
                       >
                         <Image
+                          draggable={false}
                           src={portraitSrc}
                           alt={portraitAlt}
                           fill

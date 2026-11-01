@@ -579,9 +579,6 @@ export default function PortraitLayoutClient({
                 thresholdTime: 420,
                 sensitivity: 0.6
               }}
-              touchStartPreventDefault={false}
-              preventClicks={false}
-              preventClicksPropagation={false}
               onSwiper={(instance) => {
                 swiperInstanceRef.current = instance
               }}
@@ -637,6 +634,7 @@ export default function PortraitLayoutClient({
                           style={isVisible ? { transitionDelay: `${itemDelay}ms` } : undefined}
                         >
                           <Image
+                            draggable={false}
                             src={imageSrc}
                             alt={imageNode?.altText ?? post.title}
                             fill

@@ -581,9 +581,6 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
               thresholdTime: 420,
               sensitivity: 0.6
             }}
-            touchStartPreventDefault={false}
-            preventClicks={false}
-            preventClicksPropagation={false}
             onHashSet={clearUrlHash}
           >
             {posts.map((post) => {
@@ -625,6 +622,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                           className="relative w-full overflow-hidden aspect-[3/2] md:aspect-auto md:h-[450px] lg:h-[80vh]"
                         >
                           <Image
+                            draggable={false}
                             src={slideImageSrc}
                             alt={slideImageAlt}
                             fill

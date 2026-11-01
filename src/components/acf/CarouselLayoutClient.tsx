@@ -807,9 +807,6 @@ export default function CarouselLayoutClient({
               thresholdTime: 420,
               sensitivity: 0.6
             }}
-            touchStartPreventDefault={false}
-            preventClicks={false}
-            preventClicksPropagation={false}
             onSwiper={(instance) => {
               swiperInstanceRef.current = instance
             }}
@@ -875,6 +872,7 @@ export default function CarouselLayoutClient({
                           className={`relative w-full overflow-hidden ${imageWrapperHeightClass}`}
                         >
                           <Image
+                            draggable={false}
                             src={imageSrc}
                             alt={imageAlt}
                             fill
