@@ -18,8 +18,6 @@ import 'swiper/css/pagination'
 const UNIFORM_HEIGHT_TITLES = new Set(['food', 'hebergement', 'hebergements', 'voyage', 'voyages'])
 const BASE_DELAY_MS = 250
 const STAGGER_DELAY_MS = 150
-const SCROLL_ANIMATED_ITEM_COUNT = 3
-const SCROLL_ANIMATION_END = 0.5
 const DESKTOP_MEDIA_QUERY = '(min-width: 1024px)'
 const TRANSITION_PUSH_OFFSET_S = 0.58
 const TRANSITION_MAX_WAIT_MS = 45000
@@ -85,18 +83,12 @@ function AnimatedCarouselItem({
   className,
   delay = 0,
   forceVisible = false,
-  scrollProgress,
-  scrollWindow = 1,
-  scrollIndex = 0,
   shouldForceSettled = false
 }: {
   children: ReactNode
   className?: string
   delay?: number
   forceVisible?: boolean
-  scrollProgress?: number
-  scrollWindow?: number
-  scrollIndex?: number
   shouldForceSettled?: boolean
 }) {
   const [isVisible, setIsVisible] = useState(false)
@@ -110,8 +102,10 @@ function AnimatedCarouselItem({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const next = entry.isIntersecting
-        setIsVisible((prev) => (prev === next ? prev : next))
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+          observer.disconnect()
+        }
       },
       { threshold: 0.3 }
     )
@@ -124,28 +118,17 @@ function AnimatedCarouselItem({
   }, [])
 
   const effectiveVisible = forceVisible || isVisible
-  const hasScrollProgress = typeof scrollProgress === 'number'
-  const startThreshold = scrollWindow * scrollIndex
-  const normalizedScroll = hasScrollProgress
-    ? Math.min(Math.max((scrollProgress - startThreshold) / (scrollWindow || 1), 0), 1)
-    : null
-
   const stateClass = effectiveVisible ? 'carousel-animated-item--visible' : 'carousel-animated-item--hidden'
-  const combinedClassName = ['carousel-animated-item', !hasScrollProgress ? stateClass : '', className]
+  const combinedClassName = ['carousel-animated-item', stateClass, className]
     .filter(Boolean)
     .join(' ')
 
-  const opacityTarget = shouldForceSettled ? 1 : normalizedScroll ?? (effectiveVisible ? 1 : 0)
-  const translateAmount = shouldForceSettled ? 0 : (1 - opacityTarget) * 60
-  const style: CSSProperties = {
-    opacity: opacityTarget,
-    transform: `translate3d(${translateAmount}px, 0, 0)`
-  }
+  const style: CSSProperties = {}
 
   if (shouldForceSettled) {
     style.transition = 'none'
     style.transitionDelay = '0ms'
-  } else if (!hasScrollProgress && effectiveVisible) {
+  } else if (effectiveVisible) {
     style.transitionDelay = `${Math.max(delay, 0)}ms`
   }
 
@@ -172,7 +155,6 @@ export default function CarouselLayoutClient({
   const [isContentVisible, setIsContentVisible] = useState(false)
   const [titleScrollProgress, setTitleScrollProgress] = useState(0)
   const [isCarouselVisible, setIsCarouselVisible] = useState(false)
-  const [carouselScrollProgress, setCarouselScrollProgress] = useState(0)
   const [shouldForceSettled, setShouldForceSettled] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
   const headlineRef = useRef<HTMLHeadingElement | null>(null)
@@ -181,7 +163,6 @@ export default function CarouselLayoutClient({
   const headlineTransition: CSSProperties = { transitionDelay: isHeadlineVisible ? '80ms' : '0ms' }
   const titleTransition: CSSProperties = { transitionDelay: isTitleVisible ? '120ms' : '0ms' }
   const contentTransition: CSSProperties = { transitionDelay: isContentVisible ? '480ms' : '0ms' }
-  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const swiperInstanceRef = useRef<SwiperInstance | null>(null)
   const slideImageRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const transitionElementsRef = useRef<{
@@ -437,14 +418,6 @@ export default function CarouselLayoutClient({
   }, [])
   useEffect(() => {
     return () => {
-      if (resetTimeoutRef.current) {
-        clearTimeout(resetTimeoutRef.current)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
       clearTransitionElements()
     }
   }, [clearTransitionElements])
@@ -504,7 +477,10 @@ export default function CarouselLayoutClient({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsCarouselVisible(entry.isIntersecting)
+        if (entry.isIntersecting) {
+          setIsCarouselVisible(true)
+          observer.disconnect()
+        }
       },
       { threshold: 0.1 }
     )
@@ -513,47 +489,6 @@ export default function CarouselLayoutClient({
 
     return () => {
       observer.disconnect()
-    }
-  }, [])
-  useEffect(() => {
-    const section = sectionRef.current
-    if (!section) {
-      return
-    }
-    let frame = 0
-    const updateProgress = () => {
-      frame = 0
-      const rect = section.getBoundingClientRect()
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1
-      const totalDistance = rect.height + viewportHeight
-      const distance = viewportHeight - rect.top
-      const nextProgress = Math.min(Math.max(distance / totalDistance, 0), 1)
-      setCarouselScrollProgress((prev) => {
-        if (Math.abs(prev - nextProgress) < 0.01) {
-          return prev
-        }
-        return nextProgress
-      })
-    }
-
-    updateProgress()
-
-    const handleScroll = () => {
-      if (frame) {
-        return
-      }
-      frame = window.requestAnimationFrame(updateProgress)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
-
-    return () => {
-      if (frame) {
-        window.cancelAnimationFrame(frame)
-      }
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
     }
   }, [])
   useEffect(() => {
@@ -707,29 +642,9 @@ export default function CarouselLayoutClient({
   ]
     .filter(Boolean)
     .join(' ')
-  const scrollAnimatedCount = Math.min(posts.length, SCROLL_ANIMATED_ITEM_COUNT)
-  const scrollWindow =
-    scrollAnimatedCount > 0 ? SCROLL_ANIMATION_END / scrollAnimatedCount : 1
-  const scheduleSettledReset = () => {
-    if (resetTimeoutRef.current) {
-      clearTimeout(resetTimeoutRef.current)
-    }
-    resetTimeoutRef.current = setTimeout(() => {
-      setShouldForceSettled(false)
-      resetTimeoutRef.current = null
-    }, 220)
-  }
   const handleSlideMotionStart = () => {
-    if (!shouldForceSettled) {
-      setShouldForceSettled(true)
-    }
-    if (resetTimeoutRef.current) {
-      clearTimeout(resetTimeoutRef.current)
-      resetTimeoutRef.current = null
-    }
-  }
-  const handleSlideMotionEnd = () => {
-    scheduleSettledReset()
+    // Once Swiper is used, looping must never replay the entrance animation.
+    setShouldForceSettled(true)
   }
 
   const viewAllHref = link?.url ?? (categorySlug ? `/categories/${categorySlug}` : undefined)
@@ -737,7 +652,7 @@ export default function CarouselLayoutClient({
   const viewAllTarget = link?.target ?? undefined
   const viewAllRel = viewAllTarget === '_blank' ? 'noreferrer' : undefined
   const sectionClassName = [
-    'mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0',
+    'awot-editorial-carousel mx-auto max-w-screen-full px-6 sm:px-10 lg:px-0',
     shouldForceSettled ? 'carousel-animations-disabled' : ''
   ]
     .filter(Boolean)
@@ -814,13 +729,9 @@ export default function CarouselLayoutClient({
             onSliderMove={handleSlideMotionStart}
             onTouchStart={handleSlideMotionStart}
             onTransitionStart={handleSlideMotionStart}
-            onTouchEnd={handleSlideMotionEnd}
-            onTransitionEnd={handleSlideMotionEnd}
-            onSlideChangeTransitionEnd={handleSlideMotionEnd}
           >
             {posts.map((post, index) => {
               const itemDelay = BASE_DELAY_MS + index * STAGGER_DELAY_MS
-              const useScrollReveal = index < scrollAnimatedCount
               const localisationLabel = buildLocalisationLabel(post)
               const portraitNode = post.optionsArticles?.imagePortait?.node
               const paysageNode = post.optionsArticles?.imagePaysage?.node
@@ -836,13 +747,6 @@ export default function CarouselLayoutClient({
                     className="group relative"
                     delay={itemDelay}
                     forceVisible={isCarouselVisible}
-                    {...(useScrollReveal
-                      ? {
-                          scrollProgress: carouselScrollProgress,
-                          scrollWindow,
-                          scrollIndex: index
-                        }
-                      : {})}
                     shouldForceSettled={shouldForceSettled}
                   >
                     <Link
@@ -940,16 +844,16 @@ export default function CarouselLayoutClient({
         </div>
       </div>
       <style jsx global>{`
-        .carousel-animated-item {
+        .awot-editorial-carousel .carousel-animated-item {
           will-change: transform, opacity;
-          transition: transform 1.9s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.9s cubic-bezier(0.19, 1, 0.22, 1);
+          transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease-out;
         }
-        .carousel-animated-item--hidden {
+        .awot-editorial-carousel .carousel-animated-item--hidden {
           opacity: 0;
-          transform: translateX(60px);
+          transform: translateY(24px);
           transition-delay: 0ms !important;
         }
-        .carousel-animated-item--visible {
+        .awot-editorial-carousel .carousel-animated-item--visible {
           opacity: 1;
           transform: translateX(0);
         }
@@ -982,7 +886,7 @@ export default function CarouselLayoutClient({
           object-fit: cover;
           z-index: 9997;
         }
-        .carousel-animations-disabled .carousel-animated-item {
+        .awot-editorial-carousel.carousel-animations-disabled .carousel-animated-item {
           transition: none !important;
           transition-delay: 0ms !important;
           transform: translate3d(0, 0, 0) !important;

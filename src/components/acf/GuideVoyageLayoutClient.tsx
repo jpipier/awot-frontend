@@ -1144,16 +1144,16 @@ export default function GuideVoyageLayoutClient({
         </Swiper>
       </div>
       <style jsx global>{`
-        .carousel-animated-item {
+        .guide-voyage-carousel .carousel-animated-item {
           will-change: transform, opacity;
           transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease-out;
         }
-        .carousel-animated-item--hidden {
+        .guide-voyage-carousel .carousel-animated-item--hidden {
           opacity: 0;
           transform: translateX(24px);
           transition-delay: 0ms !important;
         }
-        .carousel-animated-item--visible {
+        .guide-voyage-carousel .carousel-animated-item--visible {
           opacity: 1;
           transform: translateX(0);
         }
