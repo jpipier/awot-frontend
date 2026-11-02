@@ -32,12 +32,41 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
     let smoother: ScrollSmootherInstance = null
     let ctx: GSAPContext
     let cancelled = false
+    let cancelLoadWait: (() => void) | undefined
+    let cancelFrameWait: (() => void) | undefined
+
+    const shouldDisableSmoothing = () =>
+      motionQuery.matches || coarsePointerQuery.matches || mobileViewportQuery.matches
+
+    const waitForPageLoad = () => new Promise<void>((resolve) => {
+      if (document.readyState === 'complete') {
+        resolve()
+        return
+      }
+      const finish = () => {
+        window.removeEventListener('load', finish)
+        cancelLoadWait = undefined
+        resolve()
+      }
+      cancelLoadWait = finish
+      window.addEventListener('load', finish, { once: true })
+    })
+
+    const waitForFrame = () => new Promise<void>((resolve) => {
+      const frame = window.requestAnimationFrame(() => {
+        cancelFrameWait = undefined
+        resolve()
+      })
+      cancelFrameWait = () => {
+        window.cancelAnimationFrame(frame)
+        cancelFrameWait = undefined
+        resolve()
+      }
+    })
 
     const init = async () => {
       if (
-        motionQuery.matches ||
-        coarsePointerQuery.matches ||
-        mobileViewportQuery.matches ||
+        shouldDisableSmoothing() ||
         cancelled ||
         !wrapperRef.current ||
         !contentRef.current
@@ -46,6 +75,8 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
         return
       }
 
+      document.documentElement.dataset.scrollSmoother = 'pending'
+
       try {
         const [{ default: gsap }, { ScrollTrigger }, { ScrollSmoother }] = await Promise.all([
           import('gsap'),
@@ -53,10 +84,24 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
           import('gsap/ScrollSmoother')
         ])
 
+        if (cancelled) return
+        // A cold visit can finish loading images/fonts after the reader has scrolled.
+        // Let load-time ScrollTrigger refreshes finish before changing the scroller.
+        await waitForPageLoad()
+        if (cancelled) return
+        await document.fonts.ready
+        if (cancelled) return
+        await waitForFrame()
+
         if (!wrapperRef.current || !contentRef.current || cancelled) {
           return
         }
+        if (shouldDisableSmoothing()) {
+          document.documentElement.dataset.scrollSmoother = 'disabled'
+          return
+        }
 
+        const initialScrollY = window.scrollY
         gsap.registerPlugin(ScrollTrigger, ScrollSmoother)
         document.documentElement.dataset.scrollSmoother = 'enabled'
 
@@ -69,6 +114,8 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
             effects: true
           })
           smootherRef.current = smoother
+          ScrollTrigger.refresh()
+          smoother.scrollTop(Math.min(initialScrollY, ScrollTrigger.maxScroll(window)))
         })
       } catch (error) {
         console.error('Failed to initialize ScrollSmoother', error)
@@ -97,6 +144,8 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
 
     return () => {
       cancelled = true
+      cancelLoadWait?.()
+      cancelFrameWait?.()
       motionQuery.removeEventListener?.('change', handleMotionChange)
       coarsePointerQuery.removeEventListener?.('change', handleMotionChange)
       mobileViewportQuery.removeEventListener?.('change', handleMotionChange)
