@@ -39,7 +39,7 @@ export default function Footer({ postId, canEdit = false }: FooterProps) {
         </div>
 
         <div className="relative flex h-full flex-col items-center space-y-3 lg:h-0 lg:self-center lg:items-end lg:justify-self-end">
-          <div className="h-[200px] md:h-[300px] w-44 lg:w-56 absolute -top-[30px] md:-top-[130px] md:right-[4rem]">
+          <div className="h-[200px] md:h-[300px] w-44 lg:w-56 absolute -top-[30px] md:-top-[115px] md:right-[4rem]">
             <Image
               src="/images/image-30-1x-png@1x.png"
               alt="Nous"
