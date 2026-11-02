@@ -171,7 +171,7 @@ export default async function NotFound() {
 
                 return (
                   <article key={post.id} className="flex h-full flex-col">
-                    <Link href={`/articles/${post.slug}`} className="group block h-full">
+                    <Link href={`/articles/${post.slug}`} scroll={false} className="group block h-full">
                       {imageSrc ? (
                         <div className="relative aspect-[3/4] overflow-hidden bg-black/5">
                           <Image

@@ -258,7 +258,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
         return
       }
       hasNavigated = true
-      router.push(href)
+      router.push(href, { scroll: false })
     }
 
     isTransitioningRef.current = true
@@ -343,7 +343,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
     } catch (error) {
       console.error('Unable to animate guide transition', error)
       clearTransitionElements()
-      router.push(href)
+      router.push(href, { scroll: false })
     }
   }
 
@@ -597,6 +597,7 @@ export default function GuideLayoutClient({ posts, link, titreDeLaSection }: Gui
                   <div className="relative">
                     <Link
                       href={postHref}
+                      scroll={false}
                       className="block"
                       aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
                       onClick={(event) => handleSlideClick(event, post)}

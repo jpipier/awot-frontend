@@ -153,7 +153,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                       className={revealClasses(index)}
                       style={{ transitionDelay: `${(index % 4) * 140}ms` }}
                     >
-                      <Link href={postLink} className="group block">
+                      <Link href={postLink} scroll={false} className="group block">
                         {imageSrc ? (
                           <div className="relative aspect-[3/4] overflow-hidden bg-black/5">
                             <Image
@@ -173,6 +173,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                         </p>
                         <Link
                           href={postLink}
+                          scroll={false}
                           className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
                         >
                           Lire la suite
@@ -206,7 +207,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
 
                   return featureOnLeft ? (
                     <>
-                      <Link href={getPostLink(group.feature.post)} className="group block">
+                      <Link href={getPostLink(group.feature.post)} scroll={false} className="group block">
                         <div className="relative aspect-[3/4] md:aspect-[16/10] overflow-hidden bg-black/5">
                           {getArticleLandscapeImage(group.feature.post) ? (
                             <Image
@@ -232,6 +233,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                         </p>
                         <Link
                           href={getPostLink(group.feature.post)}
+                          scroll={false}
                           className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
                         >
                           Lire la suite
@@ -252,6 +254,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                         </p>
                         <Link
                           href={getPostLink(group.feature.post)}
+                          scroll={false}
                           className="mt-6 inline-flex items-center justify-center bg-black px-5 py-[0.7rem] font-montserrat text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-white hover:text-black hover:ring-1 hover:ring-black"
                         >
                           Lire la suite
@@ -259,6 +262,7 @@ export default function EditorialPostGrid({ posts, emptyMessage, revealKey }: Ed
                       </div>
                       <Link
                         href={getPostLink(group.feature.post)}
+                        scroll={false}
                         className={clsx('group block', isEighthFeature ? 'order-1 md:order-2' : '')}
                       >
                         <div className="relative aspect-[3/4] md:aspect-[16/10] overflow-hidden bg-black/5">

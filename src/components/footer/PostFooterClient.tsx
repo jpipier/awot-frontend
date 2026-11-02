@@ -142,7 +142,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
         return
       }
       hasNavigated = true
-      router.push(href)
+      router.push(href, { scroll: false })
     }
 
     isTransitioningRef.current = true
@@ -227,7 +227,7 @@ export default function PostFooterClient({ posts, isVoyage }: PostFooterClientPr
     } catch (error) {
       console.error('Unable to animate footer transition', error)
       clearTransitionElements()
-      router.push(href)
+      router.push(href, { scroll: false })
     }
   }
 

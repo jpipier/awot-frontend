@@ -183,7 +183,7 @@ export default function PortraitLayoutClient({
         return
       }
       hasNavigated = true
-      router.push(href)
+      router.push(href, { scroll: false })
     }
 
     isTransitioningRef.current = true
@@ -268,7 +268,7 @@ export default function PortraitLayoutClient({
     } catch (error) {
       console.error('Unable to animate portrait transition', error)
       clearTransitionElements()
-      router.push(href)
+      router.push(href, { scroll: false })
     }
   }
 
@@ -603,6 +603,7 @@ export default function PortraitLayoutClient({
                   <SwiperSlide key={post.slug ?? index} className="relative">
                     <Link
                       href={postHref}
+                      scroll={false}
                       className="block"
                       aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
                       onClick={(event) => handleSlideClick(event, post)}
@@ -711,6 +712,7 @@ export default function PortraitLayoutClient({
               <Link
                 key={`title-${activePost?.slug ?? currentIndex}`}
                 href={activePost?.slug ? `/articles/${activePost.slug}` : '#'}
+                scroll={false}
                 className="group"
                 onClick={(event) => handleArticleClick(event, activePost)}
                 onPointerEnter={() => {
@@ -740,6 +742,7 @@ export default function PortraitLayoutClient({
               <Link
                 key={`cta-${activePost?.slug ?? currentIndex}`}
                 href={activePost?.slug ? `/articles/${activePost.slug}` : '#'}
+                scroll={false}
                 className="text-xs uppercase tracking-[0.2em] text-current hover:italic"
                 onClick={(event) => handleArticleClick(event, activePost)}
                 onPointerEnter={() => {

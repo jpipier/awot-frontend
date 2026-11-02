@@ -169,7 +169,7 @@ export default function SliderLayoutClient({ slides, siteTitle, siteDescription 
             return (
               <SwiperSlide key={index}>
                 {isInternal ? (
-                  <Link href={slide.slug.url}>{content}</Link>
+                  <Link href={slide.slug.url} scroll={!slide.slug.url.startsWith('/articles/')}>{content}</Link>
                 ) : (
                   <a href={slide.slug.url} target="_blank" rel="noreferrer">
                     {content}
