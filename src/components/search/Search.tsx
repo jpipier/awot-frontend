@@ -191,7 +191,7 @@ export default function Search({ initialQuery = '', onNavigate, variant = 'defau
     fetchSuggestions.cancel()
     activeRequestControllerRef.current?.abort()
     suggestionsRequestIndexRef.current += 1
-    router.push(`/articles/${post.slug}`)
+    router.push(`/articles/${post.slug}`, { scroll: false })
     setSuggestions([])
     setIsLoadingSuggestions(false)
     setHasSearchedSuggestions(false)

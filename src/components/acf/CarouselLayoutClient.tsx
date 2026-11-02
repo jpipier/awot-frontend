@@ -277,7 +277,7 @@ export default function CarouselLayoutClient({
         return
       }
       hasNavigated = true
-      router.push(href)
+      router.push(href, { scroll: false })
     }
 
     isTransitioningRef.current = true
@@ -362,7 +362,7 @@ export default function CarouselLayoutClient({
     } catch (error) {
       console.error('Unable to animate carousel transition', error)
       clearTransitionElements()
-      router.push(href)
+      router.push(href, { scroll: false })
     }
   }
 
@@ -847,6 +847,7 @@ export default function CarouselLayoutClient({
                   >
                     <Link
                       href={`/articles/${post.slug}`}
+                      scroll={false}
                       className="block"
                       aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
                       onClick={(event) => handleSlideClick(event, post)}

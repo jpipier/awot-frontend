@@ -178,6 +178,8 @@ function ScrollSmootherInner({ children }: PropsWithChildren) {
 
     previousPathnameRef.current = currentPathname
 
+    // Article navigation uses scroll:false so Next cannot leave a pending scroll
+    // that a later recommendation prefetch would execute during reading.
     const frame = window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
       smootherRef.current?.scrollTop(0)

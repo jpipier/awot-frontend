@@ -446,7 +446,7 @@ export default function GuideVoyageLayoutClient({
         return
       }
       hasNavigated = true
-      router.push(href)
+      router.push(href, { scroll: false })
     }
 
     isTransitioningRef.current = true
@@ -531,7 +531,7 @@ export default function GuideVoyageLayoutClient({
     } catch (error) {
       console.error('Unable to animate GuideVoyage transition', error)
       clearTransitionElements()
-      router.push(href)
+      router.push(href, { scroll: false })
     }
   }
 
@@ -974,6 +974,7 @@ export default function GuideVoyageLayoutClient({
         {current?.slug ? (
           <Link
             href={`/articles/${current.slug}`}
+            scroll={false}
             className="text-xs uppercase tracking-[0.2em] text-current hover:italic"
           >
             Lire la suite
@@ -1076,6 +1077,7 @@ export default function GuideVoyageLayoutClient({
                 <AnimatedCarouselItem className="group relative" delay={itemDelay} forceVisible={isCarouselVisible}>
                   <Link
                     href={`/articles/${post.slug}`}
+                    scroll={false}
                     className="block"
                     aria-label={`Voir l'article ${toAccessibleLabel(post.title)}`}
                     onClick={(event) => handleSlideClick(event, post)}
