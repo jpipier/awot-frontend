@@ -166,6 +166,7 @@ a {
 }
 
 /* ScrollSmoother owns the animation; native smoothing also animates its scroll resets. */
+html[data-scroll-smoother='pending'],
 html[data-scroll-smoother='enabled'] {
   scroll-behavior: auto !important;
 }
